@@ -1,12 +1,8 @@
 http://www.tcpschool.com/html/html_intro_basicStructure
-https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/Dealing_with_files
+https://developer.mozilla.org/en-US/docs/Learn
+HTML5
+https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5
 
-HTML : HyperText Markup Language
-Tags : start/end tag(<p>...</p>)와 empty tag(<br>)로 나뉨
-웹 표준 : html, css, xml, xhtml...
-	-> W3C(World Wide Web Consortium)에서 관리
-
-<!DOCTYPE html> : doc type 명시
 mozilla mdn web docs 다 보고 tcpschool가는 구조로 가자(tcpschool은 tag사용, 문법, 기능적인 것들 위주, mozilla는 개념 위주)
 이틀에 한 module씩!!
 27모듈 -> 54일 3/19 끝날 예정
@@ -32,7 +28,7 @@ web-project -> test-site -> (`Index.html`, `/images`, `/styles`, `/scripts`)
 	- Attribute rules
 		- separator : `' '`
 		- assignment : `=`
-		- value format : `"VALUE"`  
+		- value format : `"VALUE"` or `'VALUE'`  
 		->`att1="val1" att2="val2"`
 
 - Nesting : to put elements inside other elements
@@ -180,11 +176,12 @@ web-project -> test-site -> (`Index.html`, `/images`, `/styles`, `/scripts`)
 	- to apply CSS, JavaScript effectively
 
 - list : ok to nest one list inside another one
+	- CSS 스타일로 마커 변경 가능
 
 - Emphasis and importance
 	- emphasis : `<em></em>`
 	- strong importance : `<strong></strong>`
-	- presentational elements : `<b></b>`, `<i></i>`, `<u></u>`
+	- presentational elements : `<b></b>`, `<i></i>`, `<u></u>`, `<mark></mark>`
 		- to write bold, italics, underlined before CSS is fully supported
 		- lang과 같은 attribute 사용 가능 -> semantically appropriate하게 사용해야함  
 		`The menu was a sea of exotic words like <i lang="uk-latn">vatrushka</i>, <i lang="id">nasi goreng</i> and <i lang="fr">soupe à l'oignon</i>.`  
@@ -323,7 +320,7 @@ asd
 	`<p>If x<sup>2</sup> is 9, x must equal 3 or -3.</p>`
 
 - Representing computer code
-	- `<pre>` : For retaining whitespace
+	- `<pre>` : For retaining whitespace(preformatted text)
 	- `<code>` : For marking up generic pieces of computer code
 	- `<var>` : For specially marking up variable names
 	- `<kbd>` : For marking up keyboard and any other types of input entered
@@ -409,6 +406,7 @@ asd
 			- `<aside>`가 아님(현재 페이지의 main content와 관련되어있지 않고 어느 페이지에서든 볼 수 있어야함, main content가 아니기 때문에 `<section>`에 맞지도 않음)
 			- heading을 넣어서 accessibility를 높일 수도 있음
 			- Try to reduce usage to the minimum
+			- block level element의 경우 background att로 배경 설정 가능
 	- Line breaks and horizontal rules
 		- `<br>` : creates a line breaks
 		- `<hr>` : creates a horizontal rule denotes a thematic change
@@ -464,6 +462,17 @@ asd
 		-> 이미지 비율을 바꿔야할 경우 CSS를 사용하는게 나음
 	- `title`로 tooltip을 추가할 수 있지만, hovering with a mouse가 제한된 유저들(터치스크린 등)은 접근성이 떨어짐  
 	-> 차라리 main article text에 포함시키는게 나음
+	- image map  
+	```html
+	<img src="/examples/images/img_imagemap.jpg" alt="진실혹은거짓" usemap="#vending" style="width:320px; height:240px" />
+	<map name="vending">
+		<area shape="rect" coords="90,60,180,130" alt="거짓"
+			href="https://ko.wikipedia.org/wiki/%EA%B1%B0%EC%A7%93%EB%A7%90">
+		<area shape="rect" coords="210,200,70,130" alt="진실"
+			href="https://ko.wikipedia.org/wiki/%EC%A7%84%EC%8B%A4">
+	</map>
+	```
+		- `<map>`은 하나 이상의 <area>를 가짐, <area>가 버튼과 같은 역할
 
 - `<figure>`, `<figcaption>` : Annotating images
 	- provide a semantic container for figures  
@@ -568,6 +577,8 @@ asd
 		- can be better achieved using `border : none;` in CSS
 	- `sandbox` : requests heightened security settings(need browsers > IE 10)  
 	※ It's a good idea to set the iframe's `src` attribute with JavaScript after the main content is doen with loading. This makes your page usable sooner and decreases your official page load time(an important SEO metric)
+	- iframe의 id를 선언하고 링크에서 target="ID"로 사용 가능(링크된 문서가 그 frame에서 열림)
+		- HTML5 이전에는 `frameset`이 있었지만 이젠 권고하지 않음
 
 - Security concerns
 	- clickjacking, Intellectual Property issues, ...  
@@ -605,7 +616,7 @@ asd
 	- Inkscape, Illustrator와 같은 vector graphics editor 사용
 	- additional advantages
 		- text in vector images는 accessible
-		- SVG의 each component는 CSS나 JavaScript로 styleing 가능
+		- SVG의 each component는 CSS나 JavaScript로 styling 가능
 	- disadvantages
 		- can getn complicated very quickly, complex SVGs take time to be displayed
 		- can be harder to create than raster images
@@ -760,6 +771,7 @@ asd
 	- If we wanted to apply the styling information to both columns, we could just include one `<col>` element with a span attribute on it like `<col style="background-color: yellow" span="2">`
 	- `style`에서 `border`의 굵기를 1px로 설정하면 안보임, 최소 2px, solid : 실선  
 	e.g. `style="border: 2px solid #000000;"`
+	- `table`, `td` 모두 border설정해서 테두리가 겹칠 경우 `border-collapse="collapse"` 넣어서 하나 없앨 수 있음
 
 ## HTML table advanced features and accessibility
 - Adding a caption to table with `<caption>`
@@ -799,4 +811,86 @@ asd
 		- 헤더인 `<th>`에 `id="asdf"` attribute 추가, 그 헤더에 속하는 `<td>`에 `headers="asdf"` 추가
 		- 여러 header에 속할 수도 있는데 이때 id는 space로 구분
 	- usually `scope` approach is enough for most tables
-	
+
+
+# HTML 입력양식
+- `<form>`
+	- 사용자로부터 입력을 받아서 서버로 보낼 때 사용  
+	```html
+	<form action="form-handler URL" method="get|post">
+	...
+	</form>
+	```
+	- `action`
+		- value : form-handler(입력받은 데이터를 처리할 서버 상의 스크립트 파일)의 URL
+	- `method`
+		- value : `get` or `post`
+		- `get` : URL에 data를 추가하여 전달하는 방식, 주소에 데이터가 그대로 나타남(쿼리 등의 크기가 작은 중요도가 낮은 정보를 보낼 때 사용)
+		- `post` : data를 별도로 첨부해서 보냄(데이터 크기 제한 없고 보안, 활용도가 `get`보다 높음)
+	- content : flow content(`<form>` 제외)
+		- `<input>`, `<select>`, `<textarea>`, `<button>` 등
+	- 접근성을 위해서 각 element만들 때 `id` 추가하고 `<label for="ID">...</label>` 이용하기!
+
+- `<input>`
+	- `type` : 입력받을 데이터의 종류
+		- `type`에 따라 att가 추가될 수 있음(아래는 여러 가지 type들)
+		- text : `<input type="text" name="search">`
+		- password : `<input type="password" name="password">`
+		- radio button : `<input type="radio" name="lecture" value="html" checked> HTML`
+			- 같은 그룹은 같은 `name`을 가지고 있어야함
+			- `checked`로 미리 선택되어있는 항목 지정
+		- checkbox : `<input type="checkbox" name="lecture" value="cpp" disabled>`
+			- radio button과 비슷
+		- file : `<input type="file" name="upload_file" accept="image/*">`
+			- `accept`를 이용해서 파일 종류/확장자 명시
+		- submit : `<input type="submit" value="전송">`
+			- form-handler로 데이터를 전송하는 버튼
+	- `name` : 서버로 데이터가 전송될 때 데이터의 label
+	- `value` : input field가 있는 type에 대해 initial value 설정
+	- `disabled` : input field를 사용할 수 없도록 설정
+	- `readonly` : 사용자가 input field를 볼 수는 있지만 수정 불가능, submit을 누르면 `disabled`와는 다르게 initial value가 서버로 전송됨
+	- `maxlength` : input field에 입력할 수 있는 문자의 max length 설정(e.g., `maxlength="10"`)
+	- `size` : input field의 크기 설정(`size="30"`)
+
+- drop-down list(`<select>`)
+	- `selected`로 미리 선택되어있는 항목 지정  
+	```html
+	<select name="fruit">
+		<option value="apple"> 사과
+		<option value="orange" selected> 귤
+		<option value="strawberry"> 딸기
+		<option value="peach"> 복숭아
+	</select>
+	```
+
+- textarea(`<textarea>`)
+	- `rows`, `cols`로 크기 설정 가능  
+	```html
+	<textarea name="message" rows="5" cols="30">
+    	여기에 적으세요.
+	</textarea>
+	```
+
+- button(`<button>`)
+	- `onclick`으로 클릭시 작업 설정  
+	```html
+	<button type="button" onclick="alert('버튼을 클릭하셨군요!')">
+    	버튼을 눌러주세요.
+	</button>
+	```
+
+- `<fieldset>`
+	- `<form>`안에 여러 type의 데이터를 입력받을 때 이것들을 하나로 묶어주는 element
+	- `<legend>`로 자신에 대한 설명 표시  
+	```html
+	<form action="/examples/media/request.php">
+		<fieldset>
+			<legend>입력 양식</legend>
+			이름 : <br>
+			<input type="text" name="username"><br>
+			이메일 : <br>
+			<input type="text" name="email"><br><br>
+			<input type="submit" value="전송">
+		</fieldset>
+	</form>
+	```
