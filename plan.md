@@ -13,4 +13,6 @@ tcpschool은 html, html5(혼합된것)
 mdn쭉 따라가면서 한 topic(html, css, js, ...) 끝날때마다 tcpshcool로 한번더 보기 + 한꺼번에 블로그 포스트(포스트는 한번에 한 module씩)
 
 
-html note index 고칠 때 알쓸신잡에 asd 지우기
+CSSnote 220라인부터 잘 스타일 잘 적용되나 보기(h3은 헤더처럼 보여야하고 h4는 그냥 텍스트 강조처럼 밑줄이 없어야함)
+
+궁금한거 풀리면 232라인 내용에 적기
