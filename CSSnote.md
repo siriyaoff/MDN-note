@@ -388,3 +388,221 @@ A Diagram of the process:
 A DOM is a **tree-like structure**. Each element, attribute, and piece of text in the markup language becomes a DOM node in the tree structure. The nodes are defined by their relationship to other DOM nodes. It is **where CSS and the document's content meet up**.
 
 ### A real DOM representation
+**Example**:  
+HTML code:  
+```html
+<p>
+  Let's use:
+  <span>Cascading</span>
+  <span>Style</span>
+  <span>Sheets</span>
+</p>
+```
+
+converted DOM:  
+```
+P
+├─ "Let's use:"
+├─ SPAN
+|  └─ "Cascading"
+├─ SPAN
+|  └─ "Style"
+└─ SPAN
+   └─ "Sheets"
+```
+
+rendered outputs:
+> Let's use: Cascading Style Sheets
+
+### Applying CSS to the DOM
+- After a DOM created, the browser will parse the CSS, sort it, apply the rules, and paint the final visual representation to screen.
+
+### What happens if a browser encounters CSS it doesn't understand?
+- Just moves on to the next bit of CSS
+- cascade rule을 이용해서 새로운 기능을 지원하지 않는 browser에 대해 alternatives를 제공할 수 있음
+
+e.g.  
+```css
+.box {
+  width: 500px;
+  width: calc(100%-50px);
+}
+```
+
+
+# CSS building blocks
+## Cascade and inheritance
+### Conflicting rules
+#### The cascade
+Stylesheets **cascade**. The order of CSS rules matter. When two rules have equal specificity, the last one will be used.  
+e.g.  
+```css
+h1 { 
+    color: red; 
+}
+h1 { 
+    color: blue; 
+}
+```  
+-> `<h1>` will be colored blue
+
+#### Specificity
+If multiple rules have **different selectors but still select the same element**, the browser decides which rule to apply by the **specificity**. It is basically a measure of how specific a selector's selection will be:
+- An element selector is less specific
+- A class selector is more specific
+
+e.g.  
+```css
+.main-heading { 
+    color: red; 
+}
+        
+h1 { 
+    color: blue; 
+}
+```  
+-> `<h1>` with class `.main-heading` will be colored red.
+
+#### Inheritance
+Some CSS property values in the parent elements are inherited by their child elements, and some aren't. For example, `color` and `font-family` inherit, but `width` does not inherit.
+
+### Understanding how the concepts work together
+These three concepts(cascade, specificity, and inheritance) together control which CSS applies to what element
+
+### Understanding inheritance
+**Example**  
+CSS:  
+```css
+.main {
+    color: rebeccapurple;
+    border: 2px solid #ccc;
+    padding: 1em;
+}
+
+.special {
+    color: black;
+    font-weight: bold;
+}
+```
+
+HTML:  
+```html
+<ul class="main">
+    <li>Item One</li>
+    <li>Item Two
+        <ul>
+            <li>2.1</li>
+            <li>2.2</li>
+        </ul>
+    </li>
+    <li>Item Three
+        <ul class="special">
+            <li>3.1
+                <ul>
+                    <li>3.1.1</li>
+                    <li>3.1.2</li>
+                </ul>
+            </li>
+            <li>3.2</li>
+        </ul>
+    </li>
+</ul>
+```
+
+Result:  
+![Inheritance ex]()
+- We have given the outer `<ul>`(with class `main`) a border, padding, and font color. The color has applied to the direct children, but also the indirect children. Same for another class `special`. But things like widths, margins, padding, and borders do not inherit.(Probably not an effect we would ever want!)
+- Which properties are inherited by default and which aren't is largely **down to common sense.
+
+#### Controlling inheritance
+There are four special universal property values for controlling inheritance. Every CSS property accepts these values.
+- `inherit`
+	- sets the property value to be the same as that of its parent element
+	- "turns on inheritance"
+- `initial`
+	- sets the property value to the initial value of that property
+- `unset`
+	- resets the property to its natural value(If the property is naturally inherited it acs like `inherit`, otherwise it acts like `initial`)
+	- property가 `color`같은거면 `inherit`, `width`같은거면 `initial`과 같이 취급, shorthand로 다 같이 정의할 때 omitting으로 문제 일어나지 않도록 쓰는 용도인듯
+- `revert` : newer value, limited browser support
+
+**Example**  
+CSS:  
+```css
+body {
+    color: green;
+}
+          
+.my-class-1 a {
+    color: inherit;
+}
+          
+.my-class-2 a {
+    color: initial;
+}
+          
+.my-class-3 a {
+    color: unset;
+}
+```
+
+HTML:  
+```html
+<ul>
+    <li>Default <a href="#">link</a> color</li>
+    <li class="my-class-1">Inherit the <a href="#">link</a> color</li>
+    <li class="my-class-2">Reset the <a href="#">link</a> color</li>
+    <li class="my-class-3">Unset the <a href="#">link</a> color</li>
+</ul>
+```
+
+Result:  
+![universal property ex]()
+- `a { color: red;}`를 추가하면 맨 위 링크만 빨간색으로 변함(다른 것들은 `' '` combinator, class selector로 specificity가 더 높은 rule이 적용되어있기 때문)
+
+#### Resetting all property values
+The CSS shorthand property `all` represents all properties. So we can use it usefully when we debug. If we apply `all: unset;` declaration, all rules applied will be initialized except the inherited properties.
+
+**Example**
+CSS:  
+```css
+blockquote {
+    background-color: red;
+    border: 2px solid green;
+}
+        
+.fix-this {
+    all: unset;
+}
+```
+
+HTML:  
+```html
+<blockquote>
+	<p>This blockquote is styled</p>
+</blockquote>
+
+<blockquote class="fix-this">
+	<p>This blockquote is not styled</p>
+</blockquote>
+```
+
+Result:  
+![all property ex]()
+- `all`도 다른 property와 같이 conflicting rule에 의해 처리됨
+
+### Understanding the cascade
+There are three factors to consider. Later ones overrule earlier ones:
+1. Source order
+2. Specificity
+3. Importance
+
+#### Source order
+- Exactly the same weight -> the last one wins.
+
+#### Specificity
+- More specific rule is chosen by the browser.(Specificity > Source order)
+- A class selector has more weight than an elemen selector -> class selector rules will override the element selector rules.
+	- overwrite only the same properties, not the entire rules!
+- To avoid repetition, define generic styles for the basic elements then create classes for specific cases.
+
