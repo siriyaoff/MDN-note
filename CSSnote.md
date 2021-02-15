@@ -510,7 +510,7 @@ HTML:
 ```
 
 Result:  
-![Inheritance ex]()
+![Inheritance ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-inheritance-ex1.PNG?raw=true)
 - We have given the outer `<ul>`(with class `main`) a border, padding, and font color. The color has applied to the direct children, but also the indirect children. Same for another class `special`. But things like widths, margins, padding, and borders do not inherit.(Probably not an effect we would ever want!)
 - Which properties are inherited by default and which aren't is largely **down to common sense.
 
@@ -557,7 +557,7 @@ HTML:
 ```
 
 Result:  
-![universal property ex]()
+![universal property ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-universal-property-ex1.PNG?raw=true)
 - `a { color: red;}`를 추가하면 맨 위 링크만 빨간색으로 변함(다른 것들은 `' '` combinator, class selector로 specificity가 더 높은 rule이 적용되어있기 때문)
 
 #### Resetting all property values
@@ -588,8 +588,9 @@ HTML:
 ```
 
 Result:  
-![all property ex]()
+![all property ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-all-property-ex1.PNG?raw=true)
 - `all`도 다른 property와 같이 conflicting rule에 의해 처리됨
+- `all`은 모든 property를 포함하기 때문에 padding과 같은 ruleset으로 정의하지 않았지만 기본적으로 정의해주는 속성(padding, margin 등)도 같이 `unset`됨
 
 ### Understanding the cascade
 There are three factors to consider. Later ones overrule earlier ones:
@@ -606,3 +607,108 @@ There are three factors to consider. Later ones overrule earlier ones:
 	- overwrite only the same properties, not the entire rules!
 - To avoid repetition, define generic styles for the basic elements then create classes for specific cases.
 
+**How to calculate specificity**  
+Essentially a value in points is awarded to different types of selectors, and adding these up gives you the weight of that particular selector, which can then be assessed against other potential matches.  
+The amount of specificity is measured using four different values(thousands, hundreds, tens, and ones): 
+1. **Thousands** : 1 if declaration is inside a `sylte` attribute(= **inline styles**) -> No selectors, so always specificity=1000
+2. **Hundreds** : 1 for each **ID selector** contained inside the overall selector
+3. **Tens** : 1 for each **class selector**, **attribute selector**, or **pseudo-class** contained inside the overall selector
+4. **Ones** : 1 for each **element selector** or **pseudo-element** contained inside the overall selector
+
+**Note**: The universal selector(`*`), combinators(`+`, `>`, `~`, `' '`), and negation pseudo-class(`:not`) have no effect on specificity
+
+**Example**  
+```css
+/* specificity: 0101 */
+#outer a {
+    background-color: red;
+}
+        
+/* specificity: 0201 */
+#outer #inner a {
+    background-color: blue;
+}
+
+/* specificity: 0104 */
+#outer div ul li a {
+    color: yellow;
+}
+
+/* specificity: 0113 */
+#outer div ul .nav a {
+    color: white;
+}
+
+/* specificity: 0024 */
+div div li:nth-child(2) a:hover {
+    border: 10px solid black;
+}
+
+/* specificity: 0023 */
+div li:nth-child(2) a:hover {
+    border: 10px dashed black;
+}
+
+/* specificity: 0033 */
+div div .nav:nth-child(2) a:hover {
+    border: 10px double black;
+}
+```
+- A 11 class selectors combined would not overwrite the rules of one id selector! This is only an approximate example for ease of understanding.
+- 하지만 113, 112 순으로 rule이 선언되어 있으면 112는 적용이 안됨.(자릿수가 이해를 돕기 위한 개념이라는 것이지 각 selector의 정량적 차이는 specificity 계산에 적용이 됨!!!)
+
+#### !important
+`!important` makes a declaration the most specific thing.
+
+**Example**  
+CSS:  
+```css
+
+#winning {
+    background-color: red;
+    border: 1px solid black;
+}
+    
+.better {
+    background-color: gray;
+    border: none !important;
+}
+    
+p {
+    background-color: blue;
+    color: white;
+    padding: 5px;
+}           
+```
+
+HTML:  
+```html
+<p class="better">This is a paragraph.</p>
+<p class="better" id="winning">One selector to rule them all!</p>
+```
+
+Result:  
+![css important ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-important-ex1.PNG?raw=true)
+
+- id selector가 두 번째 p에 적용되어 원래는 테두리가 있어야 하지만 class selector의 속성을 따름
+	- class selector의 border declaration에 `!important`가 있기 때문에 specificity가 가장 높게 설정되었기 때문에 overriding되지 않음
+- `!important`처리 되어있는 declaration을 overriding하는 방법
+	- 같은 specificity를 가진, 뒤에 있는 selector의 같은 att declaration에 `!important`를 적용(source order를 이용)
+	- 더 높은 specificity를 가진 selector의 같은 att declaration에 `!important` 적용
+
+※ Don't use it if you can avoid it
+
+### The effect of CSS location
+The importance of a CSS declaration depends on what stylesheet it is specified in. It is possible for users to set custom stylesheets to override the developer's styles.
+
+### To summarize
+Conflicting declarations will be applied in the following order, with later ones overriding earlier ones:
+1. Declarations in user agent style sheets (e.g. the browser's default styles, used when no other styling is set)
+2. Normal declarations in user style sheets (custom styles set by a user)
+3. Normal declarations in author style sheets (these are the styles set by us, the web developers)
+4. Important declarations in author style sheets
+5. Important declarations in user style sheets
+
+Sometimes users have to override web developer styles. This can be achieved by using `!important` in their rules.
+
+## CSS selectors
