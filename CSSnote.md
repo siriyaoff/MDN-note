@@ -712,3 +712,84 @@ Conflicting declarations will be applied in the following order, with later ones
 Sometimes users have to override web developer styles. This can be achieved by using `!important` in their rules.
 
 ## CSS selectors
+### What is a selector?
+- The first part of a CSS Rule
+- A pattern of elements and other terms tell the browser which HTML elements should be selected
+- The selected element(s) are referred to as the *subject of the selector*
+- Selectors are defined in the CSS Selectors specification(The majority of selectors are defined in the Level 3 Selectors specification, which is a mature specification)
+
+### Selector lists
+The individual selectors can be combined into a *selector list* so that the rule is applied to all of the individual selectors. (By adding a comma)
+- White space is valid before or after the comma
+- If any selector in the group is invalid, the whole rule will be ignored!
+
+e.g.  
+```css
+h1,
+.special {
+  color: blue;
+}
+```
+
+### Types of selectors
+There are a few different groupings of selectors.
+
+#### Type, class, and ID selectors
+This group includes selectors that target an HTML element, a class(`.`) or an ID(`#`).  
+```css
+h1 {}
+.box {}
+#unique {}
+```
+
+**The universal selector**  
+The universal selector(`*`) selects everything in the document(or inside the parent element). Since the universal selector makes global changes, we use it for very specific situations, such as making selectors easier to read(`article :first-child` to `article *:first-child`)
+
+**2 ways to use class selector**
+- Target classes on particular elements : `span.highlight`
+- Target an element has more than one class applied : `.notebox.warning`
+
+**ID selector**
+- Target an ID on particular elements : `h1#heading`
+- Don't use the same ID multiple times in a document!(causes strange behavior)
+- Use in situations like you don't have access to the markup and cannot edit it
+
+#### Attribute selectors
+The attriute selectors(`[]`) select **certain attribute(or with a particular value) on an element**:  
+```css
+a[title] {}
+a[href="https://example.com"] {}
+```
+
+#### Pseudo-classes and pseudo-elements
+This group of selectors includes pseudo-classes, pseudo-elements.
+
+The Pseudo-classes(`:`) style **certain states of an element**.  
+**Example**  
+The `:hover` pseudo-class for example selects an element only when it is being hovered over by the mouse pointer:  
+```css
+
+a:hover {}
+
+```
+
+The pseudo-elements(`::`) select a **certain part of an element** rather than the element itself.  
+**Example**  
+`::first-line` always selects the first line of text inside an element (a `<p>` in the below case), acting as if a `<span>` was wrapped around the first formatted line and then selected.  
+```css
+
+p::first-line {}
+
+```
+
+#### Combinators
+The Combinators combine other selectors in order to target elements within our documents.  
+**Example**  
+The following selects paragraphs that are direct children of `<article>` elements using the child combinator(`>`):  
+```css
+
+article > p {}
+
+```  
+※ Descendant combinator `' '` selects all the descendants while child combinator(`>`) selects direct children.
+
