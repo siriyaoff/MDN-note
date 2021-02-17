@@ -731,10 +731,10 @@ h1,
 }
 ```
 
-### Types of selectors
-There are a few different groupings of selectors.
+※ Types of selectors  
+There are a few different groupings of selectors.(about 4 groups)
 
-#### Type, class, and ID selectors
+### Type, class, and ID selectors
 This group includes selectors that target an HTML element, a class(`.`) or an ID(`#`).  
 ```css
 h1 {}
@@ -742,26 +742,57 @@ h1 {}
 #unique {}
 ```
 
-**The universal selector**  
+#### Type selectors
+- also known as *tag name selector* or *element selector*  
+e.g. `span { color: rebeccapurple; }`
+
+#### The universal selector `*`
 The universal selector(`*`) selects everything in the document(or inside the parent element). Since the universal selector makes global changes, we use it for very specific situations, such as making selectors easier to read(`article :first-child` to `article *:first-child`)
 
+#### Class selectors `.`
 **2 ways to use class selector**
 - Target classes on particular elements : `span.highlight`
 - Target an element has more than one class applied : `.notebox.warning`
 
-**ID selector**
+#### ID selector `#`
 - Target an ID on particular elements : `h1#heading`
 - Don't use the same ID multiple times in a document!(causes strange behavior)
 - Use in situations like you don't have access to the markup and cannot edit it
 
-#### Attribute selectors
-The attriute selectors(`[]`) select **certain attribute(or with a particular value) on an element**:  
+### Attribute selectors
+The attriute selectors select **certain attribute(or with a particular value) on an element**:  
 ```css
 a[title] {}
 a[href="https://example.com"] {}
 ```
 
-#### Pseudo-classes and pseudo-elements
+#### Presence and value selectors
+|Selector|Example|Description|
+|:---|:---|:---|
+|[*attr*]|`a[title]`|elements with an *attr* attribute|
+|[*attr*=*value*]|`a[href="https://example.com"]`|elements with an *attr* attribute whose value is exactly *value*|
+|[*attr*~=*value*]|`p[class~="special"]`|elements with an *attr* attribute whose value is exactly *value*, or contains *value* in its (space separated)list of values|
+|[*attr*|=*value*]|`div[lang|="zh"]`|elements with an *attr* attribute whose value is exactly *value* or begins with *value* immediately followed by a hyphen(`-`)|
+
+- `div[lang|="zh"]`는 `<div lang="zh-*">`를 선택함
+- [*attr*=*value*]는 값이 정확히 *value*인것만(다른 값이 더 있을 경우 선택하지 않음)  
+[*attr*~=*value*]는 값에 *value*가 포함된 것(whitespace-separated list에)  
+즉, [class="a"]는 class="a b"인 element를 포함하지 않음!!
+- [class~="a"]가 class="ab"인 element를 포함하지 않음!!(list에 원소가 ab이기 때문)
+
+#### Substring matching selectors
+|Selector|Example|Description|
+|:---|:---|:---|
+|[*attr*^=*value*]|`li[class^="box-"]`|elements with an *attr* attribute whose value begins with *value*|
+|[*attr*$=*value*]|`li[class$="-box"]`|elements with an *attr* attribute whose value ends with *value*|
+|[*attr**=*value*]|`li[class*="box"]`|elements with an *attr* attribute whose value contains *value* anywhere within the string|
+
+#### Case-sensitivity
+- Add `i` before the closing bracket(`]`) to match attribute values case-insensitively!  
+e.g. `li[class^="a" i]` matches `<li class="Ab">`
+- `s` for forcing case-sensitive, but not very useful, less supported
+
+### Pseudo-classes and pseudo-elements
 This group of selectors includes pseudo-classes, pseudo-elements.
 
 The Pseudo-classes(`:`) style **certain states of an element**.  
