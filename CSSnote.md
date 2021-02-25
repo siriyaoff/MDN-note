@@ -795,27 +795,57 @@ e.g. `li[class^="a" i]` matches `<li class="Ab">`
 ### Pseudo-classes and pseudo-elements
 This group of selectors includes pseudo-classes, pseudo-elements.
 
-The Pseudo-classes(`:`) style **certain states of an element**.  
+#### Pseudo-classes
+Pseudo-classes is a selector that style **certain states of an element**.  
+Pseudo-classes are keywords that start with a colon.
+
+**Simple pseudo-classes**  
+They tend to act as if you had applied a class to some part of your document, often helping you cut down on excess classes in your markup, and giving you more flexible, maintainable code.
+- `:first-child`, `:last-child`, `:only-child`, `:invalid` (`<input>`, `<form>`에서 입력이 invalid할 때), ...
+- `article p:first-child` selects `<p>` which is first child of `<article>`
+- `:first-child` is equivalent to `*:first-child`
+
+**User-action pseudo classes**(dynamic pseudo-classes)  
+They tend to act as if a class had been added to the element when the user interacts with it.
+- `:hover`, `:focus`, `:link`, ...
+
+#### Pseudo-elements
+Pseudo-elements(`::`) select a **certain part of an element** rather than the element itself.  
+Pseudo-elements behave in a similar way, however they act as if you had added a whole new HTML element into the markup, rather than applying a class to existing elements.  
+Pseudo-elements start with a double colon `::`.  
+Some early pseudo-elements used the single colon syntax, modern browsers support single- or double-colon syntax for backwards compatibility.
+- `::first-line`
+- `article p::first-line` selects the first line of `<p>` which is nested in `<article>`
+
+#### Combining pseudo-classes and pseudo-elements
+- `article p:first-child::first-line`
+
+#### Generating content with ::before and ::after
+These(`::before`, `::after`) are used along with the `content` property to insert content into your document using CSS. This use is referred to as "**Generated Content**" in CSS.
+
 **Example**  
-The `:hover` pseudo-class for example selects an element only when it is being hovered over by the mouse pointer:  
 ```css
-
-a:hover {}
-
+.box::before {
+  content: "This should show before the other content.";
+}
 ```
+- `.box` 클래스가 적용된 element 전에 `content`의 property value가 표시됨
+- ""을 `content`의 value로 넣고 `display: block;`을 적용해서 도형같은걸 넣을 수도 있음
+- 텍스트를 value로 넣어도 브라우저에서 그 텍스트 선택 불가(~~가끔 리스트 마커가 드래그되지 않을 때가 있었는데 이렇게 추가한듯~~ 리스트 마커는 `li`의 `list-style-type`으로 조정!)
 
-The pseudo-elements(`::`) select a **certain part of an element** rather than the element itself.  
+### Combinators
+The combinators combine other selectors in order to target elements within our documents.
+
+#### Descendant combinator
+The descendant combinator(`' '`) combines two selectors(`A B`) such that `B` is selected if `B` has `A` as its ancestor.  
+Selectors that utilize a descendant combinator are called *descendant selectors*.
+
 **Example**  
-`::first-line` always selects the first line of text inside an element (a `<p>` in the below case), acting as if a `<span>` was wrapped around the first formatted line and then selected.  
-```css
+`body article p` selects `<p>` inside `<article>` which is inside `<body>`.
 
-p::first-line {}
-
-```
-
-#### Combinators
-The Combinators combine other selectors in order to target elements within our documents.  
-**Example**  
+#### Child combinator
+The child combinator(`>`) combines two selectors(`A < B`) such that `B` is selected if `B` is a direct children of `A`.  
+Descendant elements further down don't match.  
 The following selects paragraphs that are direct children of `<article>` elements using the child combinator(`>`):  
 ```css
 
@@ -824,3 +854,23 @@ article > p {}
 ```  
 ※ Descendant combinator `' '` selects all the descendants while child combinator(`>`) selects direct children.
 
+#### Adjacent sibling combinator
+The adjacent sibling selector(+) is placed between two CSS selectors(`A + B`). It matches only those elements matched by the `B` that are the next sibling element of the `A`.  
+A common use case is to do something with a paragraph that follows a heading, such as *abstract*.
+
+**Example**  
+`h1 + p` selects paragraphs after `<h1>`
+
+#### General sibling combinator
+The general sibling combinator(`~`) combines two selectors(`A ~ B`). It selects all the B that are siblings of A, even not directly adjacent.
+
+**Example**  
+`p ~ img` selects all `<img>` elements that come anywhere **after** `<p>` elements.
+
+#### Using combinators
+> Take care however when creating big lists of selectors that select very specific parts of your document. It will be hard to reuse the CSS rules as you have made the selector very specific to the location of that element in the markup.
+>
+> It is often better to create a simple class and apply that to the element in question. That said, your knowledge of combinators will come in very useful if you need to get to something in your document and are unable to access the HTML, perhaps due to it being generated by a CMS.
+
+## The box model
+### Block and inline boxes
