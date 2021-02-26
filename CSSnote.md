@@ -772,7 +772,7 @@ a[href="https://example.com"] {}
 |[*attr*]|`a[title]`|elements with an *attr* attribute|
 |[*attr*=*value*]|`a[href="https://example.com"]`|elements with an *attr* attribute whose value is exactly *value*|
 |[*attr*~=*value*]|`p[class~="special"]`|elements with an *attr* attribute whose value is exactly *value*, or contains *value* in its (space separated)list of values|
-|[*attr*|=*value*]|`div[lang|="zh"]`|elements with an *attr* attribute whose value is exactly *value* or begins with *value* immediately followed by a hyphen(`-`)|
+|[*attr*&#124;=*value*]|`div[lang|="zh"]`|elements with an *attr* attribute whose value is exactly *value* or begins with *value* immediately followed by a hyphen(`-`)|
 
 - `div[lang|="zh"]`는 `<div lang="zh-*">`를 선택함
 - [*attr*=*value*]는 값이 정확히 *value*인것만(다른 값이 더 있을 경우 선택하지 않음)  
@@ -785,7 +785,7 @@ a[href="https://example.com"] {}
 |:---|:---|:---|
 |[*attr*^=*value*]|`li[class^="box-"]`|elements with an *attr* attribute whose value begins with *value*|
 |[*attr*$=*value*]|`li[class$="-box"]`|elements with an *attr* attribute whose value ends with *value*|
-|[*attr**=*value*]|`li[class*="box"]`|elements with an *attr* attribute whose value contains *value* anywhere within the string|
+|[*attr*\*=*value*]|`li[class*="box"]`|elements with an *attr* attribute whose value contains *value* anywhere within the string|
 
 #### Case-sensitivity
 - Add `i` before the closing bracket(`]`) to match attribute values case-insensitively!  
@@ -874,3 +874,262 @@ The general sibling combinator(`~`) combines two selectors(`A ~ B`). It selects 
 
 ## The box model
 ### Block and inline boxes
+In CSS, there are broadly two types of boxes - **block boxes** and **inline boxes**. These characteristics refer to how the box behaves in terms of page flow, and in relation to other boxes on the page:
+
+**Block box**
+- The box will break onto a new line.
+- The box will extend in the inline direction to fill the space available in its container.
+- The `width` and `height` properties are respected.
+- Padding, margin and border will cause other elements to be pushed away from the box.
+
+By default, headings and `<p>` use `block` as their outer display type.
+
+**Inline box**
+- The box will not break onto a new line.
+- The `width` and `height` properties will not apply.
+- Vertical padding, margins, and borders will apply but will not cause other inline boxes to move away from the box.
+- Horizontal padding, margins, and borders will apply and will cause other inline boxes to move away from the box.
+
+By default, `<a>`, `<span>`, `<em>`, `<strong>` display inline.
+
+The type of box(`block`, `inline`) is defined by `display` property and these are the **outer** value of `display`.
+
+### Aside: Inner and outer display types
+Boxes have an *inner* display type which dictates how elements inside that box are laid out.(cf. *outer* display type : `block` / `inline`)  
+By default, the elements inside a box are laid out in **normal flow**(just like any other block and inline elements)
+With `display: flex;`, the outer display type is `block`, but the inner display type is changed to `flex`.(There are various other inner values such as `grid`)
+
+### Examples of different display types
+CSS:  
+```css
+p, 
+ul {
+  border: 2px solid rebeccapurple;
+  padding: .5em;
+}
+
+.block,
+li {
+  border: 2px solid blue;
+  padding: .5em;
+}
+
+ul {
+  display: flex;
+  list-style: none;
+}
+
+.block {
+  display: block;
+}      
+```
+
+HTML:  
+```html
+<p>I am a paragraph. A short one.</p>
+<ul>
+  <li>Item One</li>
+  <li>Item Two</li>
+  <li>Item Three</li>
+</ul>
+<p>I am another paragraph. Some of the <span class="block">words</span> have been wrapped in a <span>span element</span>.</p>
+```
+
+Result:  
+![display type ex1]()
+
+CSS:  
+```css
+p, 
+ul {
+  border: 2px solid rebeccapurple;
+}
+
+span,
+li {
+  border: 2px solid blue;
+}
+
+ul {
+  display: inline-flex;
+  list-style: none;
+  padding: 0;
+} 
+
+.inline {
+  display: inline;
+}
+```
+
+HTML:  
+```html
+<p>
+    I am a paragraph. Some of the
+    <span>words</span> have been wrapped in a
+    <span>span element</span>.
+</p>     
+<ul>
+  <li>Item One</li>
+  <li>Item Two</li>
+  <li>Item Three</li>
+</ul>
+<p class="inline">I am a paragraph. A short one.</p>
+<p class="inline">I am another paragraph. Also a short one.</p>
+```
+
+Result:  
+![display type ex2]()
+
+- `block` : 새로운 줄에서 시작, 너비 지정 없으면 부모 노드의 너비를 모두 차지, `span`과 같은 inline element에도 `display: block;`을 부여할 수 있음, 반대도 가능(`ul`에 inline 부여)
+- `inline` : 줄바꿈 없음, '글자처럼 취급'이랑 비슷
+- `flex` : 적용 대상 element에 자식노드가 있어야 함(flex를 부여하면 자식노드들이 flex하게 display됨), 부모노드는 block인데 부모노드가 차지한 영역을 flex하게 자식노드들이 나눠가짐
+- `inline-flex` : 부모노드가 inline element로 display되고 자식노드들을 표시하는데 필요한 공간만큼만 차지함, 줄바꿈 없음
+
+### What is the CSS box model?
+The full CSS box model applies to block boxes(inline boxes use only some of the behavior defined in the box model).
+
+#### Parts of a box
+Layers in the block box:  
+![diagram of the box](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model/box-model.png)
+- Content box : content area
+	- size : `width`, `height`
+- Padding box : padding around the content as white space
+	- size : `padding` and related properties
+- Border box : border box wraps the content and any padding
+	- size and style : `border` and related properties
+- Margin box : outermost layer, wrapping the content, padding and border as whitespace between this box and other elements
+	- size : `margin` and related properties
+
+#### The standard CSS box model
+In the standard box model, `width` and `height` defines the width and height of the *content box*. Then any padding and border is added.
+
+**Example**  
+CSS:  
+```css
+.box {
+  width: 350px;
+  height: 150px;
+  margin: 10px;
+  padding: 25px;
+  border: 5px solid black;
+}
+```
+
+Result:  
+![standard box model](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model/standard-box-model.png)
+
+The space taken up by the box using the standard box model will be 410px(350+25+25+5+5) * 210px(150+25+25+5+5).  
+**Note**: The margin is not counted towards the actual size of the box. It affects only the space outside the box. The box's area stops at the border.(보여지는 박스의 크기는 border까지임)
+
+#### The alternative CSS box model
+In the alternative box model, `width` is the width of the visible box(width to the border). Therefore the content area width is `width` miuns the width for the padding and border.  
+
+**Example**  
+The same CSS as used above would give the below result.  
+![alternative box model](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model/alternate-box-model.png)
+
+By default, browsers use the standard box model.  
+Use `box-sizing: border-box;` to turn on the alternative model.  
+To set all the elements to use the alternative box model:  
+```css
+html {
+  box-sizing: border-box;
+}
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+```
+
+> Internet Explorer used to default to the alternative box model, with no mechanism available to switch.
+
+### Margins, padding, and borders
+#### Margin
+- invisible space around an box.
+- can have positive or negative values
+- longhand properties : `margin-top`, `margin-right`, `margin-bottom`, `margin-left`
+
+**Margin collapsing**  
+If there are two elements whose margins touch,
+- both margins are positive : those margins will combine to become one margin, bigger of the two
+- one or both margins are negative : the amount of negative value will subtract from the total(하나만 음수면 더한 값을 사용, 둘 다 음수면 둘 중 더 작은 값을 사용)
+
+#### Borders
+There are four borders(*top*, *right*, *bottom*, *left*), and each border has a *style*, *width* and *color* that we might want to manipulate.
+
+**Example**  
+```css
+border: 1px groove grey;
+border-top: 1px double grey;
+border-style: dashed ridge none dotted;
+border-right-width: 2px;
+border-bottom-color: blue;
+```
+- 방향이 포함된 properties에서는 모양을 shorthand로 사용할 수 있고, 모양이 포함될 경우 방향을 shorthand로 사용할 수 있음
+- 뱡향과 모양을 한꺼번에 shorthand로 사용할 수는 없음(`border: 1px solid black 2px double pink` 이런거 안됨)
+
+#### Padding
+- space between the border and the content area
+- no negative values
+- longhand properties : `padding-top`, `padding-right`, `padding-bottom`, `padding-left`
+
+### The box model and inline boxes
+As we mentioned above at the **Inline boxes**,
+- `width` and `height` are ignored
+- vertical margin and padding are respected but don't change the relationship of other content to our inline box
+- horizontal margin and padding are respected and cause other content to move away from the box
+
+**Example**  
+CSS:  
+```css
+span {
+  margin: 20px;
+  padding: 20px;
+  width: 80px;
+  height: 50px;
+  background-color: lightblue;
+  border: 2px solid blue;
+}
+```
+
+HTML:  
+```html
+<p>
+    I am a paragraph and this is a <span>span</span> inside that paragraph. A span is an inline element and so does not respect width and height.
+</p>
+```
+
+Result:  
+![inline box ex]()
+
+### Using display: inline-block
+`inline-block` is a middle ground between `inline` and `block`.
+- The `width` and `height` properties are respected
+- `padding`, `margin`, and `border` will cause other elements to be pushed away from the box  
+=> avoid the overlapping like above, but inline
+
+**Example**  
+CSS:  
+```css
+span {
+  margin: 20px;
+  padding: 20px;
+  width: 80px;
+  height: 50px;
+  background-color: lightblue;
+  border: 2px solid blue;
+  display: inline-block;
+}
+```
+
+HTML:  
+```html
+<p>
+    I am a paragraph and this is a <span>span</span> inside that paragraph. A span is an inline element and so does not respect width and height.
+</p>
+```
+
+Result:  
+![inline block ex]()
+- 저 예제에서는 80!=20+20+2+2이므로 standard box model 사용중
+- `<p>`는 block element기 때문에 `<span>`에 `display: block;`을 적용시켜도 줄만 바뀔 뿐 p의 border가 두 개로 나눠지지 않음!
+- nav bar같은거 만들 때 `<a>`의 링크 클릭 범위를 넓힐 때 inline-block 많이 사용(padding 넣어서 영역 넓히고 이게 overlapping되지 않도록 해줌)

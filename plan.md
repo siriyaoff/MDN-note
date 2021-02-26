@@ -22,3 +22,7 @@ CSSnote 220라인부터 잘 스타일 잘 적용되나 보기(h3은 헤더처럼
 https://dooray.com/htmls/guides/markdown_ko_KR.html
 
 topic > module(#) > article(##)
+
+901 내용 정확히 이해하면 다시 적기(display: flex, grid, block, inline)
+
+display type ex1, 2, inline box ex 올리고 링크
