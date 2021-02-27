@@ -936,7 +936,7 @@ HTML:
 ```
 
 Result:  
-![display type ex1]()
+![display type ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-display-type-ex1.png?raw=true)
 
 CSS:  
 ```css
@@ -978,7 +978,7 @@ HTML:
 ```
 
 Result:  
-![display type ex2]()
+![display type ex2](https://github.com/siriyaoff/MDN-note/blob/master/images/css-display-type-ex2.png?raw=true)
 
 - `block` : 새로운 줄에서 시작, 너비 지정 없으면 부모 노드의 너비를 모두 차지, `span`과 같은 inline element에도 `display: block;`을 부여할 수 있음, 반대도 가능(`ul`에 inline 부여)
 - `inline` : 줄바꿈 없음, '글자처럼 취급'이랑 비슷
@@ -1099,7 +1099,7 @@ HTML:
 ```
 
 Result:  
-![inline box ex]()
+![inline box ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-inline-box-ex.png?raw=true)
 
 ### Using display: inline-block
 `inline-block` is a middle ground between `inline` and `block`.
@@ -1129,7 +1129,146 @@ HTML:
 ```
 
 Result:  
-![inline block ex]()
+![inline block ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-inline-block-ex.png?raw=true)
 - 저 예제에서는 80!=20+20+2+2이므로 standard box model 사용중
-- `<p>`는 block element기 때문에 `<span>`에 `display: block;`을 적용시켜도 줄만 바뀔 뿐 p의 border가 두 개로 나눠지지 않음!
+- `<p>`는 block element이기 때문에 `<span>`에 `display: block;`을 적용시켜도 줄만 바뀔 뿐 p의 border가 두 개로 나눠지지 않음!
 - nav bar같은거 만들 때 `<a>`의 링크 클릭 범위를 넓힐 때 inline-block 많이 사용(padding 넣어서 영역 넓히고 이게 overlapping되지 않도록 해줌)
+
+## Backgrounds and borders
+### Styling backgrounds in CSS
+#### Background colors
+A `background-color` extends underneath the content and padding box of the element.
+
+#### Background images
+A `background-image: url(/*image url*/);` displays an image pointed by the url.  
+A background image displays on top of the background color.  
+By default,
+- The large image is not scaled down to fit
+- The small image is tiled to fill the box.
+
+**Controlling background-repeat**  
+A `background-repeat` property is used to control the tiling behavior of images.  
+The available values are `no-repeat`, `repeat-x`, `repeat-y`, `repeat`.  
+e.g. `background-repeat: no-repeat;`
+
+**Sizing the background image**  
+A `background-size` property sizes the image to fit inside the background.  
+It can take length(`100px` or `10em`) percentage(`100%`) values, or keywords(`cover`, `contain`).
+- length, percentage values : 지정한 크기로 이미지를 scale
+	- 값을 하나로 지정 : image의 aspect ratio 유지, width를 그 값으로 설정
+	- 두 개로 지정 : aspect ratio 무시, width, height를 설정(1000px 등으로 크게 설정하면 box 바깥으로 나감)
+- `cover` : aspect ratio 유지, box가 채워지도록 크기 조정
+	- image 잘릴 수 있음
+	- box가 세로로 길 경우 `background-size: 100%;`는 width를 맞추기 때문에 밑에 빈공간이 남을 수 있지만, `cover`는 height를 100%로 맞춰서 box를 채움
+- `contain` : aspect ratio 유지, image가 box안에 들어오도록 설정(이미지가 작으면 확대함)
+
+Box, image aspect ratio에 따른 size 설정  
+box의 ratio > image의 ratio  
+![background size ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-background-size-ex1.png?raw=true)  
+box의 ratio < image의 ratio  
+![background size ex2](https://github.com/siriyaoff/MDN-note/blob/master/images/css-background-size-ex2.png?raw=true)
+
+**Positioning the background image**  
+The `background-position` property set the position of the background image on the box.  
+The top-left-hand corner of the box has coordinate `(0, 0)`(it is also the default `background-position` value).  
+The most common `background-position` values take two individual values(a horizontal value followed by a vertical value).  
+It can take lengths, percentages, and keywords(`top`, `bottom`, `right`, `left`, `center`).  
+`background-position` 은 `background-position-x`, `background-position-y`의 shorthand임에 유의
+
+**Example**  
+```css
+background-position: top center;
+background-position: 20px 10%;
+background-position: 20px top;
+background-position: top 20px right 10px;
+```
+- lengths, percentages : 하나만 적을 경우 horizontal로 적용되고 vertical은 center로 설정됨
+- keywords : `top center`로 적든 `center top`으로 적든 알아서 적용됨(center는 horizontal, vertical에 둘다 적용가능하지만 나머지는 같은 축끼리 쓰면 적용안됨)
+- keywords와 lengths or percentages를 섞어서 사용할 수 있음
+- `top 20px right 10px`(위에서 20px, 오른쪽에서 10px 떨어지게 위치)와 같이 4-value syntax도 사용 가능
+
+#### Gradient backgrounds
+A gradient - when used for a background - acts just like an image and is also set by using the `background-image` property.
+
+**Example**
+```css
+background-image: linear-gradient(105deg, rgba(0,249,255,1) 39%, rgba(51,56,57,1) 96%);
+
+background-image: radial-gradient(circle, rgba(0,249,255,1) 39%, rgba(51,56,57,1) 96%);
+background-size: 100px 100px;
+```
+- We can set the size of gradients with the `background-size`, and the gradients will be repeated by default.
+
+#### Multiple background images
+It is possible to have multiple background images in a single property value, by separating with commas.
+
+**Example**  
+```css
+background-image: url(image1.png), url(image2.png), url(image3.png), url(image4.png);
+background-repeat: no-repeat, repeat-x, repeat;
+background-position: 10px 20px,  top right;
+```
+- The last listed image will be at the bottom layer.  
+- The other `background-*` properties can also have comma-separated values.
+- comma로 구별된 대로 properties가 부여되지만, 수가 맞지 않은 경우 property가 반복됨(위의 경우 position value가 순서대로 반복 -> image3은 `10px 20px;`, image 4는 `top right;`)
+
+#### Background attachment
+The `background-attachment` property can controll how the backgrounds scroll when the content scrolls.  
+It can take the following values:
+- `scroll` : background를 element box에 고정 => element scroll은 background를 움직이지 않음(딸려 올라가지 않음), page scroll은 움직임(딸려 올라감)
+- `fixed` : background를 viewport에 고정 => element scroll, page scroll 둘 다 background를 움직이지 않음
+- `local` : background를 element content에 고정 => element scroll, page scroll 둘 다 background를 움직임
+
+#### Using the background shorthand property
+We can specify backgrounds by the shorthand `background`.  
+A few rules to use shorthand values:
+- if using multiple backgrounds, separate them by comma
+- `background-color`(solid background) may only be specified after the final comma
+- the value of `background-size` must be included immediately after `background-position`, separated with the `/` character, such as `center / 80%`
+
+**Example**  
+```css
+.box {
+  background:   
+    linear-gradient(105deg, rgba(255,255,255,.2) 39%, rgba(51,56,57,1) 96%) center center / 400px 200px no-repeat,
+url(big-star.png) center no-repeat, 
+    rebeccapurple;
+}
+```
+
+#### Accessibility considerations with backgrounds
+If specifying an image, and text will be placed on top of that image, you should also specify a `background-color`to make the text to be legible whenever the image loaded or not.
+
+Screen readers cannot parse background images, therefore they should be purely decoration; any important content should be part of the HTML page and not contained in a background.
+
+### Borders
+Typical usage는 위에서 말한 그대로임
+
+#### Rounded corners
+The `border-radius` property gives a box rounding corners.  
+Associated longhands : `border-top-left-radius`, `border-top-right-radius`, `border-bottom-right-radius`, `border-bottom-left-radius`.(clockwise)  
+Two lengths or percentages can be used as a value, the *horizontal radius* and *vertical radius*(horizontal radius는 border의 width 중 둥글어지는 길이를 나타냄, vertical은 height 중).  
+- `border-radius`로 horizontal, vertical까지 설정할 수 없음(값 여러 개 입력하면 longhand에 대한 입력을 들어감, 8개 넣으면 적용안됨)
+
+## Handling different text directions
+### What are writing modes?
+A writing mode in CSS refers to whether the text is running horizontally or vertically.  
+The `writing-mode` property switch from one writing mode to another.  
+The three possible values for the writing-mode:
+- `horizontal-tb` : top-to-bottom block flow direction, horizontal sentences
+- `vertical-rl` : right-to-left block flow direction, vertical sentences
+- `vertical-lr` : left-to-right block flow direction, vertical sentences
+
+### Writing modes and block and inline layout
+In `writing-mode: horizontal-tb`, sentences flow horizontally and blocks are displayed vertically, and vice versa.  
+When we switch the writing mode, the directions of inline, block is changed.  
+The directions are also called as **dimensions**.  
+The **block dimension** is always the direction blocks are displayed on the page, and the **inline dimension** is always the direction a sentence flows.  
+|horizontal writing mode|vertical writing mode|
+|:---|:---|
+|![horizontal writing mode](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Handling_different_text_directions/horizontal-tb.png)|![vertical writing mode](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Handling_different_text_directions/vertical.png)|
+
+#### Direction
+Arabic과 같이 horizontal하지만 right-to-left로 읽고 쓰는 언어도 있음 -> 이런 언어들도 있기 때문에 newer CSS layout methods들은 텍스트의 **start**와 **end**도 지정함
+
+### Logical properties and values

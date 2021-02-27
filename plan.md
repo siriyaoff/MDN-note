@@ -16,7 +16,6 @@ mdn쭉 따라가면서 한 topic(html, css, js, ...) 끝날때마다 tcpshcool�
 CSSnote 220라인부터 잘 스타일 잘 적용되나 보기(h3은 헤더처럼 보여야하고 h4는 그냥 텍스트 강조처럼 밑줄이 없어야함)
 
 궁금한거 풀리면 232라인 내용에 적기
-788 [attr*=value] asterisk 잘나오나 보기
 
 마크다운 wiki 
 https://dooray.com/htmls/guides/markdown_ko_KR.html
@@ -24,5 +23,3 @@ https://dooray.com/htmls/guides/markdown_ko_KR.html
 topic > module(#) > article(##)
 
 901 내용 정확히 이해하면 다시 적기(display: flex, grid, block, inline)
-
-display type ex1, 2, inline box ex 올리고 링크
