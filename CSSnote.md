@@ -1269,6 +1269,116 @@ The **block dimension** is always the direction blocks are displayed on the page
 |![horizontal writing mode](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Handling_different_text_directions/horizontal-tb.png)|![vertical writing mode](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Handling_different_text_directions/vertical.png)|
 
 #### Direction
-Arabic과 같이 horizontal하지만 right-to-left로 읽고 쓰는 언어도 있음 -> 이런 언어들도 있기 때문에 newer CSS layout methods들은 텍스트의 **start**와 **end**도 지정함
+Arabic과 같이 horizontal하지만 right-to-left로 읽고 쓰는 언어도 있음 -> 이런 언어들도 있기 때문에 newer CSS layout methods들은 텍스트의 *start*와 *end*도 지정함
 
 ### Logical properties and values
+A lot of properties are tied to the physical dimensions of the screen, and make most sense when in a horizontal writing mode.  
+**Example**  
+CSS:  
+```css
+.box {
+  width: 150px;
+}
+
+.horizontal {
+  writing-mode: horizontal-tb;
+}
+
+.vertical {
+  writing-mode: vertical-rl;
+}
+```
+
+HTML:  
+```html
+<div class="wrapper">
+  <div class="box horizontal">
+    <h2>Heading</h2>
+    <p>A paragraph. Demonstrating Writing Modes in CSS.</p>
+    <p>These boxes have a width.</p>
+  </div>
+  <div class="box vertical">
+    <h2>Heading</h2>
+    <p>A paragraph. Demonstrating Writing Modes in CSS.</p>
+    <p>These boxes have a width.</p>
+  </div>
+</div>
+```
+
+Result:  
+![text overflow ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-text-overflow-ex1.png?raw=true)
+
+In the example above, the box with a vertical writing mode still has a width, and this causing the text to overflow.  
+It is needed to swap height and width along with the writing mode. For example, when we're in a vertical writing mode we want the box to expand in the block dimension.  
+=> CSS developed a set of mapped properties which replace physical properties with **logical**, or **flow relative** versions.
+- `inline-size`
+	- a property mapped to `width` when in a horizontal writing mode
+	- sizes the inline dimension
+- `block-size`
+	- a property mapped to `height` when in a horizontal writing mode
+	- sizes the block dimension
+
+`inline-size: 150px;`를 이용하면 위에서와 같이 vertical writing mode를 이용하더라도 horizontal과 같이 너비 설정이 제대로 적용됨  
+![text overflow ex2](https://github.com/siriyaoff/MDN-note/blob/master/images/css-text-overflow-ex2.png?raw=true)
+
+#### Logical margin, border, and padding properties
+There are many instances of physical properties, for example, `margin-top`, `padding-left`, and `border-bottom`.  
+In the same way for width and height, there are mappings for these properties.
+- `*-top` mapped to `*-block-start`
+- `*-right` mapped to `*-inline-start`
+- `*-bottom` mapped to `*-block-end`
+- `*-left` mapped to `*-inline-end`
+
+#### Logical values
+There are also logical mappings for values like `top`, `right`, `bottom`, and `left`.  
+They are same with the words above.  
+※ chrome, edge는 `float` property에 대해 flow relative values 지원 안함, firefox만 하는중
+
+#### Should you use physical or logical properties?
+The logical properties and values have only recently been implemented in browsers. Therefore you have to **check how far back the browser support goes** before you use the logical values. For now, you prefer to use the physical versions unless using multiple writing modes. However, most things will transition to the logical versions when we start dealing with layout methods such as flexbox and grid.
+
+## Overflowing content
+### What is overflow?
+Everything in CSS is a box. Overflow happens when there is too much content to fit in a box.
+
+### CSS tries to avoid "data loss"
+If we restrict the width or height of a box, there may be overflow. However CSS does not hide content wherever possible, regardless of overflow. This is because of data loss. The problem with data loss is that you and visitors may not notice.
+
+Instead, CSS overflows in visible ways. Then you or visitors will know that content is overlapping.
+
+CSS assumes that you are managing the potential for overflow. In general, restricting the block dimension is problematic when the box contains text. There may be more text than you expected when designing the site, or the text may be larger.
+
+We can control sizing in ways that are less prone to overflow. However, if a fixed size needed, we can also control how the overflow behaves.
+
+### The overflow property
+The `overflow` property instruct the browser how it should behave.  
+It can take the following values:
+- `visible` : default value
+- `hidden` : crop content when it overflows(= hide overflow)
+- `scroll` : add scrollbars always(even when it doesn't overflow)
+- `auto` : add scrollbars when it overflows(block dimension으로만)
+
+There are also longhand properties `overflow-x`, `overflow-y`
+- x or y축만 스크롤바 생김, 잘못 설정하면 스크롤이 아예 안되고 data loss일어남
+- shorthand로 쓸 경우 x부터 설정
+- 여기서 x, y는 vertical writing mode라도 고정임
+
+If you have a long word in a small box, consider using the `word-break` or `overflow-wrap`.
+- [`word-break`](https://developer.mozilla.org/en-US/docs/Web/CSS/word-break) : `normal`, `break-all`, `keep-all`, `break-word` 4개의 value를 가짐
+	- `normal` : 긴 단어 보존, 원래 줄바꿈 보존, 다른 언어들은 box에 맞춤
+	- `break-all` : 원래 줄바꿈 무시, 단어 길이 상관없이 box의 끝에 도달했을 때만 줄바꿈
+	- `keep-all` : 오버플로우 상관없이 원래 텍스트 그대로 보존
+	- `break-word` : 긴 단어 보존, 단어를 단위로 box에 맞춤
+- [`overflow-wrap`](https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-wrap) : `normal`, `anywhere`, `break-word` 3개의 value를 가짐
+
+### Overflow establishes a Block Formatting Context
+`overflow` property에 `scroll`, `auto`, `hidden`을 사용하면 그 element에 **Block Formatting Context**(BFC)가 생성됨  
+BFC가 생성되면 그 안에 있는 모든 element들은 BFC가 생성된 element의 box안에 속하게 됨(float여도 속함)  
+밖에서 BFC가 생성된 element 안으로도 다른 element가 침범할 수 없음
+
+### Unwanted overflow in web design
+When developing a site, always keep overflow in mind. Generally ensure that your CSS works in a robust way.
+
+## CSS values and units
+Every property used in CSS has a value type defining the set of values that are allowed for that property.
+### What is a CSS value?

@@ -23,3 +23,5 @@ https://dooray.com/htmls/guides/markdown_ko_KR.html
 topic > module(#) > article(##)
 
 901 내용 정확히 이해하면 다시 적기(display: flex, grid, block, inline)
+
+text overflow ex1, 2 올리고 링크
