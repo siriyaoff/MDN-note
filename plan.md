@@ -25,3 +25,6 @@ topic > module(#) > article(##)
 901 내용 정확히 이해하면 다시 적기(display: flex, grid, block, inline)
 
 text overflow ex1, 2 올리고 링크
+1397 description 줄바꿈 잘되는지
+1403도 가독성 괜찮은지
+1420도 줄바꿈

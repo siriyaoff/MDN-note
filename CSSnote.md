@@ -1381,4 +1381,118 @@ When developing a site, always keep overflow in mind. Generally ensure that your
 
 ## CSS values and units
 Every property used in CSS has a value type defining the set of values that are allowed for that property.
+
 ### What is a CSS value?
+- CSS specification이나 MDN property pages에서, 각 property에 대해 사용가능한 value type을 `<color>`, `<length>`와 같이 명시해놓음  
+- CSS values are also referred to as *data types*
+- value types는 property와 구분을 위해서 angle brackets를 사용함(e.g. `color`, `<color>`과 같이), html elements와 헷갈리지 않게 주의!
+- If you see `<color>` as valid, you can use all the values in `<color>`(assuming your browser support them)
+
+### Numbers, lengths, and percentages
+Numeric value types:  
+|Data type|Description|Example|
+|:---|:---|:---|
+|`<integer>`|whole number|`1024` or `-55`|
+|`<number>`|decimal number(+fractional componenet)|`0.255`, `128`, `-1.2`|
+|`<dimension>`|`<number>` with a unit attached  an umbrella category that includes the `<length>`, `<angle>`, `<time>`, and `<resolution>` types|`45deg`, `5s`, `10px`|
+|`<percentage>`|fraction of some other value|`50%`|
+
+#### Lengths
+There are two types of lengths, relative and absolute.
+
+**Absolute length units**  
+These are always the same size.  
+|Unit|Name|Equivalent to|
+|:---|:---|:---|
+|`cm`|Centimeters|1`cm` = 38`px`|
+|`mm`|Millimeters|1`mm` = 1/10th of 1`cm`|
+|`Q`|Quarter-millimeters|1`Q` = 1/40th of 1`cm`|
+|`in`|Inches|1`in` = 96`px`|
+|`pc`|Picas|1`pc` = 1/6 of 1`in`|
+|`pt`|Points|1`pt` = 1/72th of 1`in`|
+|`px`|Pixels|1`px` = 1/96th of 1`in`|  
+The only value that you will commonly use is `px`.
+
+**Relative length units**  
+These are relative to something else, perhaps the size of the parent element's font.  
+|Unit|Relative to|
+|:---|:---|
+|`em`|Font size of the parent in the case of typographical properties like `font-size`,  font size of the element itself in the case of other properties like `width`|
+|`ex`|x-height of the element's font|
+|`ch`|The advance measure(width) of the glyph "0" of the element's font|
+|`rem`|Font size of the root element|
+|`lh`|Line height of the element|
+|`vw`|1% of the viewport's width|
+|`vh`|1% of the viewport's height|
+|`vmin`|1% of the viewport's smaller dimension|
+|`vmax`|1% of the viewport's larger dimension|
+- `ex`는 `em`의 절반
+- `rem`은 root element의 font-size 기준, `em`는 parent의 font-size 기준 -> nested element의 경우 `em`으로 글자설정하면 계속 커짐!
+//https://webdesign.tutsplus.com/ko/articles/7-css-units-you-might-not-know-about--cms-22573
+#### Percentages
+Percentages are always set relative to some other value.  
+For example, `font-size: 110%;` sets the font size to 110% of its parent's font size.(similar to `em`)  
+- 보통 부모 element의 값을 기준으로함
+- `<length>`만 사용가능한 element가 있음(`<length-percentage>`가 사용가능하면 percentage도 사용가능, `<length>`면 percentage는 불가능)
+
+#### Numbers
+Some value types accept numbers, without any unit added to them.  
+For example, `opacity` property accepts a unitless number. `0`(fully transparent) to `1`(fully opaque).  
+`opacity: 0.6;`
+
+※ A number as a value in CSS should not be surrounded in quotes.
+
+### Color
+There are many ways to specify color in CSS.  
+The standard color system is 24bit, 16.7 million(256 x 256 x 256) colors.
+
+#### Color keywords
+simple and understandable  
+`rebeccapurple`
+
+#### Hexadecimal RGB values
+Each hex value consists of a hash/pound symbol(`#`) followed by six hexadecimal numbers(0 to f)  
+`#ffdead`
+
+#### RGB and RGBA values
+These are functions.  
+`rgb(R, G, B)` : represents RGB channel values by decimal numbers(0 to 255)  
+`rgba(R, G, B, a)` : similar to `rgb()` but alpha channel added(0 : fully transparent, 1 : fully opaque)
+- property `opaque`는 element 전체의 opacity를 설정하는 반면 `rgba()`의 alpha value는 설정한 색에 대해서만 투명도를 설정함!
+- `rgba()`와 `rgb()`, `hsl()`과 `hsla()`은 언제부턴가 서로 완전히 같은 함수로 작동함(rgb에 a 붙여서 사용해도 정상작동) 따라서 아무거나 써도 상관없지만, transparent color가 정의되어있다는 것을 표현하기 위해 rgba를 사용하는 것이 좋음
+
+#### HSL and HSLA values
+`hsl(Hue, Saturation, Lightness)` is slightly less well-supported than RGB.  
+- Hue(색조)
+	- The base of the color
+	- [0, 360], representing the angles around a color wheel(`0` : red, `120` : green, `240` : blue)
+- Saturation(채도)
+	- How saturated is the color?
+	- [0, 100] (%), `0%` is no color(shade of grey), `100%` is full color saturation
+- Lightness(밝기)
+	- How light or bright is the color?
+	- [0, 100] (%), `0%` is no light(completely dark), `100%` is full light(completely white)
+
+### Images
+The `<image>` value type is used wherever an image is a valid value.  
+This can be an **actual image file** pointed to via a `url()` function, or a **gradient**(e.g. `linear-gradient()`).
+
+### Position
+The `<position>` value type represents a set of 2D coordinates.  
+It can take keywords such as `top`, `left`, `bottom`, `right`, and `center`.  
+It aligns items with specific bounds of a 2D box, along with lengths, which represent offsets from the top and left-hand edges of the box.  
+
+- consists of two values - the horizontal position, the vertical position.
+- 하나의 축에 대해서만 값을 지정할 경우 나머지 하나는 `center`로 default됨
+- `right 40px` : right, 40 from the top
+
+### Strings and identifiers
+Keywords(`red`, `black`, ...) are more accurately described as *identifiers*.  
+You can use strings(double quotes) when specifying generated content(in pseudo-element).
+
+### Functions
+In CSS, functions exist as property values, such as `rgb()`, `hsl()`, `url()`.  
+A `calc()` does simple calculations inside CSS.  
+e.g. `calc(20% + 100px)`
+
+## Sizing items in CSS
