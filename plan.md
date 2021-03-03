@@ -24,7 +24,5 @@ topic > module(#) > article(##)
 
 901 내용 정확히 이해하면 다시 적기(display: flex, grid, block, inline)
 
-text overflow ex1, 2 올리고 링크
-1397 description 줄바꿈 잘되는지
+####랑 bold랑 사이즈 같으니까 ####다음 헤더를 다르게 만들어야할듯(underline?)
 1403도 가독성 괜찮은지
-1420도 줄바꿈

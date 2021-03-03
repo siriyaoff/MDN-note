@@ -1394,7 +1394,7 @@ Numeric value types:
 |:---|:---|:---|
 |`<integer>`|whole number|`1024` or `-55`|
 |`<number>`|decimal number(+fractional componenet)|`0.255`, `128`, `-1.2`|
-|`<dimension>`|`<number>` with a unit attached  an umbrella category that includes the `<length>`, `<angle>`, `<time>`, and `<resolution>` types|`45deg`, `5s`, `10px`|
+|`<dimension>`|`<number>` with a unit attached<br>an umbrella category that includes the `<length>`, `<angle>`, `<time>`, and `<resolution>` types|`45deg`, `5s`, `10px`|
 |`<percentage>`|fraction of some other value|`50%`|
 
 #### Lengths
@@ -1410,14 +1410,15 @@ These are always the same size.
 |`in`|Inches|1`in` = 96`px`|
 |`pc`|Picas|1`pc` = 1/6 of 1`in`|
 |`pt`|Points|1`pt` = 1/72th of 1`in`|
-|`px`|Pixels|1`px` = 1/96th of 1`in`|  
+|`px`|Pixels|1`px` = 1/96th of 1`in`|
+
 The only value that you will commonly use is `px`.
 
 **Relative length units**  
 These are relative to something else, perhaps the size of the parent element's font.  
 |Unit|Relative to|
 |:---|:---|
-|`em`|Font size of the parent in the case of typographical properties like `font-size`,  font size of the element itself in the case of other properties like `width`|
+|`em`|Font size of the parent in the case of typographical properties like `font-size`,<br>font size of the element itself in the case of other properties like `width`|
 |`ex`|x-height of the element's font|
 |`ch`|The advance measure(width) of the glyph "0" of the element's font|
 |`rem`|Font size of the root element|
@@ -1496,3 +1497,21 @@ A `calc()` does simple calculations inside CSS.
 e.g. `calc(20% + 100px)`
 
 ## Sizing items in CSS
+### The natural or intrinsic size of things
+- **Intrinsic size** : a size **defined by its content**
+- empty `<div>`는 스스로의 크기가 없음  
+-> `<div>`만 선언할 경우 하나의 선으로 나타남(block level element이기 때문에 width는 parent element의 width와 같지만 height는 없음  
+-> 안에 text를 추가하면 사이즈가 생기고, 이게 `<div>`의 instric size임(안의 content에 의해 결정된 size)
+
+### Setting a specific size
+- **Extrinsic size** : a **size given** to an element, by `width` and `height` values
+- Because of overflow, fixing the height with lengths or percentages need to be done carefully
+
+#### Using percentages
+Percentages resolve against the size of the containing block.
+
+#### Percentage margins and padding
+When you set margin and padding in percentages, the value is calculated from the **inline size** of the containing block.
+- `margin: 10%; padding: 10%;` : margins, paddings 모두 width의 10%(horizontal writing mode일 때)
+
+### min- and max- sizes
