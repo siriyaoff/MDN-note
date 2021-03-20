@@ -26,3 +26,6 @@ topic > module(#) > article(##)
 
 ####랑 bold랑 사이즈 같으니까 ####다음 헤더를 다르게 만들어야할듯(underline?)
 1403도 가독성 괜찮은지
+
+글자 유닛
+https://webdesign.tutsplus.com/ko/articles/7-css-units-you-might-not-know-about--cms-22573

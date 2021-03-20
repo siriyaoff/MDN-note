@@ -36,7 +36,7 @@
 | Attribute selector	| The element(s) with specified attribute. | `img[src]`<br>selects `<img src="myimage.png">` but not `<img>` |
 | Pseudo-class selector	| The specified element(s) but only when in the specified state. | `a:hover`<br>selects `<a>` but only when the mouse is hovering over the link |
 
-이 외에도 많은 selector가 있음([MDN Selectors guide](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Selectors){:target="_blank"} 참고
+이 외에도 많은 selector가 있음([MDN Selectors guide](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Selectors){:target="_blank"} 참고)
 
 ## Fonts and text
 ```css
@@ -411,8 +411,10 @@ P
    └─ "Sheets"
 ```
 
-rendered outputs:
-> Let's use: Cascading Style Sheets
+rendered outputs:  
+```
+Let's use: Cascading Style Sheets
+```
 
 ### Applying CSS to the DOM
 - After a DOM created, the browser will parse the CSS, sort it, apply the rules, and paint the final visual representation to screen.
@@ -1022,7 +1024,7 @@ The space taken up by the box using the standard box model will be 410px(350+25+
 **Note**: The margin is not counted towards the actual size of the box. It affects only the space outside the box. The box's area stops at the border.(보여지는 박스의 크기는 border까지임)
 
 #### The alternative CSS box model
-In the alternative box model, `width` is the width of the visible box(width to the border). Therefore the content area width is `width` miuns the width for the padding and border.  
+In the alternative box model, `width` is the width of the visible box(width to the border). Therefore the content area width is `width` minus the width for the padding and border.  
 
 **Example**  
 The same CSS as used above would give the below result.  
@@ -1429,7 +1431,7 @@ These are relative to something else, perhaps the size of the parent element's f
 |`vmax`|1% of the viewport's larger dimension|
 - `ex`는 `em`의 절반
 - `rem`은 root element의 font-size 기준, `em`는 parent의 font-size 기준 -> nested element의 경우 `em`으로 글자설정하면 계속 커짐!
-//https://webdesign.tutsplus.com/ko/articles/7-css-units-you-might-not-know-about--cms-22573
+
 #### Percentages
 Percentages are always set relative to some other value.  
 For example, `font-size: 110%;` sets the font size to 110% of its parent's font size.(similar to `em`)  
@@ -1515,3 +1517,51 @@ When you set margin and padding in percentages, the value is calculated from the
 - `margin: 10%; padding: 10%;` : margins, paddings 모두 width의 10%(horizontal writing mode일 때)
 
 ### min- and max- sizes
+`min-height` property makes the box to be always at least the height.  
+A common use of `max-width` is to cause images to scale down if there is not enough space to display them at their intrinsic width while making sure they don't become larger than that width.  
+**Example**  
+CSS:  
+```css
+.box {
+  width: 200px;
+}
+.minibox {
+  width: 50px;
+}
+.width {
+  width: 100%;
+}
+.max {
+  max-width: 100%;
+}
+```
+
+HTML:  
+```html
+<div class="wrapper">
+  <div class="box"><img src="star.png" alt="star" class="width"></div>
+  <div class="box"><img src="star.png" alt="star" class="max"></div>
+  <div class="minibox"><img src="star.png" alt="star" class="max"></div>
+</div>
+```
+
+Result:  
+![max width ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-max-width-ex.png?raw=true)
+
+- `max-width: 100%`를 이용하면 이미지를 responsive하게 만들면서 크기를 박스 이상으로 커지지 않게 만들 수 있음
+
+### Viewport units
+Viewport : the visible area of your page in the browser you are using to view a site
+
+`vw`
+- unit for viewport width
+- `1vw` is equal to 1% of the viewport width
+
+`vh`
+- unit for viewport height
+- `1vh` is equal to 1% of the viewport height
+
+Viewport units can be useful in your designs(e.g. hero section: set width to 100vh)
+- `box-sizing: border-box`일 경우 alternative box model이 적용되기 때문에 `width: 60%;`, `padding: 10%;`를 적용하면 width는 60% 그대로 남고 height만 증가함
+
+## Images, media, and form elements
