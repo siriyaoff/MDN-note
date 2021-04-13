@@ -612,7 +612,7 @@ There are three factors to consider. Later ones overrule earlier ones:
 **How to calculate specificity**  
 Essentially a value in points is awarded to different types of selectors, and adding these up gives you the weight of that particular selector, which can then be assessed against other potential matches.  
 The amount of specificity is measured using four different values(thousands, hundreds, tens, and ones): 
-1. **Thousands** : 1 if declaration is inside a `sylte` attribute(= **inline styles**) -> No selectors, so always specificity=1000
+1. **Thousands** : 1 if declaration is inside a `style` attribute(= **inline styles**) -> No selectors, so always specificity=1000
 2. **Hundreds** : 1 for each **ID selector** contained inside the overall selector
 3. **Tens** : 1 for each **class selector**, **attribute selector**, or **pseudo-class** contained inside the overall selector
 4. **Ones** : 1 for each **element selector** or **pseudo-element** contained inside the overall selector
@@ -846,7 +846,7 @@ Selectors that utilize a descendant combinator are called *descendant selectors*
 `body article p` selects `<p>` inside `<article>` which is inside `<body>`.
 
 #### Child combinator
-The child combinator(`>`) combines two selectors(`A < B`) such that `B` is selected if `B` is a direct children of `A`.  
+The child combinator(`>`) combines two selectors(`A > B`) such that `B` is selected if `B` is a direct children of `A`.  
 Descendant elements further down don't match.  
 The following selects paragraphs that are direct children of `<article>` elements using the child combinator(`>`):  
 ```css
@@ -1066,7 +1066,7 @@ border-style: dashed ridge none dotted;
 border-right-width: 2px;
 border-bottom-color: blue;
 ```
-- 방향이 포함된 properties에서는 모양을 shorthand로 사용할 수 있고, 모양이 포함될 경우 방향을 shorthand로 사용할 수 있음
+- 방향이 포함된 properties에서는 모양(1px double grey 같이)을 shorthand로 사용할 수 있고, 모양이 포함된 properties에서는 방향을 shorthand로 사용할 수 있음
 - 뱡향과 모양을 한꺼번에 shorthand로 사용할 수는 없음(`border: 1px solid black 2px double pink` 이런거 안됨)
 
 #### Padding
@@ -1565,3 +1565,9 @@ Viewport units can be useful in your designs(e.g. hero section: set width to 100
 - `box-sizing: border-box`일 경우 alternative box model이 적용되기 때문에 `width: 60%;`, `padding: 10%;`를 적용하면 width는 60% 그대로 남고 height만 증가함
 
 ## Images, media, and form elements
+### Replaced elements
+Certain replaced elements(images, video) have an **aspect ratio** as default.
+
+### Sizing images
+box에 `width: 100px;`를 적용하고 img를 넣으면 overflow할 수도 있음(이미지가 작은 경우에는 이미지가 늘어나진 않음)
+=> img에 `max-width: 100%;`를 적용하면 이미지가 box의 너비에 맞춰짐
