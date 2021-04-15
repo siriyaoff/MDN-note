@@ -188,7 +188,7 @@ h1 {
 	font-size: 5em;
 }
 ```
-- The rule opens with a **selector**. Then we have a set of curly braces `{ }`. Inside, there will be one or more **declarations**(=`[PROPERTY]: [VALUE];`)
+- The rule opens with a **selector**. Then we have a set of curly brackets `{ }`. Inside, there will be one or more **declarations**(=`[PROPERTY]: [VALUE];`)
 
 ### CSS Modules
 Property를 잘 찾을 수 있게 Module로 분류해놓음(MDN reference에서 찾을 수 있음, e.g. [Backgrounds and Borders](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Backgrounds_and_Borders){:target="_blank"})
@@ -1367,10 +1367,10 @@ There are also longhand properties `overflow-x`, `overflow-y`
 
 If you have a long word in a small box, consider using the `word-break` or `overflow-wrap`.
 - [`word-break`](https://developer.mozilla.org/en-US/docs/Web/CSS/word-break) : `normal`, `break-all`, `keep-all`, `break-word` 4개의 value를 가짐
-	- `normal` : 긴 단어 보존, 원래 줄바꿈 보존, 다른 언어들은 box에 맞춤
-	- `break-all` : 원래 줄바꿈 무시, 단어 길이 상관없이 box의 끝에 도달했을 때만 줄바꿈
-	- `keep-all` : 오버플로우 상관없이 원래 텍스트 그대로 보존
-	- `break-word` : 긴 단어 보존, 단어를 단위로 box에 맞춤
+	- `normal` : 긴 단어 보존(overflow), CJK(Chinese, Japanese, Korean)는 box에 맞춤
+	- `break-all` : 모든 언어들에 대해 box에 맞춤
+	- `keep-all` : 모든 언어들에 대해 그대로 보존
+	- `break-word` : `normal`과 비슷, 요새 쓰지 않음
 - [`overflow-wrap`](https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-wrap) : `normal`, `anywhere`, `break-word` 3개의 value를 가짐
 
 ### Overflow establishes a Block Formatting Context
