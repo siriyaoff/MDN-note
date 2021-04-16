@@ -1569,5 +1569,139 @@ Viewport units can be useful in your designs(e.g. hero section: set width to 100
 Certain replaced elements(images, video) have an **aspect ratio** as default.
 
 ### Sizing images
+`box`라는 `<div>`안에 `<img>`를 넣어놓은 상태  
 box에 `width: 100px;`를 적용하고 img를 넣으면 overflow할 수도 있음(이미지가 작은 경우에는 이미지가 늘어나진 않음)
-=> img에 `max-width: 100%;`를 적용하면 이미지가 box의 너비에 맞춰짐
+=> img에 `max-width: 100%;`를 적용하면 이미지가 box보다 더 클 경우 box의 너비에 맞춰짐
+
+`object-fit` property
+- `object-fit: cover;`를 img에 적용시키면 img가 box를 꽉 채움(aspect ratio를 유지)
+- `object-fit: contain;`를 img에 적용시키면 img가 box안에 들어감(aspect ratio를 유지하면서 들어가기 때문에 box에 빈 공간이 남음)
+
+**Example**  
+CSS:  
+```css
+.box {
+  width: 200px;
+  height: 200px;
+}
+
+img {
+  height: 100%;
+  width: 100%;
+}
+
+.cover {
+  object-fit: cover;
+}
+
+.contain {
+  object-fit: contain;
+}
+```
+
+HTML:  
+```html
+<div class="wrapper">
+  <div class="box"><img src="balloons.jpg" alt="balloons" class="cover"></div>
+  <div class="box"><img src="balloons.jpg" alt="balloons" class="contain"></div>
+</div>
+```
+
+Result:  
+![object fit ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-object-fit-ex.PNG?raw=true)
+
+- img의 `width`, `height`를 둘 다 100%로 설정해놓은 상태라 `object-fit` 속성을 선언해놓지 않으면 box를 채움(`object-fit: fill;`과 같음, img의 aspect ratio를 무시하고 box를 채워버림)
+
+### Replaced elements in layout
+In a flex or grid layout, elements are stretched by default to fill the entire area.  
+Images will not stretch, and instead will be aligned to the start of the grid area or flex container.  
+To force the image to stretch to fill the grid cell it is in,  
+```css
+img {
+  width: 100%;
+  height: 100%;
+}
+```
+
+### Form elements
+`<input>`, `<textarea>`, `<fieldset>`, `<legend>` 등을 이용해 form controls를 더할 수 있음
+
+#### Styling text input elements
+`<input type="text">`, `<textarea>`와 같은 elements는 다른 것들과 비슷함  
+`input[type="text]`와 같이 selector를 선언하여 css를 적용할 수 있음
+
+form elements는 os, browser마다 다르게 렌더링하기 때문에 다양한 환경에서 테스트 필요
+
+#### Inheritance and form elements
+In some browsers, form elements do not inherit font styling by default. Therefore if you want to be sure that your form fields use the font defined on the body, or on a parent element, you should add this rule to your CSS.  
+```css
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+}
+```
+
+#### Form elements and box-sizing
+Across browsers form elements use different box sizing rules for different widgets.  
+For consistency it is a good idea to set margins and padding to `0` on all elements, then add these back in when styling particular controls.  
+```css
+button,
+input,
+select,
+textarea {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+```
+
+#### Other useful settings
+```css
+textarea {
+  overflow: auto;
+}
+```
+
+#### Putting it all together into a "reset"
+We can wrap up the various properties discussed above into the following "form reset" to provide a consistent base to work from.  
+```css
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+  box-sizing: border-box;
+  padding: 0; margin: 0;
+}
+
+textarea {
+  overflow: auto;
+} 
+```
+
+지금은 browsers가 typically consistent하기 때문에 예전만큼 normalizing이 중요하지는 않음  
+normalize.css에서 다른 base stylesheet 확인 가능
+
+### Testing your skills
+img에 `object-fit` property를 적용할 때 `width`, `height`가 설정되어 있어야 함  
+`object-fit`는 width, height가 정해졌을 때 img의 aspect ratio를 기준으로 `cover`, `fill`, `contain`을 설정하는 것임  
+`<div>` 안에 `<img>`를 aspect ratio를 유지하면서 div를 채우게 하려면 width, height를 100%로 설정한 다음 `object-fit: cover;`를 적용해야함  
+- 둘 다 설정하지 않으면 img의 원래 화질대로 나옴
+- width, height 중 하나만 설정해놓으면 aspect ratio에 맞춰서 img의 크기가 정해짐 => `object-fit: cover;`가 적용되지 않음
+- img를 nest하는 것과 background로 넣는 것 이렇게 두 가지 방법이 있음
+	- img를 nest할 경우 default position이 center
+	- background로 넣을 경우 default position이 0 0
+
+img같은 replaced elements의 `overflow` 관련 property는 overflow를 일으키는 요소에 적용하는게 아니라 부모 요소에 적용해야함  
+cf. text의 overflow는 `<p>`같은 element에 직접 적용함
+
+## Styling tables
+### A typical HTML table
+`scope` attribute, `<caption>`, `<thead>`, `<tfoot>` 등을 이용해서 HTML table markup 가능
+=> cramped
+
+### Styling our table

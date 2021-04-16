@@ -1,7 +1,5 @@
 http://www.tcpschool.com/html/html_intro_basicStructure
 https://developer.mozilla.org/en-US/docs/Learn
-HTML5
-https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5
 
 mozilla mdn web docs 다 보고 tcpschool가는 구조로 가자(tcpschool은 tag사용, 문법, 기능적인 것들 위주, mozilla는 개념 위주)
 이틀에 한 module씩!
@@ -28,3 +26,5 @@ https://dooray.com/htmls/guides/markdown_ko_KR.html
 
 글자 유닛
 https://webdesign.tutsplus.com/ko/articles/7-css-units-you-might-not-know-about--cms-22573
+
+1611 object fit ex 링크 걸기
