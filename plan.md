@@ -27,4 +27,5 @@ https://dooray.com/htmls/guides/markdown_ko_KR.html
 글자 유닛
 https://webdesign.tutsplus.com/ko/articles/7-css-units-you-might-not-know-about--cms-22573
 
-1611 object fit ex 링크 걸기
+1739 css-border-collapse-ex 링크 걸기
+1936 css-tables-before/after link

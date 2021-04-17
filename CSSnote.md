@@ -1705,3 +1705,242 @@ cf. text의 overflow는 `<p>`같은 element에 직접 적용함
 => cramped
 
 ### Styling our table
+```css
+table {
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+  border: 3px solid purple;
+}
+
+thead th:nth-child(1) {
+  width: 30%;
+}
+
+thead th:nth-child(2) {
+  width: 20%;
+}
+
+thead th:nth-child(3) {
+  width: 15%;
+}
+
+thead th:nth-child(4) {
+  width: 35%;
+}
+
+th, td {
+  padding: 20px;
+}
+```
+- `table`에 `table-layout: fixed;`를 적용하면 첫 번째 row를 기준으로 column width가 고정됨<br>=> subsequent rows에서 width가 맞지 않을 수 있음, `overflow` property를 이용해서 조절해야함<br>cf. `table-layout: auto;`가 default, 자동으로 열 너비 설정함(overflow 발생하지 않게)<br>`fixed`로 설정하면 table headings를 이용해서 열 너비 설정 가능
+- `thead th:nth-child(n)` selector를 이용해서 table headings의 width를 설정
+- `table`의 width를 100%로 설정, th들은 table의 width를 나눠가짐(30%, 20%, 15%, 35%)
+- `table`에 `border-collapse: collapse;`를 사용하면 중복되는 테두리가 하나만 나타남<br>![css-border-collapse-ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-border-collapse-ex.PNG?raw=true)
+- `th`, `td`에 padding 추가 => 가독성 증가
+
+#### Some simple typography
+```css
+html {
+  font-family: 'helvetica neue', helvetica, arial, sans-serif;
+}
+
+thead th, tfoot th {
+  font-family: 'Rock Salt', cursive;
+}
+
+th {
+  letter-spacing: 2px;
+}
+
+td {
+  letter-spacing: 1px;
+}
+
+tbody td {
+  text-align: center;
+}
+
+tfoot th {
+  text-align: right;
+}
+```
+- `letter-spacing` : 자간
+
+#### Graphics and colors
+```css
+thead, tfoot {
+  background: url(leopardskin.jpg);
+  color: white;
+  text-shadow: 1px 1px 1px black;
+}
+
+thead th, tfoot th, tfoot td {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.5));
+  border: 3px solid purple;
+}
+```
+- `text-shadow: 1px 1px 1px black;` : offset-x, offset-y, blur-radius, color
+- multiple backgrounds, linear gradients를 지원하지 않는 browsers를 위해 background를 분리해서 넣음
+
+**Zebra stripping**  
+```css
+tbody tr:nth-child(odd) {
+  background-color: #ff33cc;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #e495e4;
+}
+
+tbody tr {
+  background-image: url(noise.png);
+}
+
+table {
+  background-color: #ff33cc;
+}
+```
+- `nth-child([odd/even])`으로 홀수/짝수 행 선택 가능, formula(`2n-1`, `2n`과 같이)도 인자로 넣을 수 있음
+- 맨 마지막 `table`의 background는 `nth-child` pseudo-class selector를 지원하지 않는 browser을 위한 것
+
+#### Styling the caption
+- `caption-side: bottom;`을 통해서 caption의 위치 지정 가능
+
+### Table styling quick tips
+- Make your table markup as simple as possible, and keep things flexible, e.g. by _using percentages_, so the design is more reponsive.
+- Use `table-layout: fixed;`<br>to create a more predictable table layout that allows you to easily _set column widths by setting_ `width` _on their headings_(`<th>`).
+- Use `border-collapse: collapse;`<br>to make table elements borders collapse into each other, producing a neater and easier to control look.
+- Use `<thead>`, `<tbody>`, and `<tfoot>`<br>to break up your table into logical chunks and provide extra places to apply CSS to, so it is easier to layer styles on top of one another if required.
+- Use zebra striping to make alternative rows easier to read.
+- Use `text-align`<br>to line up your `<th>` and `<td>` text, to make things neater and easier to follow
+
+### Test your skills
+CSS:  
+```css
+th, td {
+  padding: 5px;
+}
+
+tr :nth-child(2),
+tr :nth-child(3) {
+  text-align: right;
+}
+
+tr :nth-child(1),
+tr :nth-child(4) {
+  text-align: left;
+}
+
+tfoot tr :nth-child(1) {
+  text-align: right;
+}
+
+tfoot tr :nth-child(2){
+  text-align: left;
+}
+
+table {
+  border-collapse: collapse;
+  border-top: 1px solid #eeeeee;
+}
+
+tfoot {
+  border-top: 1px solid #eeeeee;
+  border-bottom: 1px solid #eeeeee;
+}
+
+tbody tr:nth-child(odd) {
+  background: #eeeeee;
+}
+
+thead {
+  vertical-align: top;
+}
+```
+
+HTML:  
+```html
+ <table>
+  <caption>A summary of the UK's most famous punk bands</caption>
+  <thead>
+    <tr>
+      <th scope="col">Band</th>
+      <th scope="col">Year formed</th>
+      <th scope="col">No. of Albums</th>
+      <th scope="col">Most famous song</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Buzzcocks</th>
+      <td>1976</td>
+      <td>9</td>
+      <td>Ever fallen in love (with someone you shouldn't've)</td>
+    </tr>
+    <tr>
+      <th scope="row">The Clash</th>
+      <td>1976</td>
+      <td>6</td>
+      <td>London Calling</td>
+    </tr>
+    <tr>
+      <th scope="row">The Damned</th>
+      <td>1976</td>
+      <td>10</td>
+      <td>Smash it up</td>
+    </tr>
+    <tr>
+      <th scope="row">Sex Pistols</th>
+      <td>1975</td>
+      <td>1</td>
+      <td>Anarchy in the UK</td>
+    </tr>
+    <tr>
+      <th scope="row">Sham 69</th>
+      <td>1976</td>
+      <td>13</td>
+      <td>If the kids are united</td>
+    </tr>
+    <tr>
+      <th scope="row">Siouxsie and the Banshees</th>
+      <td>1976</td>
+      <td>11</td>
+      <td>Hong Kong Garden</td>
+    </tr>
+    <tr>
+      <th scope="row">Stiff Little Fingers</th>
+      <td>1977</td>
+      <td>10</td>
+      <td>Suspect Device</td>
+    </tr>
+    <tr>
+      <th scope="row">The Stranglers</th>
+      <td>1974</td>
+      <td>17</td>
+      <td>No More Heroes</td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <th scope="row" colspan="2">Total albums</th>
+      <td colspan="2">77</td>
+    </tr>
+  </tfoot>
+</table>
+```
+
+Result:  
+|:Before:|:After:|
+|---|---|
+|![css-tables-before](https://github.com/siriyaoff/MDN-note/blob/master/images/css-tables-before.PNG?raw=true)|![css-tables-after](https://github.com/siriyaoff/MDN-note/blob/master/images/css-tables-after.PNG?raw=true)|
+
+- `th, td`에 padding을 줘서 셀 넓힐 수 있음
+- `:nth-child(n)`는 혼자 쓰이면 부모 노드에서 n번째 자식,<br>`td:nth-child(n)`과 같이 쓰이면 부모노드에서 td인 자식 중 n번째를 선택
+- `vertical-align` property를 사용해서 box에서 text의 세로 위치를 결정할 수 있음(`top`, `middle`, `bottom`)
+
+## Debuging CSS
+### How to access browser DevTools
+firefox devtools는 grid layouts, flexbox, shapes를 edit할 수 있다
+
+### The DOM versus view source
