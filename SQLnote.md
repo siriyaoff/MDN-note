@@ -484,7 +484,7 @@ CREATE TABLE [T2] AS
 |`CHAR(n)`<br>(= `CHARACTER(n)`)|길이 `n`(최대 4KB)으로 고정된 string<br>(남으면 공백으로 채움)|
 |`NCHAR(n)`<br>(= `NATIONAL VARYING(n)`)|`CHAR(n)`과 비슷하지만 더 다양한 언어 지원|
 |`VARCHAR(n)`<br>(= `CHARACTER VARYING(n)`)|최대 길이가 `n`인 string<br>`n`보다 작은 문자열이 들어오면 공간 자체를 줄임|
-`|NVARCHAR(n)`|최대 길이가 `n`인 `NCHAR`<br>`VARCHAR`과 마찬가지로 공간이 남으면 줄임|
+|`NVARCHAR(n)`|최대 길이가 `n`인 `NCHAR`<br>`VARCHAR`과 마찬가지로 공간이 남으면 줄임|
 
 **숫자형**
 
