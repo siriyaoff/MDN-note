@@ -1695,6 +1695,7 @@ img에 `object-fit` property를 적용할 때 `width`, `height`가 설정되어 
 - img를 nest하는 것과 background로 넣는 것 이렇게 두 가지 방법이 있음
 	- img를 nest할 경우 default position이 center
 	- background로 넣을 경우 default position이 0 0
+	- `object-position`, `background-position` property로 설정 가능
 
 img같은 replaced elements의 `overflow` 관련 property는 overflow를 일으키는 요소에 적용하는게 아니라 부모 요소에 적용해야함  
 cf. text의 overflow는 `<p>`같은 element에 직접 적용함
@@ -1931,8 +1932,8 @@ HTML:
 ```
 
 Result:  
-|:Before:|:After:|
-|---|---|
+|Before|After|
+|:---:|:---:|
 |![css-tables-before](https://github.com/siriyaoff/MDN-note/blob/master/images/css-tables-before.PNG?raw=true)|![css-tables-after](https://github.com/siriyaoff/MDN-note/blob/master/images/css-tables-after.PNG?raw=true)|
 
 - `th, td`에 padding을 줘서 셀 넓힐 수 있음
@@ -1944,3 +1945,175 @@ Result:
 firefox devtools는 grid layouts, flexbox, shapes를 edit할 수 있다
 
 ### The DOM versus view source
+DOM에는 HTML의 오류들이 수정되어서 렌더링됨(browser에 의해)
+(+ browser가 모든 HTML을 normalize하고, DOM에는 JavaScript에 의한 변경점도 모두 적용됨)
+
+View Source는 DevTools에 의해 지원되는, 서버에 저장된 HTML source code를 보여주는 것임  
+(+ HTML tree도 같이 보여줌, display되지 않은 elements까지 볼 수 있음)
+
+### Inspecting the applied CSS
+Rules view에서 element에 적용된 모든 CSS를 볼 수 있음(inherited 포함)
+
+shorthand properties를 longhand properties로 확장할 수 있음
+
+toggle하여 rule을 적용하거나 제외할 수 있음
+
+### Editing values
+CSS를 볼 뿐만 아니라 propertie values를 수정 가능함
+
+### Adding a new property
+closing curly brace를 클릭하면 new declaration 삽입 가능
+
+### Understanding the box model
+Layout view에서는 element의 크기를 자세히 볼 수 있음
+
+`box-sizing`에 따라 box의 크기를 계산해서 표시해줌(`box-sizing`, `display` 등의 box model properties를 포함해서)
+
+### Solving specificity issues
+more specific selector가 존재하는 경우 css를 수정해도 적용이 안됨  
+DevTools에서 하나의 element에 대해 어떤 value가 적용되고 있는지 알 수 있음(specificity 순으로 나열됨)
+
+### Debugging problems in CSS
+Few steps to solve problems:
+1. Take a step back from the problem
+2. Do you have valid HTML and CSS?
+	- use validator
+3. Is the property and value supported by the browser you are testing in?
+	- DevTools will generally highlight unsupported properties and values in some way.
+4. Is something else overriding your CSS?
+	- use DevTools to find overriding rules.
+5. Make a reduced test case of the problem
+	reduced test case : code example that demonstrates the problem in the simplest possible way, with unrelated surrounding content and styling removed.
+	
+	To create a reduced test case:
+	1. If your markup is dynamically generated, make a static version of the output that shows the problem.
+	2. 이슈와 관련 없는 JavaScript 제거
+	3. 이슈와 관련 없는 HTML 제거(main element까지도)
+	4. 이슈와 관련 없는 CSS 제거
+	
+	reduced test case를 만들면 문제의 원인이나 트리거 등을 발견할 수 있음 + 도움을 요청할 때 다른 사람이 문제를 더 쉽게 파악 가능
+
+## Organizing your CSS
+### Tips to keep your CSS tidy
+#### Does your project have a coding style guide?
+#### Keep it consistent
+#### Formatting readable CSS
+#### Comment your CSS
+- 코드에서 사용하지 않는 문자열을 comment의 index로 사용 가능(`||`와 같이)
+
+```css
+/* || General styles */
+
+...
+
+/* || Utilities */
+
+...
+
+/* || Sitewide */
+
+...
+```
+
+#### Create logical sections in your stylesheet
+위 코드처럼 logical section을 만들어놓으면 코드의 가독성이 증가함
+
+`/* || General styles */`
+- elements들에 대한 default styling
+
+`/* || UTILITIES */`
+- nobullets같은 utility classes
+
+`/* || Sitewide */`
+- main-nav, logo같은 basic page layout, header, navigation styling
+
+`/* || Store pages */`
+- 나머지 css
+
+=> 바꿔야 하는 부분을 쉽게 찾을 수 있음
+
+#### Avoid overly-specific selectors
+#### Break large stylesheets into multiple smaller ones
+you can link to multiple stylesheets from one page.
+
+### Other tools that can help
+#### CSS methodologies
+이미 만들어진 methodologies를 사용하면 협업할 때 편함
+
+**OOCSS**  
+Object Oriented CSS  
+basic idea of OOCSS : **to separate your CSS into reusable objects**  
+`media`와 같이 하나의 class를 정의해 common CSS를 적음  
+=> 이후 다른 클래스들을 선언해 specific한 CSS 적음  
+=> `media` 클래스는 모든 component에 들어가는 클래스
+
+**BEM**  
+Block Element Modifier  
+Block : stand-alone entity e.g. button, menu, logo  
+Element : e.g. list item, title that is tied to the block it is in  
+Modifier : flag on a block or element that changes the styling or behavior  
+extensive use of dashes and underscores in the CSS classes가 특징임  
+Example  
+```html
+<form class="form form--theme-xmas form--simple">
+  <input class="form__input" type="text" />
+  <input
+    class="form__submit form__submit--disabled"
+    type="submit" />
+</form>
+```  
+
+**Other common systems**  
+다른 것들도 많음(SMACSS, ITCSS, ACSS 등등)  
+이런 system을 쓰면 좋은 점은 가이드가 많아 쉽게 작성 가능하다는 것이고,  
+나쁜 점은 처음 볼 때 너무 복잡하게 보인다는 것임(특히 작은 프로젝트에서)
+
+#### Build systems for CSS
+Pre-processor runs over your raw files and turns them into a stylesheet  
+Post-processor takes your finished stylesheet and optimizes it
+
+pre and post-processing을 지원해야 사용 가능(대부분의 IDE 지원)  
+Sass : the most popular pre-processor  
+변수 선언, component stylesheets 때문에 많이 쓰임
+
+**Defining variables**  
+지금은 CSS에도 custom properties를 이용해서 변수를 선언 가능  
+Sass에서는 `$`를 prefix로 붙여서 변수 선언 가능  
+Example  
+```css
+$base-color: #c6538c;
+
+.alert {
+  border: 1px solid $base-color;
+}
+```
+
+**Compiling component stylesheets**  
+`foundation/_code.scss`, `foundation/_lists.scss`, `foundation/_footer.scss`, `foundation/_links.scss`가 `foundation` 디렉토리 안에 있다고 가정하면  
+```css
+// foundation/_index.sass
+@use 'code'
+@use 'lists'
+@use 'footer'
+@use 'links'
+```  
+처럼 index를 만들고  
+```css
+// style.sass
+@use 'foundation'
+```  
+처럼 `foundation` 디렉토리와 동일한 경로에서는 `foundation` 디렉토리 전체를 링크 가능
+
+#### Post-processing for optimization
+stylesheets의 크기를 줄이는 등의 최적화를 해줌
+
+## Assessment06-Fundamental-CSS-comprehension
+`line-height` property : 한 줄이라도 위, 아래 줄 높이를 모두 포함(표 border 속성처럼 중복은 제거되는듯)
+
+## Assessment07-Creating-fancy-letterheaded-paper
+background를 넣을 때 fallback을 위에 넣는 이유 : 같은 property에 대해서는 cascading rule이 적용되어서 가장 아래에 적힌 것이 적용되기 때문
+
+`background-color`는 `background`가 적용된 뒤에 가장 밑 layer에 깔림  
+(`background`의 value 마지막에 `white`같은 색을 추가하는 것과 동일함
+
+`filter: drop-shadow(3px 3px 3px black);`를 이용
