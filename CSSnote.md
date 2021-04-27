@@ -2108,12 +2108,19 @@ $base-color: #c6538c;
 stylesheets의 크기를 줄이는 등의 최적화를 해줌
 
 ## Assessment06-Fundamental-CSS-comprehension
-`line-height` property : 한 줄이라도 위, 아래 줄 높이를 모두 포함(표 border 속성처럼 중복은 제거되는듯)
+- `line-height` property : 줄의 높이 설정(`line-height`가 `font-size`보다 클 경우 글자는 자동으로 vertically center로 배치됨, `vertical-align`은 inline element에 대해서만 사용 가능)
+
+p에서 line height가 font size보다 클 때 vertical position 조정은 어떻게 하지?  
+=> 할 필요가 없음(line-height, padding으로 조정 가능)
 
 ## Assessment07-Creating-fancy-letterheaded-paper
-background를 넣을 때 fallback을 위에 넣는 이유 : 같은 property에 대해서는 cascading rule이 적용되어서 가장 아래에 적힌 것이 적용되기 때문
+- background를 넣을 때 fallback을 위에 넣는 이유 : 같은 property에 대해서는 cascading rule이 적용되어서 가장 아래에 적힌 것이 적용되기 때문
+- `filter: drop-shadow(3px 3px 3px black);`를 이용<br>`filter`를 지원하지 않는 브라우저에 대해 `border-radius: 64px; box-shadow: 3px 3px 3px black;`를 사용해서 비슷하게 만들 수 있음
+	- 하지만 박스를 원 형태로 만들어서 그림자를 넣는 것이기 때문에 자연스럽지 않음
 
-`background-color`는 `background`가 적용된 뒤에 가장 밑 layer에 깔림  
-(`background`의 value 마지막에 `white`같은 색을 추가하는 것과 동일함
-
-`filter: drop-shadow(3px 3px 3px black);`를 이용
+## Assessment08-A-cool-looking-box
+- `background`는 모든 bakground를 바꿔버리고, `background-color`, `background-image`는 기존 background에 각각의 value를 추가함(layer가 씌워짐)
+- default font size : `16px`
+- `<p>`의 경우 `margin: auto;`를 넣으면 자동으로 center로 위치가 맞춰짐
+- `box-shadow`는 `inset`이 적용된 value를 먼저 적는게 더 가독성이 좋음
+- `line-height`의 기본 단위는 `em`임
