@@ -2119,8 +2119,120 @@ p에서 line height가 font size보다 클 때 vertical position 조정은 어�
 	- 하지만 박스를 원 형태로 만들어서 그림자를 넣는 것이기 때문에 자연스럽지 않음
 
 ## Assessment08-A-cool-looking-box
-- `background`는 모든 bakground를 바꿔버리고, `background-color`, `background-image`는 기존 background에 각각의 value를 추가함(layer가 씌워짐)
+- `background`는 모든 background를 바꿔버리고, `background-color`, `background-image`는 기존 background에 각각의 value를 추가함<br>(background, background-image, background-color 순서로 layer가 정의되어 있는 듯, 앞이 가장 위의 layer)
 - default font size : `16px`
 - `<p>`의 경우 `margin: auto;`를 넣으면 자동으로 center로 위치가 맞춰짐
 - `box-shadow`는 `inset`이 적용된 value를 먼저 적는게 더 가독성이 좋음
 - `line-height`의 기본 단위는 `em`임
+
+## Advanced styling effects
+### Box shadows
+`box-shadow`는 IE9+, Edge등에서도 지원됨  
+older IE versions에서는 지원안되기 때문에 shadow 없이도 legible한지 테스트해야함
+
+#### A simple box shadow
+`box-shadow: [inset] [horizontal offset] [vertical offset] [blur radius] [base color];`
+- offset은 negative value 가능
+- `inset`은 생략 가능(keyword가 적혀있을 때만 inset이 적용됨)
+
+#### Multiple box shadows
+- comma로 separate해서 여러 개의 shadow를 넣을 수 있음
+
+#### Other box shadow features
+- `inset`을 적용하면 박스의 안쪽에 그림자 넣을 수 있음
+	- inset을 적용하지 않고 offset에 음수 넣은 shadow는 box 아래의 layer에 있어서 box가 덮어버림
+	- `text-shadow`에는 `inset` keyword가 없음
+- pseudo-class와 함께 사용하면 클릭시 효과를 넣을 수 있음(`:focus`, `:hover`, `:active` 등)
+- `[blur radius]` 뒤에 `[spread radius]`를 넣을 수 있음, 넣은 만큼 shadow를 더 넓혀줌(shadow의 width, height에 spread radius만큼 더함)
+
+### Filters
+`filter` property의 value
+- `drop-shadow()`
+- `blur([blur radius])`
+- `grayscale(<percentage>)`
+- `contrast(<percentage>)` : 퍼센트 만큼 대조
+- `invert(<percentage>)` : 퍼센트 만큼 반전
+- `huerotate([angle])` : hue값을 `[angle]`만큼 수정함
+
+※ filter의 option 중 몇 개는 css features와 비슷한 효과를 줌  
+e.g.  
+`drop-shadow`는 `box-shadow`, `text-shadow`와 비슷함  
+그러나 border가 dashed인 `<p>`가 있으면 `drop-shadow`는 그림자가 점선으로 나타나지만,  
+`box-shadow`는 그림자가 실선으로 나타남
+
+### Blend modes
+blend mode는 `background-blend-mode`, `mix-blend-mode` 두 가지로 지원됨  
+※ blend mode는 최신 기능이라 edge에서는 지원 안됨
+
+#### background-blend-mode
+`background-blend-mode: multiply;`가 적용되면 background가 여러 개 있을 때 최종 결과는 포토샵으로 섞은 것처럼 나옴  
+아래 그림의 왼쪽이 이미지와 초록색 배경을 적용한 것, 오른쪽이 blend mode 적용시킨 것  
+![css-background-blend-mode](https://github.com/siriyaoff/MDN-note/blob/master/images/css-background-blend-mode.PNG?raw=true)
+
+#### mix-blend-mode
+`background-blend-mode`와 같은 효과지만, `<div>`와 같은 elements가 blend됨  
+blend mode가 적용된 element는 다른 element와 겹쳐지면 blend됨
+
+### CSS shapes
+- `shape-outside`로 이미지가 실제론 직사각형이어도 한글에서 글에 둘러싸이는 것처럼 만들 수 있음
+- floated elements에 대해서만 적용 가능함
+
+Example  
+CSS:  
+```css
+img {
+  float: left;
+  shape-outside: circle(50%);
+}
+```
+
+HTML:  
+```html
+<div class="wrapper">
+  <img src="round-balloon.png" alt="balloon">
+  <p>One November night in the year 1782, so the story runs, two brothers sat over their winter fire in the little French town of Annonay, watching the grey smoke-wreaths from the hearth curl up the wide chimney. Their names were Stephen and Joseph Montgolfier, they were papermakers by trade, and were noted as possessing thoughtful minds and a deep interest in all scientific knowledge and new discovery. Before that night—a memorable night, as it was to prove—hundreds of millions of people had watched the rising smoke-wreaths of their fires without drawing any special inspiration from the fact.</p>
+</div>
+```
+
+Result:  
+![css-shape-outside](https://github.com/siriyaoff/MDN-note/blob/master/images/css-shape-outside.PNG?raw=true)
+
+- `circle()`은 shape를 만드는 함수 중 하나임(<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Shapes/Overview_of_CSS_Shapes" target="_blank">필요하면 더 공부하기</a>)
+- `circle(<percentage>)`은 이미지의 중심에서부터 `<percentage>*이미지의 width`만큼 원을 그려서 shape으로 활용하는 듯
+
+### -webkit-background-clip: text
+Example  
+CSS:  
+```css
+h2 {
+  width: 250px;
+  height: 250px;
+  text-align: center;
+  line-height: 250px;
+  font-size: 75px;
+  display: inline-block;
+  background: url(colorful-heart.png) no-repeat center;
+}
+
+.text-clip {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+```
+
+HTML:  
+```html
+<h2>WOW</h2>
+
+<h2 class="text-clip">WOW</h2>  
+```
+
+Result:  
+![css-webkit-background-clip](https://github.com/siriyaoff/MDN-note/blob/master/images/css-webkit-background-clip.PNG?raw=true)
+
+- Non-Webkit/Chrome-based browsers도 `-webkit-` vendor prefix를 붙여서 properties를 사용해야 함
+	- 너무 많이 쓰여서 표준이 아니지만 다른 브라우저도 이 기능을 구현한 결과임
+	- danger of using non-standard and/or prefixed CSS features
+
+
+# Styling text
