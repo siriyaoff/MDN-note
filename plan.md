@@ -17,11 +17,9 @@ https://dooray.com/htmls/guides/markdown_ko_KR.html
 
 901 내용 정확히 이해하면 다시 적기(display: flex, grid, block, inline)
 
-####랑 bold랑 사이즈 같으니까 ####다음 헤더를 다르게 만들어야할듯(underline?)
-
-1403도 가독성 괜찮은지
-
-777 example에 |가 표 나누지 않는지
-
 글자 유닛
 https://webdesign.tutsplus.com/ko/articles/7-css-units-you-might-not-know-about--cms-22573
+
+CSS building blocks : 435 - 2235
+
+2342~2345 line-through 다음 문단으로 잘 나오는지

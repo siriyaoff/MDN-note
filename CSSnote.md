@@ -472,7 +472,7 @@ Some CSS property values in the parent elements are inherited by their child ele
 These three concepts(cascade, specificity, and inheritance) together control which CSS applies to what element
 
 ### Understanding inheritance
-**Example**  
+#### Example
 CSS:  
 ```css
 .main {
@@ -511,8 +511,10 @@ HTML:
 </ul>
 ```
 
-Result:  
-![Inheritance ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-inheritance-ex1.PNG?raw=true)
+|Result:|
+|:---|
+|![Inheritance ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-inheritance-ex1.PNG?raw=true)|
+
 - We have given the outer `<ul>`(with class `main`) a border, padding, and font color. The color has applied to the direct children, but also the indirect children. Same for another class `special`. But things like widths, margins, padding, and borders do not inherit.(Probably not an effect we would ever want!)
 - Which properties are inherited by default and which aren't is largely **down to common sense.
 
@@ -528,7 +530,7 @@ There are four special universal property values for controlling inheritance. Ev
 	- property가 `color`같은거면 `inherit`, `width`같은거면 `initial`과 같이 취급, shorthand로 다 같이 정의할 때 omitting으로 문제 일어나지 않도록 쓰는 용도인듯
 - `revert` : newer value, limited browser support
 
-**Example**  
+#### Example
 CSS:  
 ```css
 body {
@@ -558,14 +560,16 @@ HTML:
 </ul>
 ```
 
-Result:  
-![universal property ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-universal-property-ex1.PNG?raw=true)
+|Result:|
+|:---|
+|![universal property ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-universal-property-ex1.PNG?raw=true)|
+
 - `a { color: red;}`를 추가하면 맨 위 링크만 빨간색으로 변함(다른 것들은 `' '` combinator, class selector로 specificity가 더 높은 rule이 적용되어있기 때문)
 
 #### Resetting all property values
 The CSS shorthand property `all` represents all properties. So we can use it usefully when we debug. If we apply `all: unset;` declaration, all rules applied will be initialized except the inherited properties.
 
-**Example**
+#### Example
 CSS:  
 ```css
 blockquote {
@@ -589,8 +593,10 @@ HTML:
 </blockquote>
 ```
 
-Result:  
-![all property ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-all-property-ex1.PNG?raw=true)
+|Result:|
+|:---|
+|![all property ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-all-property-ex1.PNG?raw=true)|
+
 - `all`도 다른 property와 같이 conflicting rule에 의해 처리됨
 - `all`은 모든 property를 포함하기 때문에 padding과 같은 ruleset으로 정의하지 않았지만 기본적으로 정의해주는 속성(padding, margin 등)도 같이 `unset`됨
 
@@ -619,7 +625,7 @@ The amount of specificity is measured using four different values(thousands, hun
 
 **Note**: The universal selector(`*`), combinators(`+`, `>`, `~`, `' '`), and negation pseudo-class(`:not`) have no effect on specificity
 
-**Example**  
+#### Example
 ```css
 /* specificity: 0101 */
 #outer a {
@@ -662,7 +668,7 @@ div div .nav:nth-child(2) a:hover {
 #### !important
 `!important` makes a declaration the most specific thing.
 
-**Example**  
+#### Example
 CSS:  
 ```css
 
@@ -689,8 +695,9 @@ HTML:
 <p class="better" id="winning">One selector to rule them all!</p>
 ```
 
-Result:  
-![css important ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-important-ex1.PNG?raw=true)
+|Result:|
+|:---|
+|![css important ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-important-ex1.PNG?raw=true)|
 
 - id selector가 두 번째 p에 적용되어 원래는 테두리가 있어야 하지만 class selector의 속성을 따름
 	- class selector의 border declaration에 `!important`가 있기 때문에 specificity가 가장 높게 설정되었기 때문에 overriding되지 않음
@@ -769,6 +776,7 @@ a[href="https://example.com"] {}
 ```
 
 #### Presence and value selectors
+
 |Selector|Example|Description|
 |:---|:---|:---|
 |[*attr*]|`a[title]`|elements with an *attr* attribute|
@@ -783,6 +791,7 @@ a[href="https://example.com"] {}
 - [class~="a"]가 class="ab"인 element를 포함하지 않음!!(list에 원소가 ab이기 때문)
 
 #### Substring matching selectors
+
 |Selector|Example|Description|
 |:---|:---|:---|
 |[*attr*^=*value*]|`li[class^="box-"]`|elements with an *attr* attribute whose value begins with *value*|
@@ -825,7 +834,7 @@ Some early pseudo-elements used the single colon syntax, modern browsers support
 #### Generating content with ::before and ::after
 These(`::before`, `::after`) are used along with the `content` property to insert content into your document using CSS. This use is referred to as "**Generated Content**" in CSS.
 
-**Example**  
+#### Example
 ```css
 .box::before {
   content: "This should show before the other content.";
@@ -842,7 +851,7 @@ The combinators combine other selectors in order to target elements within our d
 The descendant combinator(`' '`) combines two selectors(`A B`) such that `B` is selected if `B` has `A` as its ancestor.  
 Selectors that utilize a descendant combinator are called *descendant selectors*.
 
-**Example**  
+#### Example
 `body article p` selects `<p>` inside `<article>` which is inside `<body>`.
 
 #### Child combinator
@@ -860,13 +869,13 @@ article > p {}
 The adjacent sibling selector(+) is placed between two CSS selectors(`A + B`). It matches only those elements matched by the `B` that are the next sibling element of the `A`.  
 A common use case is to do something with a paragraph that follows a heading, such as *abstract*.
 
-**Example**  
+#### Example
 `h1 + p` selects paragraphs after `<h1>`
 
 #### General sibling combinator
 The general sibling combinator(`~`) combines two selectors(`A ~ B`). It selects all the B that are siblings of A, even not directly adjacent.
 
-**Example**  
+#### Example
 `p ~ img` selects all `<img>` elements that come anywhere **after** `<p>` elements.
 
 #### Using combinators
@@ -878,7 +887,7 @@ The general sibling combinator(`~`) combines two selectors(`A ~ B`). It selects 
 ### Block and inline boxes
 In CSS, there are broadly two types of boxes - **block boxes** and **inline boxes**. These characteristics refer to how the box behaves in terms of page flow, and in relation to other boxes on the page:
 
-**Block box**
+### Block box
 - The box will break onto a new line.
 - The box will extend in the inline direction to fill the space available in its container.
 - The `width` and `height` properties are respected.
@@ -886,7 +895,7 @@ In CSS, there are broadly two types of boxes - **block boxes** and **inline boxe
 
 By default, headings and `<p>` use `block` as their outer display type.
 
-**Inline box**
+### Inline box
 - The box will not break onto a new line.
 - The `width` and `height` properties will not apply.
 - Vertical padding, margins, and borders will apply but will not cause other inline boxes to move away from the box.
@@ -937,8 +946,9 @@ HTML:
 <p>I am another paragraph. Some of the <span class="block">words</span> have been wrapped in a <span>span element</span>.</p>
 ```
 
-Result:  
-![display type ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-display-type-ex1.png?raw=true)
+|Result:|
+|:---|
+|![display type ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-display-type-ex1.png?raw=true)|
 
 CSS:  
 ```css
@@ -979,8 +989,9 @@ HTML:
 <p class="inline">I am another paragraph. Also a short one.</p>
 ```
 
-Result:  
-![display type ex2](https://github.com/siriyaoff/MDN-note/blob/master/images/css-display-type-ex2.png?raw=true)
+|Result:|
+|:---|
+|![display type ex2](https://github.com/siriyaoff/MDN-note/blob/master/images/css-display-type-ex2.png?raw=true)|
 
 - `block` : 새로운 줄에서 시작, 너비 지정 없으면 부모 노드의 너비를 모두 차지, `span`과 같은 inline element에도 `display: block;`을 부여할 수 있음, 반대도 가능(`ul`에 inline 부여)
 - `inline` : 줄바꿈 없음, '글자처럼 취급'이랑 비슷
@@ -1005,7 +1016,7 @@ Layers in the block box:
 #### The standard CSS box model
 In the standard box model, `width` and `height` defines the width and height of the *content box*. Then any padding and border is added.
 
-**Example**  
+#### Example
 CSS:  
 ```css
 .box {
@@ -1017,8 +1028,9 @@ CSS:
 }
 ```
 
-Result:  
-![standard box model](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model/standard-box-model.png)
+|Result:|
+|:---|
+|![standard box model](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model/standard-box-model.png)|
 
 The space taken up by the box using the standard box model will be 410px(350+25+25+5+5) * 210px(150+25+25+5+5).  
 **Note**: The margin is not counted towards the actual size of the box. It affects only the space outside the box. The box's area stops at the border.(보여지는 박스의 크기는 border까지임)
@@ -1026,7 +1038,7 @@ The space taken up by the box using the standard box model will be 410px(350+25+
 #### The alternative CSS box model
 In the alternative box model, `width` is the width of the visible box(width to the border). Therefore the content area width is `width` minus the width for the padding and border.  
 
-**Example**  
+#### Example
 The same CSS as used above would give the below result.  
 ![alternative box model](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model/alternate-box-model.png)
 
@@ -1058,7 +1070,7 @@ If there are two elements whose margins touch,
 #### Borders
 There are four borders(*top*, *right*, *bottom*, *left*), and each border has a *style*, *width* and *color* that we might want to manipulate.
 
-**Example**  
+#### Example 
 ```css
 border: 1px groove grey;
 border-top: 1px double grey;
@@ -1080,7 +1092,7 @@ As we mentioned above at the **Inline boxes**,
 - vertical margin and padding are respected but don't change the relationship of other content to our inline box
 - horizontal margin and padding are respected and cause other content to move away from the box
 
-**Example**  
+#### Example
 CSS:  
 ```css
 span {
@@ -1100,8 +1112,9 @@ HTML:
 </p>
 ```
 
-Result:  
-![inline box ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-inline-box-ex.png?raw=true)
+|Result:|
+|:---|
+|![inline box ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-inline-box-ex.png?raw=true)|
 
 ### Using display: inline-block
 `inline-block` is a middle ground between `inline` and `block`.
@@ -1109,7 +1122,7 @@ Result:
 - `padding`, `margin`, and `border` will cause other elements to be pushed away from the box  
 => avoid the overlapping like above, but inline
 
-**Example**  
+#### Example
 CSS:  
 ```css
 span {
@@ -1130,8 +1143,10 @@ HTML:
 </p>
 ```
 
-Result:  
-![inline block ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-inline-block-ex.png?raw=true)
+|Result:|
+|:---|
+|![inline block ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-inline-block-ex.png?raw=true)|
+
 - 저 예제에서는 80!=20+20+2+2이므로 standard box model 사용중
 - `<p>`는 block element이기 때문에 `<span>`에 `display: block;`을 적용시켜도 줄만 바뀔 뿐 p의 border가 두 개로 나눠지지 않음!
 - nav bar같은거 만들 때 `<a>`의 링크 클릭 범위를 넓힐 때 inline-block 많이 사용(padding 넣어서 영역 넓히고 이게 overlapping되지 않도록 해줌)
@@ -1177,7 +1192,7 @@ The most common `background-position` values take two individual values(a horizo
 It can take lengths, percentages, and keywords(`top`, `bottom`, `right`, `left`, `center`).  
 `background-position` 은 `background-position-x`, `background-position-y`의 shorthand임에 유의
 
-**Example**  
+#### Example
 ```css
 background-position: top center;
 background-position: 20px 10%;
@@ -1192,7 +1207,7 @@ background-position: top 20px right 10px;
 #### Gradient backgrounds
 A gradient - when used for a background - acts just like an image and is also set by using the `background-image` property.
 
-**Example**
+#### Example
 ```css
 background-image: linear-gradient(105deg, rgba(0,249,255,1) 39%, rgba(51,56,57,1) 96%);
 
@@ -1204,7 +1219,7 @@ background-size: 100px 100px;
 #### Multiple background images
 It is possible to have multiple background images in a single property value, by separating with commas.
 
-**Example**  
+#### Example
 ```css
 background-image: url(image1.png), url(image2.png), url(image3.png), url(image4.png);
 background-repeat: no-repeat, repeat-x, repeat;
@@ -1228,7 +1243,7 @@ A few rules to use shorthand values:
 - `background-color`(solid background) may only be specified after the final comma
 - the value of `background-size` must be included immediately after `background-position`, separated with the `/` character, such as `center / 80%`
 
-**Example**  
+#### Example
 ```css
 .box {
   background:   
@@ -1265,7 +1280,8 @@ The three possible values for the writing-mode:
 In `writing-mode: horizontal-tb`, sentences flow horizontally and blocks are displayed vertically, and vice versa.  
 When we switch the writing mode, the directions of inline, block is changed.  
 The directions are also called as **dimensions**.  
-The **block dimension** is always the direction blocks are displayed on the page, and the **inline dimension** is always the direction a sentence flows.  
+The **block dimension** is always the direction blocks are displayed on the page, and the **inline dimension** is always the direction a sentence flows.
+
 |horizontal writing mode|vertical writing mode|
 |:---|:---|
 |![horizontal writing mode](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Handling_different_text_directions/horizontal-tb.png)|![vertical writing mode](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Handling_different_text_directions/vertical.png)|
@@ -1275,7 +1291,8 @@ Arabic과 같이 horizontal하지만 right-to-left로 읽고 쓰는 언어도 �
 
 ### Logical properties and values
 A lot of properties are tied to the physical dimensions of the screen, and make most sense when in a horizontal writing mode.  
-**Example**  
+
+#### Example
 CSS:  
 ```css
 .box {
@@ -1307,8 +1324,9 @@ HTML:
 </div>
 ```
 
-Result:  
-![text overflow ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-text-overflow-ex1.png?raw=true)
+|Result:|
+|:---|
+|![text overflow ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-text-overflow-ex1.png?raw=true)|
 
 In the example above, the box with a vertical writing mode still has a width, and this causing the text to overflow.  
 It is needed to swap height and width along with the writing mode. For example, when we're in a vertical writing mode we want the box to expand in the block dimension.  
@@ -1391,7 +1409,8 @@ Every property used in CSS has a value type defining the set of values that are 
 - If you see `<color>` as valid, you can use all the values in `<color>`(assuming your browser support them)
 
 ### Numbers, lengths, and percentages
-Numeric value types:  
+Numeric value types:
+
 |Data type|Description|Example|
 |:---|:---|:---|
 |`<integer>`|whole number|`1024` or `-55`|
@@ -1403,7 +1422,8 @@ Numeric value types:
 There are two types of lengths, relative and absolute.
 
 **Absolute length units**  
-These are always the same size.  
+These are always the same size.
+
 |Unit|Name|Equivalent to|
 |:---|:---|:---|
 |`cm`|Centimeters|1`cm` = 38`px`|
@@ -1417,7 +1437,8 @@ These are always the same size.
 The only value that you will commonly use is `px`.
 
 **Relative length units**  
-These are relative to something else, perhaps the size of the parent element's font.  
+These are relative to something else, perhaps the size of the parent element's font.
+
 |Unit|Relative to|
 |:---|:---|
 |`em`|Font size of the parent in the case of typographical properties like `font-size`,<br>font size of the element itself in the case of other properties like `width`|
@@ -1429,6 +1450,7 @@ These are relative to something else, perhaps the size of the parent element's f
 |`vh`|1% of the viewport's height|
 |`vmin`|1% of the viewport's smaller dimension|
 |`vmax`|1% of the viewport's larger dimension|
+
 - `ex`는 `em`의 절반
 - `rem`은 root element의 font-size 기준, `em`는 parent의 font-size 기준 -> nested element의 경우 `em`으로 글자설정하면 계속 커짐!
 
@@ -1519,7 +1541,8 @@ When you set margin and padding in percentages, the value is calculated from the
 ### min- and max- sizes
 `min-height` property makes the box to be always at least the height.  
 A common use of `max-width` is to cause images to scale down if there is not enough space to display them at their intrinsic width while making sure they don't become larger than that width.  
-**Example**  
+
+#### Example
 CSS:  
 ```css
 .box {
@@ -1545,8 +1568,9 @@ HTML:
 </div>
 ```
 
-Result:  
-![max width ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-max-width-ex.png?raw=true)
+|Result:|
+|:---|
+|![max width ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-max-width-ex.png?raw=true)|
 
 - `max-width: 100%`를 이용하면 이미지를 responsive하게 만들면서 크기를 박스 이상으로 커지지 않게 만들 수 있음
 
@@ -1577,7 +1601,7 @@ box에 `width: 100px;`를 적용하고 img를 넣으면 overflow할 수도 있�
 - `object-fit: cover;`를 img에 적용시키면 img가 box를 꽉 채움(aspect ratio를 유지)
 - `object-fit: contain;`를 img에 적용시키면 img가 box안에 들어감(aspect ratio를 유지하면서 들어가기 때문에 box에 빈 공간이 남음)
 
-**Example**  
+#### Example
 CSS:  
 ```css
 .box {
@@ -1607,8 +1631,9 @@ HTML:
 </div>
 ```
 
-Result:  
-![object fit ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-object-fit-ex.PNG?raw=true)
+|Result:|
+|:---|
+||![object fit ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-object-fit-ex.PNG?raw=true)|
 
 - img의 `width`, `height`를 둘 다 100%로 설정해놓은 상태라 `object-fit` 속성을 선언해놓지 않으면 box를 채움(`object-fit: fill;`과 같음, img의 aspect ratio를 무시하고 box를 채워버림)
 
@@ -1931,9 +1956,9 @@ HTML:
 </table>
 ```
 
-Result:  
+|Result:||
+|:---|:---|
 |Before|After|
-|:---:|:---:|
 |![css-tables-before](https://github.com/siriyaoff/MDN-note/blob/master/images/css-tables-before.PNG?raw=true)|![css-tables-after](https://github.com/siriyaoff/MDN-note/blob/master/images/css-tables-after.PNG?raw=true)|
 
 - `th, td`에 padding을 줘서 셀 넓힐 수 있음
@@ -2052,8 +2077,9 @@ Block Element Modifier
 Block : stand-alone entity e.g. button, menu, logo  
 Element : e.g. list item, title that is tied to the block it is in  
 Modifier : flag on a block or element that changes the styling or behavior  
-extensive use of dashes and underscores in the CSS classes가 특징임  
-Example  
+extensive use of dashes and underscores in the CSS classes가 특징임
+
+#### Example
 ```html
 <form class="form form--theme-xmas form--simple">
   <input class="form__input" type="text" />
@@ -2079,7 +2105,8 @@ Sass : the most popular pre-processor
 **Defining variables**  
 지금은 CSS에도 custom properties를 이용해서 변수를 선언 가능  
 Sass에서는 `$`를 prefix로 붙여서 변수 선언 가능  
-Example  
+
+#### Example
 ```css
 $base-color: #c6538c;
 
@@ -2131,7 +2158,7 @@ p에서 line height가 font size보다 클 때 vertical position 조정은 어�
 older IE versions에서는 지원안되기 때문에 shadow 없이도 legible한지 테스트해야함
 
 #### A simple box shadow
-`box-shadow: [inset] [horizontal offset] [vertical offset] [blur radius] [base color];`
+`box-shadow: [inset] [horizontal offset] [vertical offset] [blur radius] [spread radius] [base color];`
 - offset은 negative value 가능
 - `inset`은 생략 가능(keyword가 적혀있을 때만 inset이 적용됨)
 
@@ -2177,7 +2204,7 @@ blend mode가 적용된 element는 다른 element와 겹쳐지면 blend됨
 - `shape-outside`로 이미지가 실제론 직사각형이어도 한글에서 글에 둘러싸이는 것처럼 만들 수 있음
 - floated elements에 대해서만 적용 가능함
 
-Example  
+#### Example
 CSS:  
 ```css
 img {
@@ -2194,14 +2221,15 @@ HTML:
 </div>
 ```
 
-Result:  
-![css-shape-outside](https://github.com/siriyaoff/MDN-note/blob/master/images/css-shape-outside.PNG?raw=true)
+|Result:|
+|:---|
+|![css-shape-outside](https://github.com/siriyaoff/MDN-note/blob/master/images/css-shape-outside.PNG?raw=true)|
 
 - `circle()`은 shape를 만드는 함수 중 하나임(<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Shapes/Overview_of_CSS_Shapes" target="_blank">필요하면 더 공부하기</a>)
 - `circle(<percentage>)`은 이미지의 중심에서부터 `<percentage>*이미지의 width`만큼 원을 그려서 shape으로 활용하는 듯
 
 ### -webkit-background-clip: text
-Example  
+#### Example
 CSS:  
 ```css
 h2 {
@@ -2227,8 +2255,9 @@ HTML:
 <h2 class="text-clip">WOW</h2>  
 ```
 
-Result:  
-![css-webkit-background-clip](https://github.com/siriyaoff/MDN-note/blob/master/images/css-webkit-background-clip.PNG?raw=true)
+|Result:|
+|:---|
+|![css-webkit-background-clip](https://github.com/siriyaoff/MDN-note/blob/master/images/css-webkit-background-clip.PNG?raw=true)|
 
 - Non-Webkit/Chrome-based browsers도 `-webkit-` vendor prefix를 붙여서 properties를 사용해야 함
 	- 너무 많이 쓰여서 표준이 아니지만 다른 브라우저도 이 기능을 구현한 결과임
@@ -2236,3 +2265,118 @@ Result:
 
 
 # Styling text
+## Fundamental text and font styling
+### What is involved in styling text in CSS?
+The CSS properties used to style text generally fall into two categories
+- Font styles : properties that affect the font(font 종류, 크기, bold, italic 등)
+- Text layout styles : properties that affect layout features(spacing, text alignment 등)
+
+**Note**: 하나의 element 안에 있는 text들은 one single entity로 CSS의 영향을 받음  subsection을 선택하기 위해선 pseudo-element(`::first-letter`, `::selection` 등)을 사용해야 함
+
+### Fonts
+#### Color
+Use `color` property
+
+#### Font families
+Use `font-family`  
+글꼴이 지원되지 않으면 default font를 사용함
+
+**Web safe fonts**  
+generally available한 font들
+
+|Name|Generic type|Notes|
+|:---|:---|:---|
+|Arial|sans-serif|*Helvetica*이 alternative로 사용하기 좋음(둘의 모양이 비슷함, *Arial*이 더 범용성있음)|
+|Courier New|monospace|preferred alternative : *Courier*(더 오래된 버전)|
+|Georgia|serif||
+|Times New Roman|serif|preferred alternative : *Times*(더 오래된 버전)|
+|Trebuchet MS|sans-serif|mobile OSes에서는 widely available하지 않음|
+|Verdana|sans-serif||
+
+**Default fonts**  
+CSS defines five generic names for fonts : `serif`, `sans-serif`, `monospace`, `cursive`, `fantasy`  
+이 글꼴들은 브라우저, OS에 따라서 실제 사용되는 font face가 다를 수 있음!  
+특히 `cursive`와 `fantasy`는 사용할 때 주의해야함(특이한 글꼴이라서 많이 다를 수 있음)
+
+|Term|Definition|Example|
+|:---|:---|:---|
+|`serif`|Fonts that have serifs(the flourishes and other small details you see at the ends of the strokes in some typefaces)|<span style="font-family:serif;">My big red elephant</span>|
+|`sans-serif`|Fonts that don't have serifs|<span style="font-family:sans-serif;">My big red elephant</span>|
+|`monospace`|Fonts where every character has the same width, typically used in code listings|<span style="font-family:monospace;">My big red elephant</span>|
+|`cursive`|Fonts that are intended to emulate handwriting, with flowing, connected strokes|<span style="font-family:cursive;">My big red elephant</span>|
+|`fantasy`|Fonts that are intended to be decorative|<span style="font-family:fantasy;">My big red elephant</span>|
+
+**Font stacks**  
+Supply a font stack so that the browser has multiple fonts it can choose from.  
+e.g. `font-family: "Trebuchet MS", Verdana, sans-serif;`  
+브라우저가 font를 지원하지 않는 것을 대비해서 마지막에 suitable generic font를 추가해놓는게 좋음  
+
+**Note**: font name이 한 단어보다 많을 경우 double quotes로 감싸야 함
+
+#### Font size
+Use `font-size`  
+`font-size`는 `px`, `em`, `rem` 등 많은 unit들을 사용 가능  
+기본적으로 parent element로부터 inherit됨(16px가 root element의 default size임)  
+`em`은 parent element의 크기가 기준이기 때문에 container elements에 대해서는 `font-size` 설정을 피하는게 나음
+
+#### Font style, font weight, text transform, and text decoration
+Four common properties to alter the visual weight/emphasis of text:
+- `font-style` : Use to turn *italic* text on and off<br>possible values:
+	- `normal`
+	- `italic` : set the text to use the *italic version* of the font<br>(if not available, it will simulate italics with oblique instead)
+	- `oblique` : set the text to use a simulated version of an italic font(*slanting* the normal version)
+- `font-weight` : Set boldness of the text<br>values available:
+	- `normal`, `bold`
+	- `lighter`, `bolder` : calculate with parent element's boldness
+	- `100` - `900` : numeric boldness
+- `text-transform` : Set font to be transformed<br>values include:
+	- `none`
+	- `uppercase`, `lowercase`
+	- `capitalize`
+	- `full-width` : Transform all glyphs to be written inside a fixed-width square(similar to monospace font)
+- `text-decoration` : Set text decorations(underline ...)<br>available values:
+	- `none`
+	- `underline`
+	- `overline` : <span style="text-decoration:overline;">Gives the text an overline</span>
+	- `line-through` : ~~취소선~~
+	
+	multiple value 입력 가능  
+	`text-decoration`은 `text-decoration-line`, `-style`, `-color`의 shorthand임
+
+#### Text drop shadows
+Use `text-shadow`  
+*CSS building blocks*에서 설명한대로 `text-shadow: [x-offset] [y-offset] [blur radius] [color];`의 포맷을 가짐(`inset`, `spread radius`는 없음)  
+
+**Multiple shadows**  
+shadow 여러 개 가능
+
+### Text layout
+#### Text alignment
+Use `text-align`
+- `left`
+- `right`
+- `center`
+- `justify` : Make the text spread out<br>이걸 사용할 때는 긴 단어는 `-`을 이용해서 나눠야 하는 것을 고려해야함
+
+#### Line height
+Use `line-height` to set the height of each line of text  
+숫자만 넣으면 font size에 곱해져서 계산됨  
+`1.5`-`2`가 보통
+
+#### Letter and word spacing
+Use `letter-spacing` and `word-spacing` to set the spacing between letters and words  
+e.g. `letter-spacing: 4px;`
+
+#### Other properties worth looking at
+<a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/Styling_text/Fundamentals#other_properties_worth_looking_at" target="_blank">다른 properties로 많음</a>
+
+### Font shorthand
+`font`를 shorthand로 사용할 때 `font-style`, `font-variant`, `font-weight`, `font-stretch`, `font-size`, `line-height`, `font-family` 순서로 작성되어야 함  
+`font-size`, `font-family` 두 개만 required임  
+`font-size`, `line-height` 사이에는 `/`를 사용해야함(둘 다 length and size units가 들어가기 때문)  
+e.g. `font: italic normal bold normal 3em/1.5 Helvetica, Arial, sans-serif;`
+
+## Styling lists
+### A simple list example
+Styling defaults:
+- 
