@@ -23,3 +23,4 @@ https://webdesign.tutsplus.com/ko/articles/7-css-units-you-might-not-know-about-
 CSS building blocks : 435 - 2235
 
 2342~2345 line-through 다음 문단으로 잘 나오는지
+a 태그 `_blank` 잘 적용되는지

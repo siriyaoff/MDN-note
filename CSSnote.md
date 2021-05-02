@@ -842,7 +842,7 @@ These(`::before`, `::after`) are used along with the `content` property to inser
 ```
 - `.box` 클래스가 적용된 element 전에 `content`의 property value가 표시됨
 - ""을 `content`의 value로 넣고 `display: block;`을 적용해서 도형같은걸 넣을 수도 있음
-- 텍스트를 value로 넣어도 브라우저에서 그 텍스트 선택 불가(~~가끔 리스트 마커가 드래그되지 않을 때가 있었는데 이렇게 추가한듯~~ 리스트 마커는 `li`의 `list-style-type`으로 조정!)
+- 텍스트를 value로 넣어도 브라우저에서 그 텍스트 선택 불가(~~가끔 리스트 마커가 드래그되지 않을 때가 있었는데 이렇게 추가한듯~~ list marker는 `li`의 `list-style-type`으로 조정!)
 
 ### Combinators
 The combinators combine other selectors in order to target elements within our documents.
@@ -2379,4 +2379,295 @@ e.g. `font: italic normal bold normal 3em/1.5 Helvetica, Arial, sans-serif;`
 ## Styling lists
 ### A simple list example
 Styling defaults:
-- 
+- `<ul>`, `<ol>` elements의 top, bottom `margin` : `1em(16px)`, `padding-left` : `40px`
+- `<li>`의 spacing은 default가 없음
+- `<dl>`의 top, bottom `margin` : `1em(16px)`
+- `<dd>`의 `margin-left` : `40px`
+- `<p>`의 top, bottom `margin` : `1em(16px)`
+
+### Handling list spacing
+list가 surrounding elements와 같은 horizontal, vertical spacing을 가지도록 여백을 조절해야함  
+`line-height`, `font-size`를 조절해서 가능함
+
+### List-specific styles
+general spacing techuiques for lists(`<ul>`, `<ol>`)
+- `list-style-type` : Set the type of bullets
+- `list-style-position` : Set whether the bullets appear inside or outside the list items
+- `list-style-image` : Allow you to use a custom image for the bullet
+
+#### Bullet styles
+Use `list-style-type`  
+values available:
+- for `<ol>` : `upper-roman`, `lower-roman`, `decimal`, `upper-alpha`, `lower-alpha`, `none`
+- for `<ul>` : `<string>`(e.g. `'-'`), `disc`, `circle`, `square`, `none`
+
+#### Bullet position
+Use `list-style-position`  
+values available:
+- `outside` : default, bullets가 list item의 바깥에 배치됨
+- `inside` : bullets가 list item의 안에 배치됨
+
+#### Using a custom bullet image
+Use `list-style-image`  
+Use `url()` to link the image  
+근데 이 property는 bullet의 position, size 등을 조절하기 어려움  
+오히려 `<li>`에 `background`를 이용하는게 더 편함
+
+#### Example
+CSS:  
+```css
+ul {
+  padding-left: 2rem;
+  list-style-type: none;
+}
+
+ul li {
+  padding-left: 2rem;
+  background-image: url(star.svg);
+  background-position: 0 0;
+  background-size: 1.6rem 1.6rem;
+  background-repeat: no-repeat;
+}
+```
+- `<ul>`의 `padding-left` `40px`를 `ul`, `ul li`에 `20px`씩 나눔<br>∵ `<ul>`의 list item이 `<ol>`, `<dl>`과 같은 여백을 가지면서 background로 listmarker를 넣기 위함(`ul li`에 `padding-left`가 없으면 background가 `<li>`의 본문과 겹쳐버림
+- `list-style-type`을 `none`으로 설정<br>∵ background로 넣기 위함
+
+#### list-style shorthand
+`list-style`에 `list-style-type`, `list-style-image`, `list-style-position`을 한꺼번에 쓸 수 있음  
+default : `disc`, `none`, `outside`  
+순서는 상관없음  
+만약 `type`, `image`가 둘 다 명시된 경우 type이 fallback으로 사용됨
+
+#### Example
+```css
+ul {
+  list-style-type: square;
+  list-style-image: url(example.png);
+  list-style-position: inside;
+}
+```
+
+is equal to 
+
+```css
+ul {
+  list-style: square url(example.png) inside;
+}
+```
+
+### Conrolling list counting
+ordered list의 list marker index를 바꾸는 방법
+
+#### start
+`start` attribute로 시작지점 설정  
+e.g. `<ol start="4">`
+
+#### reversed
+`reversed` attribute로 증가할지 감소할지 설정  
+e.g. `<ol start="4" reversed>` => 4, 3, 2, 1, 0, -1, ... 순으로 index
+
+#### value
+`value` attribute로 list marker를 직접 지정  
+다른 attributes와 다르게 `<li>`에 넣어야 함  
+non-number `list-style-type`을 사용하고 있으면 적용되지 않음  
+value를 지정하면 다음 `<li>`도 영향을 받음  
+e.g. `<li value="2">`로 설정해놓으면 다음 li는 marker가 3이 됨
+
+## Styling links
+### Let's look at some link
+#### Link states
+different pseudo-classes:
+- `:link` : a link which has a destination
+- `:visited`
+- `:hover`
+- `:focus` : a link when it has been focused(e.g. tab같은 걸로 focus받았을 때)
+- `:active` : a link when it is being activated(e.g. clicked on)
+
+#### Default styles
+- links are underlined
+- Unvisited links are blue
+- Visited links are purple
+- Hovering a link makes the mouse pointer change to a little hand icon
+- Focused links have an outline around them(tab키로 페이지의 링크들을 focus할 수 있음)
+- Active links are red
+
+※ `#`을 dummy link로 사용 가능  
+e.g. `<a href="#">links</a>`
+
+이 default styles는 1990년대 초기 브라우저들과 거의 동일함(혼동을 유발하지 않기 위해)  
+최소한 다음과 같은 양식은 있어야 함
+- Use underlining or highlight for links
+- Make them react in some way when hovered/focused, and in a slightly different way when activated
+
+`cursor` property를 사용해서 마우스 커서 조절 가능
+
+#### Styling some links
+```css
+a {
+}
+
+a:link {
+}
+
+a:visited {
+}
+
+a:focus {
+}
+
+a:hover {
+}
+
+a:active {
+}
+```
+위의 순서(LVFHA)대로 ruleset을 정의하는게 좋음(activated면 hover이기도 하기 때문)  
+
+※ underlining은 `border-bottom`, `text-decoration`을 이용해서 넣을 수 있는데,<br>`border-bottom`이 더 밑쪽에 줄이 그어짐, y, g같은 글자의 꼬리가 줄에 안닿여서 더 좋음  
+`border-bottom: 1px solid;`같이 색을 지정하지 않으면 `color`과 같은 색으로 설정됨
+
+### Including icons on links
+```css
+a[href*="http"] {
+  background: url('https://mdn.mozillademos.org/files/12982/external-link-52.png') no-repeat 100% 0;
+  background-size: 16px 16px;
+  padding-right: 19px;
+}
+```
+- `background` shorthand로 img 집어넣음
+- icon이 글자보다 더 커서 잘릴 경우를 대비해서 `background-size`를 이용해서 이미지를 resize해줌<br>(IE 9 이후의 버전에서만 지원됨, 이전의 브라우저들에 대해서는 resizing한 이미지를 참조해줘야함)
+- `padding-right`를 넣어서 icon이 들어갈 공간 확보
+- external link는 `http`가 링크에 포함되어있음 => `a[href*="http]` selector 이용<br>내부 링크는 relative link를 이용하면 됨
+
+### Styling links as buttons
+`<li>`에 `display: inline;`을 적용하여 navigation bar를 구현할 수 있음
+
+#### Example
+CSS:  
+```css
+body,html {
+  margin: 0;
+  font-family: sans-serif;
+}
+
+ul {
+  padding: 0;
+  width: 100%;
+}
+
+li {
+  display: inline;
+}
+
+a {
+  outline: none;
+  text-decoration: none;
+  display: inline-block;
+  width: 19.5%;
+  margin-right: 0.625%;
+  text-align: center;
+  line-height: 3;
+  color: black;
+}
+
+li:last-child a {
+  margin-right: 0;
+}
+
+a:link, a:visited, a:focus {
+  background: yellow;
+}
+
+a:hover {
+  background: orange;
+}
+
+a:active {
+  background: red;
+  color: white;
+}
+```
+
+HTML:  
+```html
+<ul>
+  <li><a href="#">Home</a></li><li><a href="#">Pizza</a></li><li><a href="#">Music</a></li><li><a href="#">Wombats</a></li><li><a href="#">Finland</a></li>
+</ul>
+```
+- navigation bar 이외에 `<ul>` 등의 다른 element에 의한 padding, margin을 다 없앰
+- HTML에서 모든 `<li>`를 같은 줄에 적음<br>∵ inline elements가 다른 줄에 적히면 사이에 space가 생길 수 있음
+- `<a>`에 `display: inline-block;`을 적용해서 inline element지만 sizing이 가능하도록 만듦
+- 마지막 `<a>`의 margin-right는 여백이 되기 때문에 `li:last-child a`를 이용해서 없애줌
+- `<a>` 대신 `<li>`를 수정해서 nav bar를 만들 수도 있음
+
+## Web fonts
+### Font families recap
+web safe font를 가지는 font stack을 사용하면 각 font마다 test해야하기 때문에 overhead 발생
+
+### Web fonts
+Web fonts를 사용하면 download해야 하는 font files를 지정할 수 있음  
+CSS의 가장 윗부분에 `@font-face` block을 정의해야 `@font-face`의 font family를 사용 가능  
+
+
+#### Example
+CSS:  
+```css
+@font-face {
+  font-family: "myFont";
+  src: url("myFont.woff2");
+}
+```
+
+HTML:  
+```html
+html {
+  font-family: "myFont", "Bitstream Vera Serif", serif;
+}
+```
+
+- WOFF/WOFF2(Web Open Font Format 1/2)은 웬만한 브라우저들이 다 지원함
+- WOFF2는 TTF, OTF를 둘 다 지원함
+	- TTF(True Type Font) : 일반적인 형식
+	- OTF(Open Type Font) : 비교적 최근에 나옴
+- font files를 나열한 순서도 중요함(위에서부터 확인함 => 첫 번째가 가장 범용성이 높은 format이어야 함)
+- legacy browser를 사용하는 경우 EOT, TTF, SVG webfonts를 준비해야 함
+
+### Active learning: A web font example
+Three types of sites to obtain fonts:
+- Free font distributor : e.g. Font Squirrel
+- Paid font distributor : e.g. fonts.com
+- Online font service : e.g. google fonts
+
+#### Generating the required code
+Font squirrel의 webfont generator에 font들을 올리고 legacy browser를 지원해야 하는 경우 SVG, EOT, TTF도 선택하고 download kit  
+font file의 크기가 큰 경우 ttf를 woff2, svg 등으로 바꿔야 함
+
+#### Implementing the code in your demo
+1. 다운받은 webfonts kit을 웹페이지와 같은 경로에 저장(압축 풀고 `fonts`와 같이 이름 바꿈)
+2. `stylesheet.css`의 내용을 내 css 파일의 가장 위에 넣음
+3. `@font-face`에서 url 수정
+4. `@font-face`에 정의된 `font-family`를 사용 가능
+
+### Using an online font service
+How to use google fonts:
+1. font들 찾아서 맨 밑에 XOR버튼 누름
+2. 다 선택한 다음 HTML code를 내 page header에 붙여넣기
+3. 밑에 CSS 코드처럼 font 사용 가능
+
+### @font-face in more detail
+```css
+@font-face {
+  font-family: 'zantrokeregular';
+  src: url('zantroke-webfont.woff2') format('woff2'),
+       url('zantroke-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+```
+- `font-family` : specifies font name
+- `src` : specifies paths to the font files to be imported, `format('woff2')`는 optional
+- `font-weight`/`font-style` : specifies boldness, style(italic ...)<br>같은 font를 boldness 별로 여러 개 import하고 있다면 `font-weight`를 적어야 boldness별로 적용 가능
+
+### Variable fonts
+Variable fonts allow many different variations of a typeface(weight, style ...) into a single file(OTF와 비슷)
+
