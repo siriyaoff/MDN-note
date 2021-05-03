@@ -2537,7 +2537,7 @@ a[href*="http"] {
 - `background` shorthand로 img 집어넣음
 - icon이 글자보다 더 커서 잘릴 경우를 대비해서 `background-size`를 이용해서 이미지를 resize해줌<br>(IE 9 이후의 버전에서만 지원됨, 이전의 브라우저들에 대해서는 resizing한 이미지를 참조해줘야함)
 - `padding-right`를 넣어서 icon이 들어갈 공간 확보
-- external link는 `http`가 링크에 포함되어있음 => `a[href*="http]` selector 이용<br>내부 링크는 relative link를 이용하면 됨
+- external link는 `http`가 링크에 포함되어있음 => `a[href*="http"]` selector 이용<br>내부 링크는 relative link를 이용하면 됨
 
 ### Styling links as buttons
 `<li>`에 `display: inline;`을 적용하여 navigation bar를 구현할 수 있음
@@ -2599,6 +2599,7 @@ HTML:
 - `<a>`에 `display: inline-block;`을 적용해서 inline element지만 sizing이 가능하도록 만듦
 - 마지막 `<a>`의 margin-right는 여백이 되기 때문에 `li:last-child a`를 이용해서 없애줌
 - `<a>` 대신 `<li>`를 수정해서 nav bar를 만들 수도 있음
+- `outline: none;`은 링크가 탭으로 active될 경우 생기는 테두리를 없애줌
 
 ## Web fonts
 ### Font families recap
@@ -2671,3 +2672,237 @@ How to use google fonts:
 ### Variable fonts
 Variable fonts allow many different variations of a typeface(weight, style ...) into a single file(OTF와 비슷)
 
+## Assessment09-Typesetting-a-community-school-homepage
+CSS:  
+```css
+/* General setup */
+@import url('https://fonts.googleapis.com/css2?family=Krona+One&family=Open+Sans:ital,wght@0,300;0,600;1,300&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0 auto;
+  min-width: 1000px;
+  max-width: 1400px;
+}
+
+/* Layout */
+
+section {
+  float: left;
+  width: 50%;
+}
+
+aside {
+  float: left;
+  width: 30%;
+}
+
+nav {
+  float: left;
+  width: 20%;
+}
+
+footer {
+  clear: both;
+}
+
+header, section, aside, nav, footer {
+  padding: 20px;
+}
+
+/* header and footer */
+
+header, footer {
+  border-top: 5px solid #a66;
+  border-bottom: 5px solid #a66;
+}
+
+/* WRITE YOUR CODE BELOW HERE */
+
+html {
+  font-size: 10px;
+}
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  line-height: 1.6em;
+  letter-spacing: 1px;
+  word-spacing: 2px;
+}
+
+h1, h2 {
+  font-family: 'Krona One', sans-serif;
+  letter-spacing: 3px;
+}
+
+h1 {
+  font-size: 2em;
+  text-align: center;
+}
+
+h2 {
+  font-size: 1.5em;
+}
+
+section h2+p {
+  text-indent: 20px;
+}
+
+a:link, a:visited, a:focus, a:hover {
+  color: #a66;
+}
+
+a:hover, a:focus {
+  text-decoration: none;
+}
+
+a {
+  outline: none;
+}
+
+a:active {
+  outline: 1px solid #a66;
+}
+
+a[href*='http'] {
+  padding-right: 15px;
+  background: url("https://mdn.mozillademos.org/files/12982/external-link-52.png") no-repeat 100%;
+  background-size: 10px 10px;
+}
+
+li {
+  line-height: 1.6em;
+}
+
+ul, ol {
+  margin: 16px 0px;
+}
+
+ul {
+  list-style-type: circle;
+}
+
+ol {
+  list-style-type: lower-alpha;
+}
+
+nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav ul li {
+  padding: 10px 0;
+}
+
+nav li a {
+  display: inline-block;
+  border: 1px solid #b77;
+  width: 100%;
+  height: 5rem;
+  line-height: 5rem;
+  font-size: 1.2rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+nav li a:hover {
+  background-color: #fba;
+}
+```
+
+HTML:  
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>St Huxley's Community College</title>
+    <link href="style.css" type="text/css" rel="stylesheet">
+  </head>
+  <body>
+
+  <header>
+    <h1>St Huxley's Community College</h1>
+  </header>
+
+  <section>
+      <h2>Brave new world</h2>
+
+      <p>It's a brave new world out there. Our children are being put in increasing more competitive situations, both during recreation, and as they start to move into the adult world of <a href="https://en.wikipedia.org/wiki/Examination">examinations</a>, <a href="https://en.wikipedia.org/wiki/Jobs">jobs</a>, <a href="https://en.wikipedia.org/wiki/Career">careers</a>, and other life choices. Having the wrong mindset, becoming <a href="https://en.wikipedia.org/wiki/Emotion">too emotional</a>, or making the wrong choices can contribute to them experiencing difficulty in taking their rightful place in today's ideal society.</p>
+
+      <p>As concerned parents, guardians or carers, you will no doubt want to give your children the best possible start in life — and you've come to the right place.</p>
+
+      <h2>The best start in life</h2>
+
+      <p>At St. Huxley's, we pride ourselves in not only giving our students a top quality education, but also giving them the societal and emotional intelligence they need to win big in the coming utopia. We not only excel at subjects such as genetics, data mining, and chemistry, but we also include compulsory lessons in:</p>
+
+      <ul>
+        <li>Emotional control</li>
+        <li>Judgement</li>
+        <li>Assertion</li>
+        <li>Focus and resolve</li>
+      </ul>
+
+      <p>If you are interested, then you next steps will likely be to:</p>
+      
+      <ol>
+        <li><a href="#">Call us</a> for more information</li>
+        <li><a href="#">Ask for a brochure</a>, which includes signup form</li>
+        <li><a href="#">Book a visit</a>!</li>
+      </ol>
+  </section>
+
+  <aside>
+
+    <h2>Top course choices</h2>
+
+    <ul>
+      <li><a href="#">Genetic engineering</a></li>
+      <li><a href="#">Genetic mutation</a></li>
+      <li><a href="#">Organic Chemistry</a></li>
+      <li><a href="#">Pharmaceuticals</a></li>
+      <li><a href="#">Biochemistry with behaviour</a></li>
+      <li><a href="#">Pure biochemistry</a></li>
+      <li><a href="#">Data mining</a></li>
+      <li><a href="#">Computer security</a></li>
+      <li><a href="#">Bioinformatics</a></li>
+      <li><a href="#">Cybernetics</a></li>
+    </ul>
+
+    <p><a href="#">See more</a></p>
+
+  </aside>
+
+  <nav>
+
+    <ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Finding us</a></li>
+      <li><a href="#">Courses</a></li>
+      <li><a href="#">Staff</a></li>
+      <li><a href="#">Media</a></li>
+      <li><a href="#">Prospectus</a></li>
+    </ul>
+
+  </nav>
+
+  <footer>
+
+    <p>&copy; 2016 St Huxley's Community College</p>
+
+  </footer>
+
+  </body>
+</html>
+```
+
+- url의 parameter에 quotes를 넣는건 optional(안쓰든, single, double을 쓰든)
+- background-position은 horizontal, vertical 순임<br>`padding`, `margin`은 vertical, horizontal 순!
+- `box-sizing` : `content-box`(standard), `border-box`(alternative)<br>`display` : `inline-block`, ...
+- `display: inline-block;`을 적용하고 width, height를 선언할 경우, 모두 border까지 포함한 크기로 계산됨(`box-sizing: border-box;`와 동일)
+	- 이 과제에서는 inline-block 안에 `height`, `line-height`를 같이 썼는데, 사실 `height`는 높이를 꼭 `5rem`으로 맞춰야 할 필요가 없으면 사용하지 않아도 됨
