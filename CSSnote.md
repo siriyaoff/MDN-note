@@ -2906,3 +2906,110 @@ HTML:
 - `box-sizing` : `content-box`(standard), `border-box`(alternative)<br>`display` : `inline-block`, ...
 - `display: inline-block;`을 적용하고 width, height를 선언할 경우, 모두 border까지 포함한 크기로 계산됨(`box-sizing: border-box;`와 동일)
 	- 이 과제에서는 inline-block 안에 `height`, `line-height`를 같이 썼는데, 사실 `height`는 높이를 꼭 `5rem`으로 맞춰야 할 필요가 없으면 사용하지 않아도 됨
+
+
+# CSS layout
+## Introduction to CSS layout
+The page layout techniques in this module:
+- Normal flow
+- `display` property
+	- `block`, `inline`, `inline-block`와 같은 value들은 normal flow에서 element의 layout을 결정
+	- `grid`, `flexbox`와 같은 value들은 entire layout method를 바꿈(`grid`나 `flexbox`가 적용된 element 안의 elements들의 layout을 결정)
+- Flexbox
+- Grid
+- Floats
+	- `float: left;`와 같은 속성을 적용시키면 block level elements가 다른 element의 왼쪽에 떠있게(wrap)할 수 있음
+- Positioning
+	- `position` property를 이용
+	- `static`, `fixed`, `absolute` 등의 value를 가짐
+	- box의 위치를 다른 box 안에서 지정하게 해줌
+- Table layout
+	- `display: table;`와 같은 property를 통해 적용시킬 수 있음
+	- non-table elements를 HTML table과 같이 styling하기 위해 만듦
+- Multiple-column layout
+	- block content를 여러 column으로 나타낼 수 있게 해줌
+
+No technique is designed to be used in isolation.
+
+### Normal flow
+Normal flow : browser가 default로 사용하는 layout
+HTML code의 순서대로 나타남  
+- block elements : 이전 순서의 element 아래에 다른 줄로 나타나는 elements
+- inline elements : 이전 순서의 element 옆에 같은 줄로 나타나는 elements
+
+=> block direction : block element가 배치되는 방향(writing mode에 따라 결정됨)
+
+The methods that can change how elements are laid out in CSS:
+- `display` property
+- Floats
+- `position` property
+- Table layout
+- Multi-column layout
+
+### The display property
+page layout은 `display` property를 적용하는 것으로부터 시작됨  
+예를 들어 `<p>`의 경우 `display: block;`가 적용되어있기 때문에 block element로 layout되고, `<a>`의 경우 `display: inline;`이 적용되어있기 때문에 inline element로 layout됨
+
+이러한 default display behavior를 바꿀 수도 있음(`display`에 값을 직접 지정함으로써)  
+=> HTML elements의 semantic meaning을 직접 지정할 수 있음
+
+`display: flex;`, `display: grid;`와 같은, `display` property를 선언하고 추가적으로 layout을 수정할 수 있는 layout methods도 존재
+
+### Flexbox
+Flexbox(Flexible Box) : 1차원으로 elements를 편하게 layout하기 위해 만들어짐  
+`display: flex;`를 parent element에 적용해서 parent element를 flexbox, child elements를 flex item으로 layout
+
+#### Example
+CSS:  
+```css
+.wrapper {
+  display: flex;
+}
+```
+
+HTML:  
+```html
+<div class="wrapper">
+  <div class="box1">One</div>
+  <div class="box2">Two</div>
+  <div class="box3">Three</div>
+</div>
+```
+
+|Result:|
+|:---|
+|![css-flexbox-ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-flexbox-ex1.PNG?raw=true)|
+
+- flexbox의 `flex-direction` property에 `row`가 initial value로 들어가있기 때문에 위와 같이 row로 layout됨
+- flexbox의 `align-items` property에 `stretch`가 initial value로 들어가있기 때문에 item 중 height가 가장 큰 것에 맞춰짐
+	- `flex-direction: row;`이기 때문에 height만 신경쓰면 됨(width는 flex item 각자 값 그대로 들어감)
+
+CSS:  
+```css
+.wrapper {
+    display: flex;
+}
+
+.wrapper > div {
+    flex: 1;
+}
+```
+
+HTML:  
+```html
+<div class="wrapper">
+  <div class="box1">One</div>
+  <div class="box2">Two</div>
+  <div class="box3">Three</div>
+</div>
+```
+
+|Result:|
+|:---|
+|![css-flexbox-ex2](https://github.com/siriyaoff/MDN-note/blob/master/images/css-flexbox-ex2.PNG?raw=true)|
+
+- flex items에 적용하는 property도 있음!
+- `flex: 1;`을 flex item에 적용하면 공간이 채워지도록 확대/축소할 수 있음
+	- 여러 item에 적용하면 적용된 item들끼리 공간이 채워지도록 조절됨
+
+### Grid Layout

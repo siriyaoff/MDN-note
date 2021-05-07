@@ -9,6 +9,7 @@ tcpschool은 html, html5(혼합된것)
 mdn쭉 따라가면서 한 topic(html, css, js, ...) 끝날때마다 tcpshcool로 한번더 보기 + 한꺼번에 블로그 포스트(포스트는 한번에 한 module씩)
 
 블로그 : topic > module(#) > article(##)
+5.24-25사이에 CSS topic 끝날 예정
 
 마크다운 wiki 
 https://dooray.com/htmls/guides/markdown_ko_KR.html
@@ -21,7 +22,7 @@ https://dooray.com/htmls/guides/markdown_ko_KR.html
 https://webdesign.tutsplus.com/ko/articles/7-css-units-you-might-not-know-about--cms-22573
 
 CSS building blocks : 435 - 2235
+Styling text : 2267 - 2908
 
-a 태그 `_blank` 잘 적용되는지 : 잘안됨;
 span에 text-decoration, font-family도 그렇고 그냥 html 태그안에 attribute 붙이면 다 적용되지 않는듯
-
+ㄴㄴ text-decoration: overline 됨, 블로그에서는 잘됨(깃헙 미리보기에서만 안되는듯)
