@@ -2957,7 +2957,8 @@ page layout은 `display` property를 적용하는 것으로부터 시작됨
 
 ### Flexbox
 Flexbox(Flexible Box) : 1차원으로 elements를 편하게 layout하기 위해 만들어짐  
-`display: flex;`를 parent element에 적용해서 parent element를 flexbox, child elements를 flex item으로 layout
+`display: flex;`를 parent element에 적용  
+=> parent element를 flexbox, child elements를 flex item으로 layout
 
 #### Example
 CSS:  
@@ -3013,3 +3014,262 @@ HTML:
 	- 여러 item에 적용하면 적용된 item들끼리 공간이 채워지도록 조절됨
 
 ### Grid Layout
+Grid : 2차원으로 elements를 layout하기 위해 만들어짐  
+`display: grid;`를 parent element에 적용
+
+#### Example
+CSS:  
+```css
+.wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 100px 100px;
+    grid-gap: 10px;
+}
+```
+
+HTML:  
+```html
+<div class="wrapper">
+    <div class="box1">One</div>
+    <div class="box2">Two</div>
+    <div class="box3">Three</div>
+    <div class="box4">Four</div>
+    <div class="box5">Five</div>
+    <div class="box6">Six</div>
+</div>
+```
+
+|Result:|
+|:---|
+|![css-grid-ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-grid-ex1.PNG?raw=true)|
+
+- `grid-template-rows`, `grid-template-columns` properties를 사용해서 행, 열 개수 정의
+
+CSS:  
+```css
+.wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 100px 100px;
+    grid-gap: 10px;
+}
+
+.box1 {
+    grid-column: 2 / 4;
+    grid-row: 1;
+}
+
+.box2 {
+    grid-column: 1;
+    grid-row: 1 / 3;
+}
+
+.box3 {
+    grid-row: 2;
+    grid-column: 3;
+}
+```
+
+HTML:  
+```html
+<div class="wrapper">
+    <div class="box1">One</div>
+    <div class="box2">Two</div>
+    <div class="box3">Three</div>
+</div>
+```
+
+|Result:|
+|:---|
+|![css-grid-ex2](https://github.com/siriyaoff/MDN-note/blob/master/images/css-grid-ex2.PNG?raw=true)|
+
+- `grid-column`, `grid-row`를 이용해서 element가 차지할 영역을 지정할 수 있음<br>`start/end`로 지정, 좌표는 1부터 시작
+
+### Floats
+하나의 element를 float하면 normal flow에서 제외되고, surrounding content도 같이 float됨  
+possible values:
+- `left`, `right`
+- `none`
+- `inherit`
+
+#### Example
+CSS:  
+```css
+.box {
+    float: left;
+    width: 150px;
+    height: 150px;
+    margin-right: 30px;
+}
+```
+
+HTML:  
+```html
+<h1>Simple float example</h1>
+
+<div class="box">Float</div>
+
+<p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla luctus aliquam dolor, eu lacinia lorem placerat vulputate. Duis felis orci, pulvinar id metus ut, rutrum luctus orci. Cras porttitor imperdiet nunc, at ultricies tellus laoreet sit amet. Sed auctor cursus massa at porta. Integer ligula ipsum, tristique sit amet orci vel, viverra egestas ligula. Curabitur vehicula tellus neque, ac ornare ex malesuada et. In vitae convallis lacus. Aliquam erat volutpat. Suspendisse ac imperdiet turpis. Aenean finibus sollicitudin eros pharetra congue. Duis ornare egestas augue ut luctus. Proin blandit quam nec lacus varius commodo et a urna. Ut id ornare felis, eget fermentum sapien.</p>
+
+```
+
+|Result:|
+|:---|
+|![css-float-ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-float-ex.PNG?raw=true)|
+
+### Positioning techniques
+Positioning isn't a method for creating your main page layouts, it is more about managing and fine-tuning the position of specific items on the page.  
+`position` property를 이용해서 layout patterns를 만들 수 있음  
+five types of positioning:
+- **Static positioning** : default
+	- normal position에 넣음
+- **Relative positioning**
+	- normal position과 relative하게 position을 지정
+	- 다른 elements를 overlap하게 지정 가능
+- **Absolute positioning**
+	- element를 완전히 normal flow에서 제외시킴(다른 layer에 있는 것처럼)
+	- `<html>` element의 모서리를 기준으로 position을 지정
+	- 자유로운 위치 조정이 필요하거나 복잡한 layout 효과를 만드는데 유용
+- **Fixed positioning**
+	- browser viewport를 기준으로 position 지정(=> 페이지가 스크롤되어도 고정)
+	- nav 같이 항상 같은 위치에 있는 것 같은 효과를 만들 때 유용
+- **Sticky positioning**
+	- defined offset(viewport)에 도달하면 `fixed`, 이전까지는 `static`인 positioning method
+
+#### Simple positioning example
+공통적으로 아래 코드를 이용  
+`positioned` class를 이용해서 `position` property의 value를 하나씩 살펴볼 예정
+
+CSS:  
+```css
+body {
+  width: 500px;
+  margin: 0 auto;
+}
+
+p {
+    background-color: rgb(207,232,220);
+    border: 2px solid rgb(79,185,227);
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+}
+```
+
+HTML:  
+```html
+<h1>Positioning</h1>
+
+<p>I am a basic block level element.</p>
+<p class="positioned">I am a basic block level element.</p>
+<p>I am a basic block level element.</p>
+```
+
+|Result:|
+|:---|
+|![css-position-static](https://github.com/siriyaoff/MDN-note/blob/master/images/css-position-static.PNG?raw=true)|
+
+#### Relative positioning
+Relative positioning을 사용하면
+- icon과 같은 것을 text label과 맞추기 위해 원래 위치보다 살짝 아래로 이동시킬 수 있음
+
+CSS:  
+```css
+.positioned {
+  position: relative;
+  background: rgba(255,84,104,.3);
+  border: 2px solid rgb(255,84,104);
+  top: 30px;
+  left: 30px;
+}
+```
+
+|Result:|
+|:---|
+|![css-position-relative](https://github.com/siriyaoff/MDN-note/blob/master/images/css-position-relative.PNG?raw=true)|
+
+- `top`, `left` properties를 이용해서 위치를 지정해줘야 함
+- element의 원래 위치가 빈 상태로 유지됨(normal flow에 남아있음)
+
+#### Absolute positioning
+containing block의 모서리를 기준으로 위치를 지정함
+
+CSS:  
+```css
+.positioned {
+    position: absolute;
+    background: rgba(255,84,104,.3);
+    border: 2px solid rgb(255,84,104);
+    top: 30px;
+    left: 30px;
+}
+```
+
+|Result:|
+|:---|
+|![css-position-absolute](https://github.com/siriyaoff/MDN-note/blob/master/images/css-position-absolute.PNG?raw=true)|
+
+- `top`, `left` properties를 이용해서 위치를 지정하는 것은 relative와 비슷하지만, 기준이 다름
+	- 이 예시에서는 page의 top, left가 기준
+	- 기준을 바꿀 수도 있음
+- element의 원래 위치는 유지되지 않음(normal flow에서 제외됨)
+
+#### Fixed positioning
+Fixed positioning을 사용하면
+- top button과 같은 스크롤해도 유지되는 요소 만들 수 있음
+
+CSS:  
+```css
+.positioned {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+}
+```
+
+HTML:  
+```html
+<h1>Fixed positioning</h1>
+
+<div class="positioned">Fixed</div>
+
+<p>Paragraph 1.</p>
+<p>Paragraph 2.</p>
+<p>Paragraph 3.</p>
+```
+
+|Result:|
+|:---|
+|![css-position-fixed1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-position-fixed1.PNG?raw=true)|
+|![css-position-fixed2](https://github.com/siriyaoff/MDN-note/blob/master/images/css-position-fixed2.PNG?raw=true)|
+
+- absolute와 마찬가지로 document normal flow에서 제외시킴
+- viewport에 relative하게 위치를 지정하기 때문에 스크롤되어도 계속 유지됨
+
+#### Sticky positioning
+element가 viewport의 offset에 도달하기 전까지는 `static`, 도달해서 걸리면 `sticky`로 바뀜
+
+CSS:  
+```css
+.positioned {
+  position: sticky;
+  top: 30px;
+  left: 30px;
+}
+```
+
+|Result:|
+|:---|
+|![css-position-sticky1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-position-sticky1.PNG?raw=true)|
+|![css-position-sticky2](https://github.com/siriyaoff/MDN-note/blob/master/images/css-position-sticky2.PNG?raw=true)|
+
+- offset을 hit하기 전까지는 `static`이기 때문에 normal flow에 남아있음(`fixed`로 바뀐 후에도)
+
+### Table layout
+CSS가 표준화되기 이전에는 page 자체를 table로 만들었음  
+=> inflexible, heavy on markup, difficult to debug, semantically wrong
+
+table에 관한 CSS properties는 table이 아닌 elements에도 적용가능함  
+=> described as *using CSS tables*
+
