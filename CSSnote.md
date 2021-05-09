@@ -3273,3 +3273,108 @@ CSS가 표준화되기 이전에는 page 자체를 table로 만들었음
 table에 관한 CSS properties는 table이 아닌 elements에도 적용가능함  
 => described as *using CSS tables*
 
+`display`에 `table`, `table-row`, `table-cell`, `table-caption` 등의 값을 넣어서 구현
+
+#### Example
+CSS:  
+```css
+html {
+  font-family: sans-serif;
+}
+
+form {
+  display: table;
+  margin: 0 auto;
+}
+
+form div {
+  display: table-row;
+}
+
+form label, form input {
+  display: table-cell;
+  margin-bottom: 10px;
+}
+
+form label {
+  width: 200px;
+  padding-right: 5%;
+  text-align: right;
+}
+
+form input {
+  width: 300px;
+}
+
+form p {
+  display: table-caption;
+  caption-side: bottom;
+  width: 300px;
+  color: #999;
+  font-style: italic;
+}
+```
+
+HTML:  
+```html
+<form>
+  <p>First of all, tell us your name and age.</p>
+  <div>
+    <label for="fname">First name:</label>
+    <input type="text" id="fname">
+  </div>
+  <div>
+    <label for="lname">Last name:</label>
+    <input type="text" id="lname">
+  </div>
+  <div>
+    <label for="age">Age:</label>
+    <input type="text" id="age">
+  </div>
+</form>
+```
+
+|Result:|
+|:---|
+|![css-table-ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-table-ex.PNG?raw=true)|
+
+- 표 안에 넣은 것 같이 정렬됨
+- `table-caption`의 경우 `caption-side: bottom;`을 이용해서 위치 조정 가능
+
+### Multi-column layout
+Multi-column은 `column-count`, `column-width` 등의 properties로 구현 가능
+- `column-count` : 열 개수를 지정
+- `column-width` : 열 너비를 지정해서 viewport에서 가능한한 많은 열 배치
+
+#### Example
+CSS:  
+```css
+.container {
+        column-width: 200px;
+}
+```
+
+HTML:  
+```html
+<div class="container">
+    <h1>Multi-column layout</h1>
+
+    <p>Paragraph 1.</p>
+    <p>Paragraph 2.</p>
+</div>
+```
+
+|Result:|
+|:---|
+|![css-multi-column-ex](https://github.com/siriyaoff/MDN-note/blob/master/images/css-multi-column-ex.PNG?raw=true)|
+
+## Normal Flow
+CSS를 적용하지 않았을 때 normal flow가 default로 적용됨
+
+### How are elements laid out by default?
+box model : element의 content를 먼저 배치하고, padding, border, margin을 붙임
+
+block level element의 경우 content가 parent element의 사용 가능한 inline space를 채우고, 필요시 block dimension 방향으로 확장함(content를 수용하기 위해)
+
+inline element의 경우 content의 size만큼 공간을 차지함
+
