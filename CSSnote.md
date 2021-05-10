@@ -3374,7 +3374,219 @@ CSS를 적용하지 않았을 때 normal flow가 default로 적용됨
 ### How are elements laid out by default?
 box model : element의 content를 먼저 배치하고, padding, border, margin을 붙임
 
-block level element의 경우 content가 parent element의 사용 가능한 inline space를 채우고, 필요시 block dimension 방향으로 확장함(content를 수용하기 위해)
+#### block level element의 경우
+content가 parent element의 inline space를 모두 채우고, content를 수용하기 위해 block dimension 방향(block flow direction)으로 확장함  
+- block flow direction은 parent의 writing mode에 의해 결정됨(initial: horizontal-tb)<br>=> 기본적으로 vertically laid out됨
 
-inline element의 경우 content의 size만큼 공간을 차지함
+#### inline element의 경우
+content의 size만큼 공간을 차지함  
+- inline element는 width, height를 설정할 수 없음<br>=> 수정하기 위해선 `display: block;` or `display: inline-block;`을 사용해야 함
+- 기본적으로 같은 줄에 laid out, overflowing text or elements는 new line으로 내려감
 
+#### Margin collapsing
+adjacent elements가 둘 다 margin이 있고, 두 margin이 만난다면, 큰 것 하나만 적용되고 나머지는 사라짐
+- `line-height`는 글자가 가운데 배치되기 때문에 margin collapsing이랑 상관없음
+
+## Flexbox
+### Why Flexbox?
+예전에는 `float`, `position`과 같은게 reliable cross browser-compatible tool이었음  
+아래와 같은 간단한 layout도 간단하게 할 수 없었음
+- Vertically centering a block of content inside its parent
+- Making all the children of a container take up an equal amount of the available width/height, regardless of how much width/height is availble
+- Making all columns in a multiple-column layout adopt the same height even if they contain a different amount of content
+
+Flexbox로는 이걸 쉽게 할 수 있다
+
+### Introducing a simple example
+Flexbox를 소개하기 위해 아래 예제를 사용할 예정(`flexbox0.html`, `style.css`)
+
+HTML:  
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Flexbox 0 — starting code</title>
+    <link href="style.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <header>
+      <h1>Sample flexbox example</h1>
+    </header>
+
+    <section>
+      <article>
+        <h2>First article</h2>
+
+        <p>Tacos actually microdosing, pour-over semiotics banjo chicharrones retro fanny pack portland everyday carry vinyl typewriter. Tacos PBR&B pork belly, everyday carry ennui pickled sriracha normcore hashtag polaroid single-origin coffee cold-pressed. PBR&B tattooed trust fund twee, leggings salvia iPhone photo booth health goth gastropub hammock.</p>
+      </article>
+
+      <article>
+        <h2>Second article</h2>
+
+        <p>Tacos actually microdosing, pour-over semiotics banjo chicharrones retro fanny pack portland everyday carry vinyl typewriter. Tacos PBR&B pork belly, everyday carry ennui pickled sriracha normcore hashtag polaroid single-origin coffee cold-pressed. PBR&B tattooed trust fund twee, leggings salvia iPhone photo booth health goth gastropub hammock.</p>
+      </article>
+
+      <article>
+        <h2>Third article</h2>
+
+        <p>Tacos actually microdosing, pour-over semiotics banjo chicharrones retro fanny pack portland everyday carry vinyl typewriter. Tacos PBR&B pork belly, everyday carry ennui pickled sriracha normcore hashtag polaroid single-origin coffee cold-pressed. PBR&B tattooed trust fund twee, leggings salvia iPhone photo booth health goth gastropub hammock.</p>
+
+        <p>Cray food truck brunch, XOXO +1 keffiyeh pickled chambray waistcoat ennui. Organic small batch paleo 8-bit. Intelligentsia umami wayfarers pickled, asymmetrical kombucha letterpress kitsch leggings cold-pressed squid chartreuse put a bird on it. Listicle pickled man bun cornhole heirloom art party.</p>
+      </article>
+    </section>
+  </body>
+</html>
+```
+
+CSS:  
+```css
+html {
+  font-family: sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+header {
+  background: purple;
+  height: 100px;
+}
+
+h1 {
+  text-align: center;
+  color: white;
+  line-height: 100px;
+  margin: 0;
+}
+
+article {
+  padding: 10px;
+  margin: 10px;
+  background: aqua;
+}
+
+/* Add your flexbox CSS below here */
+```
+
+|Result:|
+|:---|
+|![css-flexbox-ex3](https://github.com/siriyaoff/MDN-note/blob/master/images/css-flexbox-ex1.PNG?raw=true)|
+
+### Specifying what elements to lay out as flexible boxes
+flex container로 만들 element에 `display: flex;`를 적용시켜서 flex container를 구현  
+=> 자동으로 child elements가 flex items가 됨
+
+#### Example
+`style.css`에 아래 rule을 추가하고 유지:  
+```css
+section {
+  display: flex;
+}
+```
+
+|Result:|
+|:---|
+|![css-flexbox-ex4](https://github.com/siriyaoff/MDN-note/blob/master/images/css-flexbox-ex2.PNG?raw=true)|
+
+- 위 예시의 경우 `<section>`이 flex container, `<article>`이 flex item
+- default values에 의해 모든 열들이 같은 열 너비, 높이를 가짐
+- flex container는 block-level element와 같이 취급됨
+- `display: inline-flex;`를 사용하면 flex items를 inline element같이 취급되게 할 수 있음
+
+### The flex model
+![css-flex-model](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox/flex_terms.png)
+- **Main axis** : the axis running in the direction the flex items are being laid out.
+- **Cross axis** : the axis running perpendicular to the direction the flex items are being laid out.
+- **Flex container** : the parent element that has `display: flex;`
+- **Flex items** : the items being laid out as flexible boxes inside the flex container
+- flex item은 main axis, cross axis를 기준으로 main size, cross size를 가짐
+
+### Columns or rows?
+`flex-direction` property를 이용해서 main axis의 위상을 설정할 수 있음  
+possible value : `row`, `column`, `row-reverse`, `column-reverse` (default : `row`)  
+main axis가 명시된 후 flex item들이 나열되는 방향은 browser's default language의 방향에 따름(rl or lr)
+
+#### Example
+`style.css`의 `section` rule에 아래 declaration을 임시로 추가하면:  
+```css
+flex-direction: column;
+```
+
+|Result:|
+|:---|
+|![css-flexbox-ex5](https://github.com/siriyaoff/MDN-note/blob/master/images/css-flexbox-ex3.PNG?raw=true)|
+
+### Wrapping
+flex item의 width or height를 고정하면 item이 많을 때 flex container를 overflow함(flex item을 임시로 추가함)  
+![css-flexbox-ex6](https://github.com/siriyaoff/MDN-note/blob/master/images/css-flexbox-ex4.PNG?raw=true)
+- `<h1>`은 vw의 100%를 차지하는 듯
+- flex item들이 overflow해서 flex container의 영역 밖으로 배치됨
+- CSS에 flex item의 width를 고정하는 rule을 넣지 않았지만 최소 width같은게 있는 듯
+
+`style.css`의 `section` rule에 아래 declaration을 임시로 추가하면:  
+```css
+flex-wrap: wrap;
+```
+
+`style.css`의 `article` rule에 아래 declaration을 임시로 추가하면:  
+```css
+flex: 200px;
+```
+
+|Result:|
+|:---|
+|![css-flexbox-ex7](https://github.com/siriyaoff/MDN-note/blob/master/images/css-flexbox-ex5.PNG?raw=true)|
+
+- `flex-wrap: warp;`을 flex container에 적용하면 overflow되는 item들을 다음 줄로 내림
+- `flex: 200px;`를 flex item에 적용하면 flex item의 최소 main size를 `200px`로 제한함
+- flex container의 `flex-direction`이 `row-reverse`일 경우에 여러 줄의 flex item이 있으면 아예 역순으로 나열되는 것이 아니라, 원래 순서대로 나열한 다음에 줄별로 역순으로 바꿈<br>default language의 방향에 따라 reverse가 적용된다는 것을 생각하면됨<br>![css-flexbox-ex8](https://github.com/siriyaoff/MDN-note/blob/master/images/css-flexbox-ex6.PNG?raw=true)
+
+### flex-flow shorthand
+`flex-direction`, `flex-wrap` properties를 `flex-flow` shorthand property로 줄여쓸 수 있음
+
+#### Example
+```css
+flex-direction: row;
+flex-wrap: wrap;
+```
+
+is equal to
+
+```css
+flex-flow: row wrap;
+```
+
+### Flexible sizing of flex items
+`style.css`에 아래 rule을 임시로 추가:  
+```css
+article {
+  flex: 1 200px;
+}
+
+article:nth-of-type(3) {
+  flex: 2 200px;
+}
+```
+
+|Result:|
+|:---|
+|![css-flexbox-ex9](https://github.com/siriyaoff/MDN-note/blob/master/images/css-flexbox-ex7.PNG?raw=true)|
+
+- `flex: 1 200px;`에서
+	- 첫 번째 값 `1`은 proportion unit으로, 각 list item의 main size의 비율을 정함
+	- 두 번째 값 `200px`는 위에서와 같은 최소 main size임
+- 최소 main size가 정의되어 있으면 각각의 flex item에 그만큼씩 준 다음, proportion unit에 따라서 남은 공간을 분배한다고 생각하면 됨
+- flex item도 기본적으로 content box일 듯
+- browser window를 조절해도 layout이 유지됨 => flexibility, responsiveness ↑
+
+### flex: shorthand versus longhand
+`flex` property의 longhand properties 3개:
+- `flex-grow` : main size의 비율을 정하는 unitless proportion value(위 `flex: 1 200px;`의 `1`)
+- `flex-shrink` : overflow가 일어날 때 각 list item들이 줄어드는 비율을 정하는 unitless proportion value(클 수록 더 많이 줄어듬)
+- `flex-basis` : 최소 main size(위 `flex: 1 200px;`의 `200px`)
+
+웬만하면 longhand는 사용하지 않는게 좋음(shorthand가 더 가독성이 좋음)
+
+### Horizontal and vertical alignment

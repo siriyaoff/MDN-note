@@ -26,3 +26,5 @@ Styling text : 2267 - 2908
 
 span에 text-decoration, font-family도 그렇고 그냥 html 태그안에 attribute 붙이면 다 적용되지 않는듯
 ㄴㄴ text-decoration: overline 됨, 블로그에서는 잘됨(깃헙 미리보기에서만 안되는듯)
+
+3543 list안에 줄바꿈 후 img 잘 나오는지
