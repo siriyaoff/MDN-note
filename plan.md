@@ -28,3 +28,8 @@ span에 text-decoration, font-family도 그렇고 그냥 html 태그안에 attri
 ㄴㄴ text-decoration: overline 됨, 블로그에서는 잘됨(깃헙 미리보기에서만 안되는듯)
 
 3543 list안에 줄바꿈 후 img 잘 나오는지
+
+flexbox challenge
+[flexbox froggy](https://flexboxfroggy.com/#ko)
+
+3666 possible values 다음 자연스러운지

@@ -3590,3 +3590,114 @@ article:nth-of-type(3) {
 웬만하면 longhand는 사용하지 않는게 좋음(shorthand가 더 가독성이 좋음)
 
 ### Horizontal and vertical alignment
+아래 예제를 사용할 예정(`flex-align0.html`, `style.css`)
+
+HTML:  
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Flexbox align 0 — starting code</title>
+    <link href="style.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div>
+      <button>Smile</button>
+      <button>Laugh</button>
+      <button>Wink</button>
+      <button>Shrug</button>
+      <button>Blush</button>
+    </div>
+  </body>
+</html>
+```
+
+CSS:  
+```css
+html {
+  font-family: sans-serif;
+}
+
+body {
+  width: 70%;
+  max-width: 960px;
+  margin: 20px auto;
+}
+
+button {
+  font-size: 18px;
+  line-height: 1.5;
+  width: 15%;
+}
+
+div {
+  height: 100px;
+  border: 1px solid black;
+}
+
+/* Add your flexbox CSS below here */
+```
+
+|Result:|
+|:---|
+|![css-flexbox-align-ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-flexbox-align-ex1.PNG?raw=true)|
+
+`style.css`에 아래 rule을 추가:  
+```css
+div {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+button:first-child { /* 이 rule은 예시를 본 후 지움 */
+  align-self: flex-end;
+}
+```
+
+|Result:|
+|:---|
+|![css-flexbox-align-ex2](https://github.com/siriyaoff/MDN-note/blob/master/images/css-flexbox-align-ex2.PNG?raw=true)|
+
+- `<button>`의 `width`가 `15%`로 설정되어있기 때문에 공간을 다 차지하지 않음
+	- `30%`로 설정하면 overflow하지 않고 공간을 다 채우기만 함
+	- `width`를 설정하지 않으면 공간을 다 차지함
+- `align-items` property : cross axis를 기준으로 flex item을 제어함<br>Possible values:
+	- `stretch` : default 값<br>cross start쪽으로 flex items를 붙이고 cross axis 방향으로 flex item을 scale<br>만약 parent가 fixed width를 가지지 않으면 flex items 중 가장 긴(cross axis 기준) 값에 맞춤
+	- `center` : flex item의 intrinsic dimension을 유지하지만 cross axis 기준 가운데로 정렬시킴
+	- `flex-start`, `flex-end` : 각각 cross start, end쪽으로 flex items를 붙임
+	- `baseline` : cross start로 붙이고 flex items의 content(text)의 밑을 일정하게 맞춤
+- `align-items`는 `align-self` property로 override 가능(개별의 flex item에 적용시킬 때 사용)
+- `justify-content` property : main axis를 기준으로 flex item을 제어함<br>Values available:
+	- `flex-start` : default 값<br>main start로 붙임
+	- `flex-end` : main end로 붙임
+	- `center` : main axis 기준 가운데로 정렬(flex item의 intrinsic dimension 유지)
+	- `space-around` : main axis를 따라서 container안에서 flex items가 균동하게 분포됨(첫 번째와 마지막 item이 container와 붙은 쪽의 여백은 flex items 사이의 여백의 반으로 처리됨)
+	- `space-between` : main axis를 따라서 container안에서 flex items가 균동하게 분포됨(첫 번째와 마지막 item이 container와 붙은 쪽의 여백은 없어짐 = 첫 번째와 마지막 item은 container와 딱 붙어있음)
+- 즉, `align-items`, `justify-content` properties는 flex container의 flow direction을 알아야 사용 가능
+
+![css-flexbox-align-justify](https://github.com/siriyaoff/MDN-note/blob/master/images/css-flexbox-align-justify.PNG?raw=true)
+
+### Ordering flex items
+Source order(HTML에서 순서)를 건드리지 않고 flex items의 layout order를 바꾸는 것도 가능함  
+flex item에 `order` property를 적용해서 순서를 정함
+
+#### Example
+`style.css`에 아래 rule을 추가:  
+```css
+button:first-child {
+  order: 1;
+}
+```
+
+|Result:|
+|:---|
+|![css-flexbox-order](https://github.com/siriyaoff/MDN-note/blob/master/images/css-flexbox-order.PNG?raw=true)|
+
+- `order`의 default value : `0`
+- 값이 클수록 우선순위가 떨어짐
+- 값이 같다면 source order를 따름
+- 값에 `-1`를 넣을 수도 있음(=> default인 `0`보다 작으므로 가장 먼저 나타남)
+
+### Nested flex boxes
