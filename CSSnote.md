@@ -3664,7 +3664,7 @@ button:first-child { /* 이 rule은 예시를 본 후 지움 */
 	- `30%`로 설정하면 overflow하지 않고 공간을 다 채우기만 함
 	- `width`를 설정하지 않으면 공간을 다 차지함
 - `align-items` property : cross axis를 기준으로 flex item을 제어함<br>Possible values:
-	- `stretch` : default 값<br>cross start쪽으로 flex items를 붙이고 cross axis 방향으로 flex item을 scale<br>만약 parent가 fixed width를 가지지 않으면 flex items 중 가장 긴(cross axis 기준) 값에 맞춤
+	- `stretch` : default 값<br>cross start쪽으로 flex items를 붙이고 cross axis 방향으로 flex item을 scale<br>만약 parent가 fixed length를 가지지 않으면 flex items 중 가장 긴(cross axis 기준) 값에 맞춤
 	- `center` : flex item의 intrinsic dimension을 유지하지만 cross axis 기준 가운데로 정렬시킴
 	- `flex-start`, `flex-end` : 각각 cross start, end쪽으로 flex items를 붙임
 	- `baseline` : cross start로 붙이고 flex items의 content(text)의 밑을 일정하게 맞춤
@@ -3831,3 +3831,186 @@ IE는 IE11+에서만 flex를 지원함!
 flex같은 layout method는 지원되지 않으면 웹사이트를 아예 unusable하게 만들어버리기 때문에 주의
 
 ## Grids
+### What is grid layout?
+Grid : two-dimensional layout system for the web
+
+![css-grid-model](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Grids/grid.png)
+- **column**, **row**, **gutter**로 이루어짐
+
+### Creating your grid in CSS
+- `grid-area`로 element별 alias를 만들어두면 `grid-template-areas`를 이용해서 그걸로 바로 layout을 짤 수 있음
+- `grid-gap`으로 gutter 설정 가능
+- `grid-template-rows`, `grid-template-columns`로 row, column 별로 sizing 가능
+
+#### Defining a grid
+아래 예제를 사용(`0-stargint-point.html`, `style.css`)  
+HTML:  
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>CSS Grid starting point</title>
+    <link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <h1>Simple grid example</h1>
+
+    <div class="container">
+        <div>One</div>
+        <div>Two</div>
+        <div>Three</div>
+        <div>Four</div>
+        <div>Five</div>
+        <div>Six</div>
+        <div>Seven</div>
+    </div>
+
+</body>
+
+</html>
+```
+
+CSS:  
+```css
+body {
+  width: 90%;
+  max-width: 900px;
+  margin: 2em auto;
+  font: .9em/1.2 Arial, Helvetica, sans-serif;
+}
+
+.container > div {
+  border-radius: 5px;
+  padding: 10px;
+  background-color: rgb(207,232,220);
+  border: 2px solid rgb(79,185,227);
+}
+```
+
+|Result:|
+|:---|
+|![css-grid-ex3](https://github.com/siriyaoff/MDN-note/blob/master/images/css-grid-ex3.PNG?raw=true)|
+
+`style.css`에 아래 rule을 추가:  
+```css
+.container {
+  display: grid;
+  grid-template-columns: 200px 200px 200px;
+}
+```
+
+|Result:|
+|:---|
+|![css-grid-ex4](https://github.com/siriyaoff/MDN-note/blob/master/images/css-grid-ex4.PNG?raw=true)|
+
+- `display: grid;`를 적용해서 grid layout 사용
+	- single column grid가 default로 적용됨
+- `grid-template-columns` property를 사용해서 columns와 너비를 정의
+
+#### Flexible grids with the fr unit
+Use `fr` unit to flexibly size grid rows and columns  
+`fr` represents *one* fraction of the available space in the grid container  
+=> `flex-grow`의 proportional value와 비슷하게, grid container의 남은 공간을 `fr`끼리 나눠가짐
+
+#### Example
+`style.css`의 `.container` rule을 변경:  
+```css
+.container {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+}
+```
+
+|Result:|
+|:---|
+|![css-grid-ex5](https://github.com/siriyaoff/MDN-note/blob/master/images/css-grid-ex5.PNG?raw=true)|
+
+- `grid-template-rows`(`-columns`)에 `fr`과 fixed length를 섞어서 사용할 수 있음
+	- fixed length에 공간을 분배한 다음 남은 공간을 `fr`들이 가져감
+	- grid items 중 하나가 공간을 많이 차지할 경우 `fr`이 나눠가질 공간이 없어짐
+
+#### Gaps between tracks
+`column-gap`, `row-gap`, `gap` properties를 사용해서 gutter 설정 가능
+
+#### Example
+`style.css`의 `.container` rule을 변경:  
+```css
+.container {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 20px;
+}
+```
+
+|Result:|
+|:---|
+|![css-grid-ex5](https://github.com/siriyaoff/MDN-note/blob/master/images/css-grid-ex5.PNG?raw=true)|
+
+- `gap`에는 `fr` unit 사용 불가
+
+> `*gap*` properties는 `grid-` prefix가 붙어 있었지만 수정됨(다른 layout methods에서도 gap을 사용하기 위해)  
+> 하지만 prefixed version이 유지되기 때문에 bulletproof하게 만들려면 둘 다 추가하면 됨(`grid-gap`, `gap`)
+
+#### Repeating track listings
+`repeat` function을 이용해서 반복되는 설정을 선언 가능  
+두 번째 parameter는 track listing으로, 여러 값이 들어갈 수 있음
+e.g. `repeat(3, 1fr 2fr)` is equal to `1fr 2fr 1fr 2fr 1fr 2fr`
+
+#### The implicit and explicit grid
+- Explicit grid : `grid-template-columns`, `grid-template-rows`를 이용해서 생성된 grid
+- Implicit grid : explicit grid로 선언되지 않았을 때 자동으로 생성됨
+	- `auto`로 sizing됨 : content를 채울 만큼 커짐
+	- `grid-auto-rows`, `grid-auto-columns`를 사용해서 implicit grid에 size를 선언 가능
+
+#### Example
+`style.css`의 `.container` rule을 변경:  
+```css
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 100px;
+  gap: 20px;
+}
+```
+
+|Result:|
+|:---|
+|![css-grid-ex7](https://github.com/siriyaoff/MDN-note/blob/master/images/css-grid-ex7.PNG?raw=true)|
+
+#### The minmax() function
+`minmax()` function을 이용해서 min, max size 지정 가능  
+`auto`를 이용하면 max가 content에 맞춰지게 설정 가능  
+e.g. `grid-auto-rows: minmax(100px, auto);`  
+![css-grid-ex8](https://github.com/siriyaoff/MDN-note/blob/master/images/css-grid-ex8.PNG?raw=true)|
+
+※ row/column이 늘어나는 것은 다른 item에도 영향을 줌
+
+#### As many columns as will fit
+가능한 많은 열을 만들고 싶을 때  
+`grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));`  
+와 같이 사용 가능
+
+#### Example
+`style.css`의 `.container` rule을 변경:  
+```css
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-auto-rows: minmax(100px, auto);
+  gap: 20px;
+}
+```
+
+|Result:|
+|:---|
+|![css-grid-ex9](https://github.com/siriyaoff/MDN-note/blob/master/images/css-grid-ex9.PNG?raw=true)|
+|![css-grid-ex10](https://github.com/siriyaoff/MDN-note/blob/master/images/css-grid-ex10.PNG?raw=true)|
+
+- flex에서 flex items의 width를 지정하지 않았을 때 늘어나는 것과 비슷
+- column은 너비가 200px인 col을 최대로 만든 다음, 남는 공간은 균등하게 분배
+- row는 최소 100px, 각 row별로 필요한 만큼 늘어남
+
+### Line-based placement
