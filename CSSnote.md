@@ -3681,7 +3681,8 @@ button:first-child { /* 이 rule은 예시를 본 후 지움 */
 
 ### Ordering flex items
 Source order(HTML에서 순서)를 건드리지 않고 flex items의 layout order를 바꾸는 것도 가능함  
-flex item에 `order` property를 적용해서 순서를 정함
+flex item에 `order` property를 적용해서 순서를 정함  
+accessibility가 떨어질 수 있음
 
 #### Example
 `style.css`에 아래 rule을 추가:  
@@ -3819,12 +3820,14 @@ button {
 - flex container 관련 properties:
 	- `display`
 	- `flex-flow`(`flex-direction` `flex-wrap`)
-	- `align-items`
-	- `justify-content`
+	- `align-items` : cross axis 기준
+	- `justify-content` : main axis 기준
+	- `align-content` (여러 줄로 펼쳐졌을 때)
 - flex item 관련 properties:
 	- `flex`(`flex-grow` `flex-shrink` `flex-basis`)
 	- `align-self`
 	- `order`
+	- `z-index` : grid에서의 설명 참고
 
 ### Cross-browser compatibility
 IE는 IE11+에서만 flex를 지원함!  
@@ -3963,7 +3966,7 @@ e.g. `repeat(3, 1fr 2fr)` is equal to `1fr 2fr 1fr 2fr 1fr 2fr`
 - Explicit grid : `grid-template-columns`, `grid-template-rows`를 이용해서 생성된 grid
 - Implicit grid : explicit grid로 선언되지 않았을 때 자동으로 생성됨
 	- `auto`로 sizing됨 : content를 채울 만큼 커짐
-	- `grid-auto-rows`, `grid-auto-columns`를 사용해서 implicit grid에 size를 선언 가능
+	- `grid-auto-rows`, `grid-auto-columns`를 사용해서 implicit grid에 size를 선언 가능<br>implicit grid는 몇 개로 선언될 지 모르기 때문에 size를 한 번에 정의해야 함
 
 #### Example
 `style.css`의 `.container` rule을 변경:  
@@ -3979,6 +3982,29 @@ e.g. `repeat(3, 1fr 2fr)` is equal to `1fr 2fr 1fr 2fr 1fr 2fr`
 |Result:|
 |:---|
 |![css-grid-ex7](https://github.com/siriyaoff/MDN-note/blob/master/images/css-grid-ex7.PNG?raw=true)|
+
+- explicit grid, implicit grid을 둘 다 사용할 수 있음
+
+#### Example
+```css
+.container {
+  grid-template-columns: 50px;
+  grid-auto-columns: 1fr 2fr;
+}
+```
+
+위와 같이 선언하면 column line number 1만 `50px`로 고정되고 나머지 column들은 `1fr 2fr`의 패턴으로 반복됨
+
+이 때 implicit columns를 만드는 item 다음 item부터 영역을 지정해놓지 않으면, 자동으로 grid에 순서대로 들어감(`grid-auto-flow`에 따라서 배치됨)
+
+#### `grid-auto-flow`
+items가 배치되는 방법을 정의함  
+possible values:
+- `row` : item의 순서대로 row를 하나씩 채워나감(item을 넣을 수 없으면 다음 row로 이동)
+- `column` : item의 순서대로 column을 하나씩 채워나감(item을 넣을 수 없으면 다음 column로 이동)
+- `dense` : item의 순서 상관없이 빈틈이 없게 채움
+- `row dense` : item의 순서 상관없이 빈틈이 없게 채우는데 row가 우선적으로 채워짐
+- `column dense` : item의 순서 상관없이 빈틈이 없게 채우는데 column이 우선적으로 채워짐
 
 #### The minmax() function
 `minmax()` function을 이용해서 min, max size 지정 가능  
@@ -4012,5 +4038,201 @@ e.g. `grid-auto-rows: minmax(100px, auto);`
 - flex에서 flex items의 width를 지정하지 않았을 때 늘어나는 것과 비슷
 - column은 너비가 200px인 col을 최대로 만든 다음, 남는 공간은 균등하게 분배
 - row는 최소 100px, 각 row별로 필요한 만큼 늘어남
+- `auto-fill` : items의 총 너비가 container의 너비보다 작을 경우 공간을 남김
+- `auto-fit` : items의 총 너비가 container의 너비보다 작을 경우 공간을 채움(items가 늘어남)
 
 ### Line-based placement
+grid의 line은 1에서 시작하고, writing mode에 의해서 방향이 결정됨  
+영어는 lr => 1 ... n, 아랍어는 rl => n ... 1
+
+`grid-column-start`, `grid-column-end`, `grid-row-start`, `grid-row-end` properties를 이용해서 item을 원하는 영역에 배치 가능  
+`grid-column`, `grid-row` shorthand properties 사용 가능  
+(`/`를 이용해서 구분)
+
+#### Example
+CSS:  
+```css
+header {
+  grid-column: 1 / 3;
+  grid-row: 1;
+}
+
+article {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+aside {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+footer {
+  grid-column: 1 / 3;
+  grid-row: 3;
+}
+```
+
+|Result:|
+|:---|
+|![css-grid-ex11](https://github.com/siriyaoff/MDN-note/blob/master/images/css-grid-ex11.PNG?raw=true)|
+
+- `-1`과 같이 음수도 사용 가능(끝에서부터 count됨)
+- `grid-row: 1;`과 같이 row를 선언할 수도 있음<br>=> 하나의 row만 차지한다는 뜻임(⇔ `grid-row: 1 / 2;`)
+- `span`을 이용할 수도 있음<br>e.g. `1 / span 2` is equal to `1 / 3`
+
+### Positioning with grid-template-areas
+`grid-template-areas` property를 이용해서 items를 배치할 수 있음
+
+#### Example
+CSS:  
+```css
+.container {
+  display: grid;
+  grid-template-areas:
+      "header header"
+      "sidebar content"
+      "footer footer";
+  grid-template-columns: 1fr 3fr;
+  gap: 20px;
+}
+
+header {
+  grid-area: header;
+}
+
+article {
+  grid-area: content;
+}
+
+aside {
+  grid-area: sidebar;
+}
+
+footer {
+  grid-area: footer;
+}
+```
+
+|Result:|
+|:---|
+|Line-based placement와 같음|
+
+- line number를 사용하지 않고 배치 가능
+- `grid-area`로 각 item들의 alias를 줘야 함
+- `grid-template-areas`로 item들을 배치
+- grid의 모든 cell이 채워져야 함
+	- span을 하기 위해선 span할 영역을 모두 채움
+	- cell을 빈칸으로 남기기 위해선 `.` 사용
+- 영역들은 모두 직사각형임, L-shaped area 불가능
+- areas는 다른 위치에 반복될 수 없음(떨어진 두 영역을 차지할 수 없음)
+
+### A CSS Grid, grid framework
+Grid frameworks는 12-16 column grids임
+
+#### Example
+CSS:  
+```css
+.container {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0,1fr));
+  grid-gap: 20px;
+}
+
+header {
+  grid-column: 1 / 13;
+  grid-row: 1;
+}
+
+article {
+  grid-column: 4 / 13;
+  grid-row: 2;
+}
+
+aside {
+  grid-column: 1 / 4;
+  grid-row: 2;
+}
+
+footer {
+  grid-column: 1 / 13;
+  grid-row: 3;
+}
+```
+
+|Result:|
+|:---|
+|![css-grid-ex12](https://github.com/siriyaoff/MDN-note/blob/master/images/css-grid-ex12.PNG?raw=true)|
+
+- line-based placement를 지정하지 않으면 각각의 item들은 column 하나씩을 차지함(row는 implicit grid이기 때문에 자동으로 한 줄만 생성됨)
+- `grid-template-*`의 `fr`으로 비율을 설정할 수도 있지만 위와 같이 frameworks를 이용해서 비율을 설정할 수도 있음
+
+### Grid 정렬
+Flex에서와 비슷함
+
+#### `align-items`
+grid cells 내에서 item을 column 방향으로 정렬  
+container에 적용  
+possible values:
+- `stretch`
+- `start`, `end`
+- `center`
+
+#### `justify-items`
+grid cells 내에서 item을 row 방향으로 정렬  
+container에 적용  
+possible values:
+- `stretch`
+- `start`, `end`
+- `center`
+
+#### `align-content`
+grid container 내에서 items를 column 방향으로 정렬  
+container에 적용  
+possible values:
+- `stretch`
+- `start`, `end`
+- `center`
+- `space-between`, `space-around`, `space-evenly`
+
+#### `justify-content`
+grid container 내에서 items를 row 방향으로 정렬  
+container에 적용  
+possible values:
+- `stretch`
+- `start`, `end`
+- `center`
+- `space-between`, `space-around`, `space-evenly`
+
+#### `align-self`
+item을 column 방향으로 정렬  
+item에 적용  
+possible values:
+- `stretch`
+- `start`, `end`
+- `center`
+
+#### `justify-self`
+item을 row 방향으로 정렬  
+item에 적용  
+possible values:
+- `stretch`
+- `start`, `end`
+- `center`
+
+#### shorthands
+- `place-items` : `align-items` `justify-items` 순서로 작성
+- `place-content` : `align-content` `justify-content` 순서로 작성
+- `place-self` : `align-self` `justify-self` 순서로 작성
+
+※ 각 property의 예시는 [여기](https://studiomeal.com/archives/533) 참고  
+flex와 다르게 `justify-items`가 추가됨(2차원이기 때문에)
+
+### Grid order
+flex와 마찬가지로 `order` property를 이용해서 우선순위 정의  
+
+### z-index
+`z-index` property를 이용해서 z축으로 정렬할 수도 있음  
+value가 클수록 item이 위로 올라옴  
+grid item에 적용  
+default value : `0`
