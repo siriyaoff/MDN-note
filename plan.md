@@ -23,7 +23,7 @@ https://webdesign.tutsplus.com/ko/articles/7-css-units-you-might-not-know-about-
 
 CSS building blocks : 435 - 2235
 Styling text : 2267 - 2908
-
+CSS layout : 2911 - 
 span에 text-decoration, font-family도 그렇고 그냥 html 태그안에 attribute 붙이면 다 적용되지 않는듯
 ㄴㄴ text-decoration: overline 됨, 블로그에서는 잘됨(깃헙 미리보기에서만 안되는듯)
 

@@ -2918,7 +2918,7 @@ The page layout techniques in this module:
 - Flexbox
 - Grid
 - Floats
-	- `float: left;`와 같은 속성을 적용시키면 block level elements가 다른 element의 왼쪽에 떠있게(wrap)할 수 있음
+	- `float: left;`와 같은 속성을 적용시키면 block level elements가 다른 element의 왼쪽에 떠있게(wrapped)할 수 있음
 - Positioning
 	- `position` property를 이용
 	- `static`, `fixed`, `absolute` 등의 value를 가짐
@@ -4236,3 +4236,246 @@ flex와 마찬가지로 `order` property를 이용해서 우선순위 정의
 value가 클수록 item이 위로 올라옴  
 grid item에 적용  
 default value : `0`
+
+### Properties
+Grid container 관련 properties:
+- `display`
+- `gap`(`row-gap` `column-gap`)
+- `grid-template-areas` : alias로 영역 지정
+- `grid-template-rows`
+- `grid-template-columns`
+- `grid-auto-rows`
+- `grid-auto-columns`
+- `grid-auto-flow` : implicit grid에 대해 item이 채워지는 방식 정의
+- `place-items`(`align-items` `justify-items`)
+	- `align-items`(grid cell 내에서 vertical 정렬)
+	- `justify-items`(grid cell 내에서 horizontal 정렬)
+- `place-content`(`align-content` `justify-content`)
+	- `align-content`(items 전체의 vertical 정렬)
+	- `justify-content`(items 전체의 horizontal 정렬)
+
+Grid item 관련 properties:
+- `grid-area` : item의 alias 지정
+- `grid-column`
+- `grid-row`
+- `align-self` : item의 `align-items` overriding
+- `justify-self` : item의 `justify-items` overriding
+- `order` : 나열되는 순서 설정
+- `z-index` : z축으로 우선순위 설정
+
+## Floats
+### The background of floats
+`float`로 처음에는 image만 띄우다가 다른 요소들도 float할 수 있다는 것을 깨닫고 용도가 다양해짐  
+나중에는 아예 web site layout을 float로 구성함  
+최근에는 더 나은 layout techniques가 나왔기 때문에 float를 사용한 layout은 이제 *legacy technique*로 취급됨  
+이 article에서는 site layout이 아닌 proper uses를 살펴볼 예정
+
+### A simple float example
+아래 예제를 이용할 예정:  
+HTML:  
+```html
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <title>My test page</title>
+    <link href="style.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+<h1>Simple float example</h1>
+
+<div class="box">Float</div>
+
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla luctus aliquam dolor, eu lacinia lorem placerat vulputate. Duis felis orci, pulvinar id metus ut, rutrum luctus orci. Cras porttitor imperdiet nunc, at ultricies tellus laoreet sit amet. </p>
+
+<p>Sed auctor cursus massa at porta. Integer ligula ipsum, tristique sit amet orci vel, viverra egestas ligula. Curabitur vehicula tellus neque, ac ornare ex malesuada et. In vitae convallis lacus. Aliquam erat volutpat. Suspendisse ac imperdiet turpis. Aenean finibus sollicitudin eros pharetra congue. Duis ornare egestas augue ut luctus. Proin blandit quam nec lacus varius commodo et a urna. Ut id ornare felis, eget fermentum sapien.</p>
+
+<p>Nam vulputate diam nec tempor bibendum. Donec luctus augue eget malesuada ultrices. Phasellus turpis est, posuere sit amet dapibus ut, facilisis sed est. Nam id risus quis ante semper consectetur eget aliquam lorem. Vivamus tristique elit dolor, sed pretium metus suscipit vel. Mauris ultricies lectus sed lobortis finibus. Vivamus eu urna eget velit cursus viverra quis vestibulum sem. Aliquam tincidunt eget purus in interdum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
+  </body>
+</html>
+```
+
+CSS:  
+```css
+
+body {
+  width: 90%;
+  max-width: 900px;
+  margin: 0 auto;
+  font: .9em/1.2 Arial, Helvetica, sans-serif
+}
+
+.box {
+  float: left;
+  margin-right: 15px;
+  width: 150px;
+  height: 100px;
+  border-radius: 5px;
+  background-color: rgb(207,232,220);
+  padding: 1em;
+}
+```
+
+|Result:|
+|:---|
+|![css-float-ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-float-ex1.PNG?raw=true)|
+
+- float가 적용된 element(`.box`)는 normal flow에서 제외되고 parent container의 왼쪽에 배치됨
+- normal layout flow에서 `.box` 뒤에 오는 element는 `.box`를 감쌈(`.box`보다 윗쪽은 제외)
+- floated item과 다른 element 사이에 여백을 추가하려면 floated item의 margin을 조절해야 함
+	- 위의 예제에서 `<p>`의 padding을 조절해도 floated와의 여백은 그대로임<br>∵ `.box`가 normal flow에서 제외되어서 `<p>`들은 `.box` 밑에서 layout되기 때문
+	- 첫 번째 `<p>`의 영역을 표시해보면 아래와 같음<br>![css-float-ex2](https://github.com/siriyaoff/MDN-note/blob/master/images/css-float-ex2.PNG?raw=true)
+	- line box와 관련있음(line box : each line을 감싸는 box, containing block과는 다름)
+- `display: inline-block;`을 적용한 것과 비슷한 효과임
+
+### Clearing floats
+`clear` property를 이용해서 following elements가 float를 wrap하는 것을 멈출 수 있음  
+possible values:
+- `left` : 왼쪽에 floated item이 없게 배치됨
+- `right` : 오른쪽에 floated item이 없게 배치됨
+- `both` : 양쪽에 floated item이 없게 배치됨
+
+#### Example
+두 번째 `<p>`에 아래 CSS 추가:  
+```css
+.cleared {
+  clear: left;
+}
+```
+
+|Result:|
+|:---|
+|![css-float-ex3](https://github.com/siriyaoff/MDN-note/blob/master/images/css-float-ex3.PNG?raw=true)|
+
+- clearing이라는 keyword의 의미는 normal flow에서 제외된 상태인 float를 다시 인식시킨다 정도로 생각하면 될 듯
+
+### Clearing boxes wrapped around a float
+float와 첫 번째 문단을 `<div class="wrapper">`로 감싸고 `.cleared` rule 지운 다음 아래 css 추가:  
+HTML:  
+```html
+...
+<div class="wrapper">
+  <div class="box">Float</div>
+
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla luctus aliquam dolor, eu lacinia lorem placerat vulputate.</p>
+</div>
+...
+```
+
+CSS:  
+```css
+.wrapper {
+  background-color: rgb(79,185,227);
+  padding: 10px;
+  color: #fff;
+}
+```
+
+|Result:|
+|:---|
+|![css-float-ex4](https://github.com/siriyaoff/MDN-note/blob/master/images/css-float-ex4.PNG?raw=true)|
+
+- float가 normal flow에서 제외되었기 때문에 box가 제대로 감싸지 못함
+	- following element를 clear해도 해결되지 않음
+	- 3가지 solution이 존재
+
+#### The clearfix hack
+clearfix hack : generated content를 wrapping box뒤에 삽입해서 clear both 추가하는 방법  
+```css
+.wrapper::after {
+  content: "";
+  clear: both;
+  display: block;
+}
+```
+
+|Result:|
+|:---|
+|![css-float-ex5](https://github.com/siriyaoff/MDN-note/blob/master/images/css-float-ex5.PNG?raw=true)|
+
+- wrapper 뒤에 element를 삽입하고 `clear: both`를 추가한 것과 같음
+
+#### Using overflow
+`overflow: auto;`를 사용해서 해결할 수도 있음(default: `visible`)  
+`overflow: auto;`에 의해 BFC가 생성되어서 clear됨  
+보통 해결되지만, `overflow` 사용으로 인해 unwanted scrollbars or clipped shadows가 생길 수 있음
+
+`.wrapper`을 아래 css로 변경:  
+```css
+.wrapper {
+  background-color: rgb(79,185,227);
+  padding: 10px;
+  color: #fff;
+  overflow: auto;
+}
+```
+
+결과는 clearfix hack을 사용했을 때와 같음
+
+#### display: flow-root
+modern way of solving this problem  
+`display: flow-root;`를 `overflow: auto;` 대신 사용하면 됨  
+원리는 BFC를 생성하는 것으로 위 방법들과 동일함
+
+결과는 clearfix hack과 같음
+
+## Positioning
+### Introducing positioning
+The whole idea of positioning is to allow us to override the basic document flow behavior, to produce interesting effects.
+
+`position` property를 사용해서 구현
+
+아래 예제를 사용할 예정:  
+HTML:  
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Basic document flow</title>
+
+  </head>
+  <body>
+    <h1>Basic document flow</h1>
+
+    <p>I am a basic block level element. My adjacent block level elements sit on new lines below me.</p>
+
+    <p>By default we span 100% of the width of our parent element, and our height is as tall as our child content. Our total width and height is our content + padding + border width/height.</p>
+
+    <p>We are separated by our margins. Because of margin collapsing, we are separated by the width of one of our margins, not both.</p>
+
+    <p>inline elements <span>like this one</span> and <span>this one</span> sit on the same line as one another, and adjacent text nodes, if there is space on the same line. Overflowing inline elements <span>wrap onto a new line if possible — like this one containing text</span>, or just go on to a new line if not, much like this image will do: <img src="https://github.com/mdn/learning-area/blob/master/css/css-layout/positioning/long.jpg?raw=true"></p>
+
+  </body>
+</html>
+
+```
+
+CSS:  
+```css
+body {
+  width: 500px;
+  margin: 0 auto;
+}
+
+p {
+  background: aqua;
+  border: 3px solid blue;
+  padding: 10px;
+  margin: 10px;
+}
+
+span {
+  background: red;
+  border: 1px solid black;
+}
+```
+
+|Result:|
+|:---|
+|![css-position-ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-position-ex1.PNG?raw=true)|
+
+### Static positioning
+`position: static;`을 사용해서 구현  
+`position` property의 default value  
+element를 normal flow에서의 위치에 배치
