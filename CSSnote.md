@@ -4479,3 +4479,199 @@ span {
 `position: static;`을 사용해서 구현  
 `position` property의 default value  
 element를 normal flow에서의 위치에 배치
+
+#### Example
+두 번째 p에 `positioned` class 추가하고 rule 선언:  
+HTML:  
+```html
+<p class="positioned">...</p>
+```
+
+CSS:  
+```css
+.positioned {
+  position: static;
+  background: yellow;
+}
+```
+
+|Result:|
+|:---|
+|![css-position-ex2](https://github.com/siriyaoff/MDN-note/blob/master/images/css-position-ex2.PNG?raw=true)|
+
+- static positioning이 default behavior이기 때문에 위치는 변화없음
+
+### Relative positioning
+`relative` value 이용  
+element가 normal flow에 의해 배치된 다음 `top`, `bottom`, `left`, `right` properties 이용해서 final position을 수정 가능  
+
+#### Introducing top, bottom, left, and right
+위에 4개의 properties(`top`, `bottom`, `left`, `right`)는 positioned element를 옮기기 위해 `position`과 함께 사용됨
+
+#### Example
+`.positioned` rule을 변경:  
+```css
+.positioned {
+  position: relative;
+  top: 30px;
+  left: 30px;
+  background: yellow;
+}
+```
+
+|Result:|
+|:---|
+|![css-position-ex3](https://github.com/siriyaoff/MDN-note/blob/master/images/css-position-ex3.PNG?raw=true)|
+
+- `top`, `bottom`, `left`, `right`의 value로 pixels, mm, rems, % 등의 unit들이 가능함
+- `top: 30px;`는 위에 30px만큼 거리를 띄운다고 생각하면 될 듯
+
+### Absolute positioning
+absolute positioned element는 normal document layout flow에서 제외되고, 자신만의 layer에 배치되어 다른 elements와 간섭하지 않음  
+absolute positioning에서는 `top`, `bottom`, `left`, `right`가 normal flow에서의 relative position 기준이 아니라 containing block을 기준으로 거리를 벌림
+
+#### Example
+`.positioned` rule을 변경:  
+```css
+position: absolute;
+```
+
+|Result:|
+|:---|
+|![css-position-ex4](https://github.com/siriyaoff/MDN-note/blob/master/images/css-position-ex4.PNG?raw=true)|
+
+- `top`, `bottom`, `left`, `right`, `margin` 모두 `0`으로 설정하면 화면을 가득 채움<br>=>`margin`이 적용됨(margin collapsing은 일어나지 않음)
+
+#### Positioning contexts
+`position`의 value에 따라서 containing block을 구하는 방법:
+1. `position` : `static`, `relative`, `sticky`
+	- the *content box* of the nearest ancestor element that is either a **block container** or **establishes a formatting context**
+2. `position` : `absolute`
+	- the *padding box* of the nearest ancestor element that has a `position` value other than `static`(e.g. `relative`, `sticky`, `fixed`, `absolute`)
+3. `position` : `fixed`
+	- the viewport or the page area
+4. `position` : `fixed`, `absolute`의 경우 다른 기준도 있음
+
+**Initial containing block** : the containing block in which the root element(`<html>`) resides
+- Initial containing block에 relative할 경우 `<html>` element 밖에 display됨(relative to initial viewport)
+
+위 예시에서는 absolute positioned element가 `<body>`안에 nested되어 있지만, final layout에서는 relative to the page area  
+**positioning context** : which element the absolutely positioned element is positioned relative to
+- absolutely positioned element의 ancestors 중 하나에 positioning을 설정해서 바꿀 수 있음
+- element가 nesting하고 있는 elements에만 relative하게 position할 수 있음
+
+`<body>`에 rule 추가:  
+```css
+`position: relative;`
+```
+
+|Result:|
+|:---|
+|![css-position-ex5](https://github.com/siriyaoff/MDN-note/blob/master/images/css-position-ex5.PNG?raw=true)|
+
+- `<body>`에 relative positioning을 적용해서 `.positioned`의 containing block이 `<body>`로 변경됨
+
+#### Introducing z-index
+아래 CSS를 추가:  
+```css
+p:nth-of-type(1) {
+  position: absolute;
+  background: lime;
+  top: 10px;
+  right: 30px;
+}
+```
+
+|Result:|
+|:---|
+|![css-position-ex6](https://github.com/siriyaoff/MDN-note/blob/master/images/css-position-ex6.PNG?raw=true)|
+
+- 더 나중에 position된 `.positioned`가 더 앞으로 나옴
+- `z-index` property를 사용해서 stack 순서를 바꿀 수 있음
+	- 숫자가 높을수록 더 앞에 쌓임
+	- default value : 0
+	- unitless index value만 대입 가능
+
+### Fixed positioning
+Fixed positioning은 absolute와 동일하게 작동하지만, 기준이 다름
+- 보통 viewport에 relative함
+- ancestor 중에 `transform` property를 이용해서 회전하는 등의 조건을 충족하는 element가 있으면 그 element의 padding box에 relative함
+
+#### Example
+`p:nth-of-type(1)`, `.positioned` rule 지우고 아래 CSS를 추가:  
+```css
+body {
+  width: 500px;
+  height: 1400px;
+  margin: 0 auto;
+}
+
+h1 {
+  position: fixed;
+  top: 0;
+  width: 500px;
+  margin-top: 0;
+  background: white;
+  padding: 10px;
+}
+```
+
+|Result:|
+|:---|
+|![css-position-ex7](https://github.com/siriyaoff/MDN-note/blob/master/images/css-position-ex7.PNG?raw=true)|
+
+- `<h1>`이 viewport 위쪽에 고정되지만, 첫 번째 `<p>`가 가려짐
+	- fixed positioning도 element를 normal flow에서 제외시키기 때문
+	- 첫 번째 `<p>`에 top margin을 줘서 해결
+
+### Sticky positioning
+relative와 fixed position을 혼합한 상태임  
+=> 특정한 threshold(e.g. viewport의 top에서 10px)까지 스크롤 전에는 relatively positioned, 그 다음부터는 fixed
+
+아래 CSS처럼 적용 가능함:  
+```css
+.positioned {
+  position: sticky;
+  top: 30px;
+  left: 30px;
+}
+```
+
+- `top`, `left` 등의 property로 threshold 정함(이 element가 threshold 위치에 도달하면 fixed로 바뀜)
+- `<dt>`와 같은 element에 적용시켜서 엑셀의 틀고정과 같은 효과를 만들 수 있음
+
+## Multiple-column layout
+### A basic example
+열 나누기는 `column-count`, `column-width` properties를 사용해서 구현함
+- `column-count`
+	- value : unitless
+	- 지정한 값 만큼 column을 만듦(viewport를 변화시켜도 열 개수 일정)<br>e.g. `column-count: 3;`
+- `column-width`
+	- value : 길이 관련 unit들
+	- grid에서 `grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));`를 사용하는 것과 비슷함<br>최소 width가 설정한 값이 되고, 나머지가 있으면 column끼리 분배함<br>e.g. `column-width: 200px;`
+
+### Styling the columns
+multicol로 생성된 columns는 개별로 styling할 수 없음  
+i.e. 한 열만 넓게 하거나 배경을 바꾸는 등의 작업 불가
+
+아래 properties를 사용해서 전체적인 styling 가능
+- `column-gap` : 열 사이의 gap 설정
+	- `20px`로 설정하면 열 사이에 간격은 `20px`임(`40px`가 아님)
+- `column-rule` : 열 사이에 구분선 설정
+	- `column-rule-color` `column-rule-style` `column-rule-width`의 shorthand property임
+	- `border` property와 비슷하게 설정
+
+#### Example
+```css
+.container {
+  column-width: 200px;
+  column-gap: 20px;
+  column-rule: 4px dotted rgb(79, 185, 227);
+}
+```
+
+|Result:|
+|:---|
+|![css-multicol-ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-multicol-ex1.PNG?raw=true)|
+
+- 

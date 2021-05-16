@@ -33,3 +33,8 @@ flexbox challenge
 [flexbox froggy](https://flexboxfroggy.com/#ko)
 
 3666 possible values 다음 자연스러운지
+
+1965 nth-child 설명 고쳐야함
+nth-child는 element 상관없이 모든 자식들 카운트
+nth-of-type은 앞에 명시된 type만 카운트(nth-of-type도 앞에 아무것도 없으면 global하게 적용)
+https://firerope.tistory.com/5
