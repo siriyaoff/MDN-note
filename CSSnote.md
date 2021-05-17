@@ -4560,7 +4560,7 @@ position: absolute;
 - absolutely positioned element의 ancestors 중 하나에 positioning을 설정해서 바꿀 수 있음
 - element가 nesting하고 있는 elements에만 relative하게 position할 수 있음
 
-`<body>`에 rule 추가:  
+`<body>`에 declaration 추가:  
 ```css
 `position: relative;`
 ```
@@ -4674,4 +4674,128 @@ i.e. 한 열만 넓게 하거나 배경을 바꾸는 등의 작업 불가
 |:---|
 |![css-multicol-ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-multicol-ex1.PNG?raw=true)|
 
-- 
+### Spanning columns
+`column-span` property를 사용해서 element가 열들을 가로질러 span하게 만들 수 있음  
+span하는 범위를 설정할 수 없음  
+values available:
+- `none` : default, span하지 않음
+- `all` : 모든 열을 가로질러 span함
+
+#### Example
+![css-multicol-ex2](https://github.com/siriyaoff/MDN-note/blob/master/images/css-multicol-ex2.PNG?raw=true)
+
+### Columns and fragmentation
+multicol을 사용하면 content가 쪼개져서 columns에 들어가는데, 그 과정에서 아래와 같이 content의 가독성이 떨어질 수 있음  
+![css-multicol-ex3](https://github.com/siriyaoff/MDN-note/blob/master/images/css-multicol-ex3.PNG?raw=true)
+
+이런 현상을 `break-inside: avoid;` declaration을 사용해서 없앨 수 있음  
+`break-inside` property를 적용하면 내부 content의 break를 제어함  
+=> 끊기지 않아야 할 content가 들어있는 container에 적용해야 함
+
+older version인 `page-break-inside`도 추가해서 browser support를 높일 수 있음
+
+![css-multicol-ex4](https://github.com/siriyaoff/MDN-note/blob/master/images/css-multicol-ex4.PNG?raw=true)
+- content가 잘리지 않은 채 layout됨
+
+### Test your skills
+- `column-gap`은 `column-rule`의 두께까지 고려해서 계산해야 함(rule이 `5px`이고 rule과 column 사이 공간을 `10px`로 설정하고 싶다면 gap을 `25px`로 줘야함
+- `::before`, `::after` 등의 pseudo-element를 선언하고 `border-bottom` property를 이용해서 글자를 둘러싸는 선을 만들 수 있음<br>![css-multicol-ex5](https://github.com/siriyaoff/MDN-note/blob/master/images/css-multicol-ex5.PNG?raw=true)
+
+## Responsive design
+screen의 크기가 다양해지면서 하나의 layout으로는 모든 screen을 지원할 수 없게 됨  
+스크린의 너비, 해상도 등에 따라 layout을 결정하는 *Responsive Web Design*(RWD)가 나타남
+
+### Historic website layouts
+예전에는 website를 설계할 때 두 가지 선택지가 있었음
+- *liquid* site, browser window에 따라서 늘리거나 줄일 수 있음
+- *fixed width* site, 사이즈가 완전히 고정됨
+
+좁은 스크린에서 liquid site는 가독성이 떨어지고, fixed width site는 가로로 스크롤바가 생김  
+fixed width site는 너무 넓은 스크린에서는 너무 많은 여백이 생김
+
+mobile web이 상용화되면서 다른 URL(*m.asdf.com* 같은)을 이용하는 페이지들이 많아짐  
+=> 두 가지 버전을 계속 관리해야 했음  
+(+ 모바일 기기가 성능이 좋아지면서 데스크탑 버전에서 지원되는 기능을 모바일에서 사용하지 못하는 것에 불만이 생김)
+
+### Flexible layout before responsive design
+- Resolution dependent layout, 2004, Cameron Adams
+	- 화면 해상도를 알아내기 위해 JavaScript를 필요로 했고, 알맞은 CSS가 요구되었음
+- Designing CSS Layouts for the Flexible Web, 2008, Zoe Mickley Gillenwater
+	- liquid와 fixed 사이의 flexible site를 개발하기 위한 방법들 공식화
+
+### Responsive design
+The term *Responsive design* was coined by Ethan Marcotte in 2010 and described the use of three techniques in combination
+1. the idea of fluid grids
+	- grid의 너비에 `%` 사용
+2. the idea of fluid images
+	- `max-width: 100%;`를 적용시켜서 구현
+	- containing column에 따라서 크기가 맞춰지지만, 이미지가 커질 경우 pixelate됨
+3. media query
+	- screen size에 따라 layout을 다르게 적용(Cameron Adams는 JS를 필요로 했지만 media query는 CSS만 필요)
+
+=> Responsive web design은 별도의 기술이 아님  
+디바이스에 *respond*할 수 있는 layout을 만드는데 사용되는 web design 또는 그 결과물들로의 접근법을 나타냄  
+(it is a term used to describe an approach to web design or a set of best practices, used to create a layout that can respond to the device being used to view the content)  
+Marcotte의 정의는 flexible grids(using floats) + media queries였음  
+
+10년 후인 지금은 기본적으로 responsive 개념이 사용됨  
+Modern CSS layout methods are inherently responsive
+
+### Media Queries
+반응형 디자인은 media query 덕분에 구현될 수 있었음  
+Media Queries는 user's screen에 관한 조건에 따라서 CSS를 선택적으로 적용할 수 있게 해줌
+
+#### Example
+```css
+@media screen and (min-width: 800px) {
+  .container {
+    margin: 1em 2em;
+  }
+}
+```
+- 위 media query는 page를 표시하는게 screen이고, viewport가 `800px` 이상일 경우에만 `.container` rule을 적용함
+- media query가 선언되고 layout이 바뀌는 지점을 breakpoint라고 함
+- common approach using media queries
+	- single-column layout for narrow screen devices
+	- multi-column layout for larger screens
+	
+	위와 같은 디자인은 **mobile first** design이라고 불림
+
+### Flexible grids
+Responsive sites는 breakpoints에 따라서 layout이 바뀌는 것뿐만 아니라 flexible grids 안에 설계됨  
+Flexible grid를 사용하면 breakpoint를 설정하고 breakpoint마다 적절하게 design을 바꾸면 됨  
+grid라는 단어를 쓰지만 CSS Grid를 사용하는게 아니라 media query, `float`를 이용해서 grid를 만듦
+
+초기 responsive design에서는 float만 사용해서 layout을 구성함  
+elements에게 percentage width(`target / context * 100%`)를 부여해서 flexible floated layout을 구현  
+(100%를 넘지 않도록 유의해야 함)
+
+현재까지도 이런 방식을 사용하는 websites가 많음
+
+### Modern layout technologies
+Modern layout methods such as Multiple-column layout, Flexbox, and Grid are responsive by default. They all assume that you are trying to create a flexible grid and give you easier ways to do so.
+
+#### Multicol
+The oldest of these layout methods
+
+#### Flexbox
+#### CSS grid
+`fr` unit allows the distribution of available space across grid tracks
+
+flexbox는 열마다 flex를 이용해서 너비를 분배해야 하지만 grid는 container에서 너비를 분배하기 때문에 더 간단함
+
+### Responsive images
+The simplest approach to responsive images was as described in Marcotte's early articles on responsive design.  
+기본적으로 가장 큰 해상도의 이미지를 구하고 줄여나가기 때문에 아래 rule을 통해 responsive image를 구현할 수 있음(아직까지 사용함)
+
+```css
+img {
+  max-width: 100%;
+}
+```
+
+이 approach의 단점
+- 이미지가 원래 크기보다 많이 축소될 수 있고, 이는 네트워크 낭비로 이어짐
+- scaling만 가능하기 때문에 screen에 따라서 이미지가 달라지거나 aspect ratio를 바꿀 수 없음
+
+`<picture>` element, `<img>`의 `srcset`, `sizes` attributes를 이용한 approach로 위 단점을 보완 가능함
