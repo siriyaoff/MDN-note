@@ -38,3 +38,5 @@ flexbox challenge
 nth-child는 element 상관없이 모든 자식들 카운트
 nth-of-type은 앞에 명시된 type만 카운트(nth-of-type도 앞에 아무것도 없으면 global하게 적용)
 https://firerope.tistory.com/5
+
+4903 잘 나오는지

@@ -4798,4 +4798,174 @@ img {
 - 이미지가 원래 크기보다 많이 축소될 수 있고, 이는 네트워크 낭비로 이어짐
 - scaling만 가능하기 때문에 screen에 따라서 이미지가 달라지거나 aspect ratio를 바꿀 수 없음
 
-`<picture>` element, `<img>`의 `srcset`, `sizes` attributes를 이용한 approach로 위 단점을 보완 가능함
+`<img>`의 `srcset`, `sizes` attributes를 이용한 approach로 위 단점을 보완 가능함  
+srcset, sizes로 media query 같은 효과를 낼 수 있음 + srcset으로 화질이 다른 원본들을 지정해 pixelate되는 것도 어느 정도 해소됨
+
+*art direct* image로도 해결 가능  
+`<picture>`, `<source>`를 이용하면 viewport width 별로 사진을 다르게 설정 가능(art collection)
+
+### Responsive typography
+화면에 따라서 글자 크기를 조절하는 것  
+media query를 이용
+
+#### Example
+```css
+h1 {
+  font-size: 2rem;
+}
+
+@media (min-width: 1200px) {
+  h1 {
+    font-size: 4rem;
+  }
+}
+```
+
+- media query를 이용해서 page layout 뿐만 아니라 가독성을 높이기 위해 다른 것들도 바꿀 수 있음
+
+#### Using viewport units for responsive typography
+viewport unit `vw`를 responsive typography에 사용할 수 있음  
+`1vw` = 1% of viewport width  
+=> 항상 viewport의 크기에 영향을 받기 때문에 `vw`로 글자 크기를 지정하면 안됨  
+(∵ page zoom을 해도 글자 크기가 항상 똑같아짐)
+
+`calc()` function을 사용해서 화면 크기에 비례하는 글자 크기를 지정하는게 좋음!  
+e.g. `font-size: calc(1.5rem + 3vw);`
+
+이런 식으로 글자 크기를 지정하면 위와 같이 media query를 쓰는 번거로움을 줄일 수 있음
+
+### The viewport meta tag
+```html
+<meta name="viewport" content="width=device-width,initial-scale=1">
+```
+
+위 meta tag는 mobile browser일 때
+- viewport width를 device width로 설정하고
+- document scale을 100%로 맞춰서
+
+모바일에 최적화되게 webpage를 보여주기 위한 것임  
+∵ 초기에 아이폰이 출시되었을 때 모바일 버전을 지원하지 않는 웹사이트가 많아서 viewport width를 960px 등으로 속여서 사이트를 받고 렌더링을 한 다음 축소된 버전을 보여줌
+
+이런 이유로 media queries가 mobile browser에서는 의도한대로 작동하지 않을 수 있기 때문에,  
+`<meta>` tag로 viewport width를 알아내고 알맞게 layout된 페이지를 로드하게 함  
+따라서 항상 `<head>` 안에 `<meta>` tag를 넣어야 함!
+
+보통 위의 태그를 많이 사용하지만 다른 attributes도 존재함:
+- `initial-scale` : Sets the initial zoom of the page
+- `height` : Sets a specific height for the viewport
+- `minimum-scale` : Sets the minimum zoom level
+- `maximum-scale` : Sets the maximum zoom level
+- `user-scalable` : Prevents zooming if set to `no`
+
+`minimum-scale`, `maxmum-scale`, `user-scalable: no;`의 사용에 주의해야함!  
+(accessibility를 위해서)
+
+> viewport meta tag를 대체하기 위해 `@viewport`라는 CSS @ rule이 설계되었지만, 현재는 잘 사용하지 않음
+
+## Beginner's guide to media queries
+### Media Query Basics
+The simplest media query syntax:  
+```css
+@media media-type and (media-feature-rule) {
+  /* CSS rules go here */
+}
+```
+
+- `media-type` : 인쇄용, 스크린 등 어떤 용도로 사용되는지
+- `media-feature-rule` : 아래 CSS를 적용하기 위해 만족해야 하는 조건
+
+#### Media types
+The possible types of media:
+- `all` : default
+- `print`
+- `screen`
+- `speech`
+
+#### Example
+```css
+@media print {
+    body {
+        font-size: 12pt;
+    }
+}
+```
+
+- page가 인쇄될 때만 `body`의 글자 크기를 `12pt`로 설정함(브라우저에서 페이지가 로드될 때는 적용되지 않음)
+
+#### Media feature rules
+feature rules에 사용될 수 있는 media features:
+- `width`, `min-width`, `max-width`
+- `height`, `min-height`, `max-height`
+- `orientation`<br>possible values:
+	- `landscape` : landscape orientation, 모바일에서 가로모드, 데스크탑은 기본적으로 landscape임
+	- `portrait` : 모바일에서 세로모드
+- `hover`<br>possible values:
+	- `hover` : 사용자가 pointing이 가능한 device를 사용하고 있음(touchscreen, keyboard navigation 등은 hover가 되지 않음)
+	
+	hovering이 불가능한 환경의 경우 interactive features를 기본으로 넣는 등의 설정이 가능  
+	Level 4 specification이기 때문에 브라우저 지원을 잘 봐야함
+- `pointer`<br>possible values:
+	- `none` : no pointing device(or voice commands)
+	- `fine` : mouse or trackpad, 사용자가 작은 영역을 잘 가리킬 수 있음
+	- `coarse` : finger on a touchscreen
+	
+	사용자가 touchscreen을 사용하면 hit area를 더 늘리는 등의 개선이 가능함
+
+### More complex media queries
+#### "and" logic in media queries
+Use `and`  
+```css
+@media screen and (min-width: 600px) and (orientation: landscape) {
+    body {
+        color: blue;
+    }
+}
+```
+
+#### "or" logic in media queries
+Use `,`  
+```css
+@media screen and (min-width: 600px), screen and (orientation: landscape) {
+    body {
+        color: blue;
+    }
+}
+```
+
+- `,`로 구분된 쿼리들을 individual media query로 인식함
+
+#### "not" logic in media queries
+Use `not` operator  
+entire media query를 부정함  
+```css
+@media not all and (orientation: landscape) {
+    body {
+        color: blue;
+    }
+}
+```
+
+- media type도 무조건 써야하기 때문에 not을 가장 먼저 붙임
+- `,`로 구분될 경우 `not`이 붙어있는 query에만 영향을 줌
+
+### How to choose breakpoints
+현재는 screen의 종횡비와 해상도가 너무 다양하기 때문에 content가 깨지는 시점을 breakpoint로 잡는 게 좋음  
+e.g. 줄 길이가 너무 길어지거나 sidebar가 뭉개짐, 가독성이 떨어짐
+
+따라서 device의 정확한 스펙에 관련 없이 모든 screen 범위에 대해 지정하면 됨  
+media query가 구분되는 점을 breakpoints라고 함
+
+Firefox DevTools에서는 viewport를 편리하게 조절할 수 있음  
+![css-firefox-viewport](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Media_queries/rwd-mode.png)
+
+### Active learning: mobile first responsive design
+Two approaches to a responsive design:
+- **start with the widest view, add breakpoints** as the viewport becomes smaller
+- **start with the smallest view, add layout** as the viewport becomes larger
+
+두 번째 접근법은 *mobile first responsive design*이라 불리는 자주 사용되는 접근 방식임
+
+가장 작은 device에서의 layout은 주로 single column of content임  
+=> small devices의 경우 많은 layout이 필요하지 않음  
+
+#### Walkthrough: a simple mobile-first layout
