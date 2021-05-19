@@ -4297,7 +4297,6 @@ HTML:
 
 CSS:  
 ```css
-
 body {
   width: 90%;
   max-width: 900px;
@@ -4846,11 +4845,11 @@ e.g. `font-size: calc(1.5rem + 3vw);`
 모바일에 최적화되게 webpage를 보여주기 위한 것임  
 ∵ 초기에 아이폰이 출시되었을 때 모바일 버전을 지원하지 않는 웹사이트가 많아서 viewport width를 960px 등으로 속여서 사이트를 받고 렌더링을 한 다음 축소된 버전을 보여줌
 
-이런 이유로 media queries가 mobile browser에서는 의도한대로 작동하지 않을 수 있기 때문에,  
+이런 이유로 media queries가 mobile browser에서는 의도한 대로 작동하지 않을 수 있기 때문에,  
 `<meta>` tag로 viewport width를 알아내고 알맞게 layout된 페이지를 로드하게 함  
 따라서 항상 `<head>` 안에 `<meta>` tag를 넣어야 함!
 
-보통 위의 태그를 많이 사용하지만 다른 attributes도 존재함:
+보통 위의 태그를 많이 사용하지만 다른 options도 존재함:
 - `initial-scale` : Sets the initial zoom of the page
 - `height` : Sets a specific height for the viewport
 - `minimum-scale` : Sets the minimum zoom level
@@ -4950,7 +4949,7 @@ entire media query를 부정함
 
 ### How to choose breakpoints
 현재는 screen의 종횡비와 해상도가 너무 다양하기 때문에 content가 깨지는 시점을 breakpoint로 잡는 게 좋음  
-e.g. 줄 길이가 너무 길어지거나 sidebar가 뭉개짐, 가독성이 떨어짐
+e.g. line-length가 너무 길어지거나 sidebar가 뭉개짐, 가독성이 떨어짐
 
 따라서 device의 정확한 스펙에 관련 없이 모든 screen 범위에 대해 지정하면 됨  
 media query가 구분되는 점을 breakpoints라고 함
@@ -4969,3 +4968,408 @@ Two approaches to a responsive design:
 => small devices의 경우 많은 layout이 필요하지 않음  
 
 #### Walkthrough: a simple mobile-first layout
+아래 코드를 예제로 사용:  
+HTML:  
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Media Queries: a simple mobile first design, step 1</title>
+    <meta name="viewport" content="width=device-width">
+    <link href="style.css" rel="stylesheet" type="text/css">
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <header>
+        <nav>
+          <ul>
+            <li><a href="">About</a></li>
+            <li><a href="">Contact</a></li>
+            <li><a href="">Meet the team</a></li>
+            <li><a href="">Blog</a></li>
+          </ul>
+        </nav>
+      </header>
+      <main>
+        <article>
+          <div class="content">
+            <h1>Veggies!</h1>
+            <p>
+              Veggies es bonus vobis, proinde vos postulo essum magis kohlrabi
+              welsh onion daikon amaranth tatsoi tomatillo melon azuki bean
+              garlic.
+            </p>
+
+            <p>
+              Gumbo beet greens corn soko endive gumbo gourd. Parsley shallot
+              courgette tatsoi pea sprouts fava bean collard greens dandelion
+              okra wakame tomato. Dandelion cucumber earthnut pea peanut soko
+              zucchini.
+            </p>
+
+            <p>
+              Turnip greens yarrow ricebean rutabaga endive cauliflower sea
+              lettuce kohlrabi amaranth water spinach avocado daikon napa
+              cabbage asparagus winter purslane kale. Celery potato scallion
+              desert raisin horseradish spinach carrot soko. Lotus root water
+              spinach fennel kombu maize bamboo shoot green bean swiss chard
+              seakale pumpkin onion chickpea gram corn pea. Brussels sprout
+              coriander water chestnut gourd swiss chard wakame kohlrabi
+              beetroot carrot watercress. Corn amaranth salsify bunya nuts nori
+              azuki bean chickweed potato bell pepper artichoke.
+            </p>
+
+            <p>
+              Nori grape silver beet broccoli kombu beet greens fava bean potato
+              quandong celery. Bunya nuts black-eyed pea prairie turnip leek
+              lentil turnip greens parsnip. Sea lettuce lettuce water chestnut
+              eggplant winter purslane fennel azuki bean earthnut pea sierra
+              leone bologi leek soko chicory celtuce parsley jícama salsify.
+            </p>
+          </div>
+          <aside class="related">
+            <p>
+              All these veggies are brought to you by the
+              <a href="https://veggieipsum.com/">Veggie Ipsum generator</a>.
+            </p>
+          </aside>
+        </article>
+
+        <aside class="sidebar">
+          <h2>External vegetable-based links</h2>
+          <ul>
+            <li>
+              <a
+                href="https://www.thekitchn.com/how-to-cook-broccoli-5-ways-167323"
+                >How to cook broccoli</a
+              >
+            </li>
+            <li>
+              <a href="https://www.bbcgoodfood.com/glossary/swiss-chard"
+                >Swiss Chard</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://www.bbcgoodfood.com/recipes/collection/christmas-parsnip"
+                >Christmas Parsnip Recipes</a
+              >
+            </li>
+          </ul>
+        </aside>
+      </main>
+
+      <footer><p>&copy;2019</p></footer>
+    </div>
+  </body>
+</html>
+```
+
+CSS:  
+```css
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 90%;
+  margin: 2em auto;
+  font: 1em/1.3 Arial, Helvetica, sans-serif;
+}
+
+a:link,
+a:visited {
+  color: #333;
+}
+
+nav ul,
+aside ul {
+  list-style: none;
+  padding: 0;
+}
+
+nav a:link,
+nav a:visited {
+  background-color: rgba(207, 232, 220, 0.2);
+  border: 2px solid rgb(79, 185, 227);
+  text-decoration: none;
+  display: block;
+  padding: 10px;
+  color: #333;
+  font-weight: bold;
+}
+
+nav a:hover {
+  background-color: rgba(207, 232, 220, 0.7);
+}
+
+.related {
+  background-color: rgba(79, 185, 227, 0.3);
+  border: 1px solid rgb(79, 185, 227);
+  padding: 10px;
+}
+
+.sidebar {
+  background-color: rgba(207, 232, 220, 0.5);
+  padding: 10px;
+}
+
+article {
+  margin-bottom: 1em;
+}
+```
+
+|Result:|
+|:---|
+|![css-responsive-ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-responsive-ex1.PNG?raw=true)|
+
+- 페이지의 가독성을 높이는 순서로 소스를 작성해야 함
+
+아래 CSS를 추가:  
+```css
+@media screen and (min-width: 40em) {
+    article {
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        column-gap: 20px;
+    }
+
+    nav ul {
+        display: flex;
+    }
+
+    nav li {
+        flex: 1;
+    }
+}
+```
+
+|Result:|
+|:---|
+|![css-responsive-ex2](https://github.com/siriyaoff/MDN-note/blob/master/images/css-responsive-ex2.PNG?raw=true)|
+
+- media query를 `em`으로 설정해서, 같은 width라도 글자 크기에 따라서 적용되는 layout이 다르도록 만듦
+
+아래 CSS를 추가:  
+```css
+@media screen and (min-width: 70em) {
+    main {
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        column-gap: 20px;
+    }
+
+    article {
+        margin-bottom: 0;
+    }
+
+    footer {
+        border-top: 1px solid #ccc;
+        margin-top: 2em;
+    }
+}
+```
+
+|Result:|
+|:---|
+|![css-responsive-ex3](https://github.com/siriyaoff/MDN-note/blob/master/images/css-responsive-ex3.PNG?raw=true)|
+
+- 위의 `min-width: 40em`에서는 `<article>`에 grid를 사용해서 main content, related만 묶었지만, 이 media query에서는 `<main>`에 grid를 사용해서 `<article>`의 grid와 sidebar를 묶었음<br>즉, grid(grid(3fr, 1fr), 1fr)으로 이루어짐
+- `article`에 `margin-bottom:0;`을 적용하는 이유 : main의 grid에 article의 grid를 nesting하는 형식인데, article에 margin-bottom이 있으면 sidebar와 article의 높이가 달라지기 때문
+- `footer`에 `border-top`을 추가해서 `footer`를 확실하게 구분함
+
+### Do you really need a media query?
+Flexbox, Grid, and multi-column layout은 media query 없이도 responsive components를 생성함  
+따라서 가능하면 media query 대신 이런 layout methods를 사용하는 것이 나음  
+예를 들어, width에 따라 column 개수를 추가하고 싶으면 CSS Grid와
+
+`grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));`
+
+를 사용하면 됨
+
+### Test your skills
+media query부분만:  
+```css
+@media screen and (min-width: 40em) {
+  header {
+    display: flex;
+    margin-bottom: 1em;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  header ul {
+    display: flex;
+  }
+
+  header a {
+    border-top: none;
+  }
+
+  main {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    column-gap: 1em;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(18em, 1fr));
+    grid-gap: 1em;
+  }
+}
+```
+
+|Result:|
+|:---|
+|![css-responsive-ex4](https://github.com/siriyaoff/MDN-note/blob/master/images/css-responsive-ex4.PNG?raw=true)|
+
+- `.cards`도 flex로 해보려 했는데 좌우 여백 때문에 그냥 grid 사용함(flex도 여러 행일 때 flex item의 `width`를 지정하면 모든 item들의 너비를 같게 할 수 있음)
+- **좌우로는 margin-collapsing이 일어나지 않음!!**
+- `html`에 대해서 `font-size: calc(1em+1vw);`를 적용했는데 글자 크기에 큰 차이가 없었음
+
+## Legacy layout methods
+### Layout and grid systems before CSS Grid Layout
+이 article에서는 float, flexbox를 사용해서 grid systems, grid framworks를 만드는 legacy methods를 다룸  
+fallback code나 이미 legacy methods를 사용하는 projects를 할 때 도움됨
+
+아래 방법들로 grid를 비슷하게 만들 수는 있지만, CSS Grid Layout이 grid를 만드는 방법과는 같지 않음  
+(대부분 items에 크기를 부여하고 줄에 맞춰 배치해서 grid처럼 보이게 하는 방법을 사용함)
+
+### A two column layout
+HTML `<body>` 부분:  
+```html
+<h1>2 column layout example</h1>
+<div>
+  <h2>First column</h2>
+  <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla luctus aliquam dolor, eu lacinia lorem placerat vulputate. Duis felis orci, pulvinar id metus ut, rutrum luctus orci. Cras porttitor imperdiet nunc, at ultricies tellus laoreet sit amet. Sed auctor cursus massa at porta. Integer ligula ipsum, tristique sit amet orci vel, viverra egestas ligula. Curabitur vehicula tellus neque, ac ornare ex malesuada et. In vitae convallis lacus. Aliquam erat volutpat. Suspendisse ac imperdiet turpis. Aenean finibus sollicitudin eros pharetra congue. Duis ornare egestas augue ut luctus. Proin blandit quam nec lacus varius commodo et a urna. Ut id ornare felis, eget fermentum sapien.</p>
+</div>
+
+<div>
+  <h2>Second column</h2>
+  <p>Nam vulputate diam nec tempor bibendum. Donec luctus augue eget malesuada ultrices. Phasellus turpis est, posuere sit amet dapibus ut, facilisis sed est. Nam id risus quis ante semper consectetur eget aliquam lorem. Vivamus tristique elit dolor, sed pretium metus suscipit vel. Mauris ultricies lectus sed lobortis finibus. Vivamus eu urna eget velit cursus viverra quis vestibulum sem. Aliquam tincidunt eget purus in interdum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
+</div>
+```
+
+- column을 만들기 위해 outer element가 필요함<br>=> `<div>`, `<article>`, `<section>`, `<aside>` 등 semantically appropriate elements를 이용
+
+CSS:  
+```css
+body {
+  width: 90%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+div:nth-of-type(1) {
+  width: 48%;
+  float: left;
+}
+
+div:nth-of-type(2) {
+  width: 48%;
+  float: right;
+}
+```
+
+- `body`에 `margin: 0 auto;`를 적용해서 항상 가운데로 오도록 조절
+- `nth-of-type()` pseudo-class를 이용해서 너비 지정 후 각각 왼쪽, 오른쪽에 float시킴
+- 둘 다 `width: 48%;`로 설정해서 나머지 `4%`는 grid의 gutter처럼 이용함
+
+|Result:|
+|:---|
+|![css-legacy-ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-legacy-ex1.PNG?raw=true)|
+
+- width를 설정할 때 모두 percentage를 사용함<br>=>**liquid layout**(화면 크기가 달라져도 열 너비들이 같은 비율을 유지)<br>=>valuable tool for responsive web design
+
+### Creating simple legacy grid frameworks
+`float` property의 특징을 이용한 방법이 주요한 legacy framework임  
+(여러 item을 float하면 margin으로 간격이 띄워지기 때문에 grid처럼 보임)  
+보통 12 column grid를 많이 사용함(약수가 많기 때문)
+
+#### A simple fixed width grid
+HTML의 `<body>` 부분:  
+```html
+<div class="wrapper">
+  <div class="row">
+    <div class="col">1</div>
+    <div class="col">2</div>
+    <div class="col">3</div>
+    <div class="col">4</div>
+    <div class="col">5</div>
+    <div class="col">6</div>
+    <div class="col">7</div>
+    <div class="col">8</div>
+    <div class="col">9</div>
+    <div class="col">10</div>
+    <div class="col">11</div>
+    <div class="col">12</div>
+  </div>
+  <div class="row">
+    <div class="col span1">13</div>
+    <div class="col span6">14</div>
+    <div class="col span3">15</div>
+    <div class="col span2">16</div>
+  </div>
+</div>
+```
+
+CSS:  
+```css
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 980px;
+  margin: 0 auto;
+}
+
+.wrapper {
+  padding-right: 20px;
+}
+
+.row {
+  clear: both;
+}
+
+.col {
+  float: left;
+  margin-left: 20px;
+  width: 60px;
+  background: rgb(255, 150, 150);
+}
+
+/* Two column widths (120px) plus one gutter width (20px) */
+.col.span2 { width: 140px; }
+/* Three column widths (180px) plus two gutter widths (40px) */
+.col.span3 { width: 220px; }
+/* And so on... */
+.col.span4 { width: 300px; }
+.col.span5 { width: 380px; }
+.col.span6 { width: 460px; }
+.col.span7 { width: 540px; }
+.col.span8 { width: 620px; }
+.col.span9 { width: 700px; }
+.col.span10 { width: 780px; }
+.col.span11 { width: 860px; }
+.col.span12 { width: 940px; }
+```
+
+|Result:|
+|:---|
+|![css-legacy-fixed-grid](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Legacy_Layout_Methods/simple-grid-finished.png)|
+
+- `body`의 `980px` 중 `20px`는 `.wrapper`의 `padding-right`로 사용됨
+- `.row`로 줄을 바꿔야 하기 때문에 `clear: both;`를 사용해서 다른 float와 간섭하지 않게 만듦
+- `.col`으로 grid의 cell 하나하나를 만듦
+	- `float`를 이용(`clear` property를 사용하면 행을 바꾸기 편리함)
+	- `margin-left: 20px;`로 gutter 설정(`.wrapper`에서 설정한 `padding-right: 20px;`가 있기 때문에 `margin-left`를 사용)
+	- `(980-20-12*20)/12=60px`을 열의 너비로 설정
+- span하는 layout container을 위해 `.span` 클래스를 정의했음
+	- span하는 열 개수에 따라 필요한 너비를 계산해서 overriding함
+
+#### Creating a fluid grid
+위의 경우 너비가 고정되어 있어 호환성이 떨어짐  
