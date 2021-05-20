@@ -5373,3 +5373,70 @@ body {
 
 #### Creating a fluid grid
 위의 경우 너비가 고정되어 있어 호환성이 떨어짐  
+=> width를 모두 percentages로 설정해서 flexible(fluid) grid를 만들 수 있음
+
+`target / context = result`  
+=> `60 / 960 = 0.0625`이므로 `.col`의 width를 `6.25%`로 설정하면 됨
+
+**Updating our grid**  
+```css
+body {
+  width: 90%;
+  max-width: 980px;
+  margin: 0 auto;
+}
+```
+
+- `body` rule을 fluid하게 만들기 위해서 `width: 90%;`로 설정하고 최대 너비에 제한을 둠
+- `margin`, `padding`, `width` 등의 properties도 percentage로 바꿔주면 됨
+
+#### Easier calculations using the calc() function
+`.col.span4`와 같은 rule에서 아래와 같이 사용 가능함  
+`width: calc((6.25%*4) + (2.08333333%*3));`
+
+※ IE9 이전에서는 `calc()` 함수가 지원되지 않음
+
+#### Semantic versus "unsemantic" grid systems
+위와 같이 layout을 구성하기 위한 클래스 사용으로 content와 markup이 묶이는 것을 CSS class의 unsemantic use라고 함
+
+#### Enabling offset containers in our grid
+```css
+.offset-by-one {
+  margin-left: calc(6.25% + (2.08333333%*2));
+}
+```
+
+- 위와 같은 class를 선언해서 offset으로 사용할 수 있음(위의 `.offset-by-one`은 왼쪽에 빈 칸을 하나 만드는 것)<br>`<div class="col span5 offset-by-one">14</div>`와 같이 사용 가능
+
+#### Floated grid limitations
+float를 이용해서 grid을 만들 때는 아래와 같은 경우를 조심해야 함
+- total width가 정확히 계산되었는지
+- 가능한 col보다 더 span하는 element를 포함시키지 않았는지(overflow되어버림)
+- 한 행에 너무 많은 grid columns를 포함시키면 자동으로 다음줄로 내려가서 grid가 망가짐
+- 기본적으로 1차원이기 때문에 세로로 span하는 element를 만들 수 없음
+	- older layout methods를 사용하면 정확히 height를 설정하는 방법 이외에는 height를 조절하는게 어려움<br>따라서 content가 특정한 높이라고 보장이 될 때만 inflexible한 grid를 만들 수 있음
+
+### Flexbox grids?
+Flexbox-based grid systems도 물론 가능하지만, flexbox 자체가 grid를 위해서 설계되지 않았고 이걸 이용해서 grid를 설계하면 새로운 문제들이 생김  
+- flexbox는 항상 items가 container을 가득 채우므로 처음 정한 최대 개수의 col을 사용하지 않으면 남는 부분은 다른 col들에게 자동으로 분배됨
+	- 따라서 `.col`안에 `span` classes가 필요함(width를 overriding하기 위해)
+- flexbox는 one-dimensional이기 때문에 floated grid처럼 percentages를 계산해서 넣어줘야 함(gap 등을 고려해서)
+
+### Third party grid systems
+Bootstrap, Foundation 등이 grid system을 포함한 유명한 frameworks임  
+Skeleton을 예로 들면, Skeleton website에서 다운받은 css 파일들을 링크한 후 이미 정의되어있는 classes(`container`, `row`, `one column`, `three columns`, ...)을 사용하는 것임
+
+요즘은 이런 frameworks를 사용하기보다 CSS grid를 사용하는 추세임
+
+## Supporting older browsers
+This article explains how to use modern web techniques without locking out users of older technology.
+
+### What is the browser landscape for your site?
+webpage의 layout 설계에 대한 접근법을 결정하기 전에, target audience에 대한 조사가 먼저 이행되어야 함  
+Statcounter와 같은 사이트에서 location에 따른 사용자들의 분류를 제공해줌  
+유저들이 사용하는 browser와 같은 기술적인 측면에서도 분석이 필요함  
+(mobile, older browser, accessibility 등)
+
+### What is the support for the features you want to use?
+site를 방문하는 browser를 알면 어떤 기술에 대해서도 지원 여부, 대안 제공 가능성 등을 쉽게 알 수 있음  
+(MDN browser compatibility에서)
