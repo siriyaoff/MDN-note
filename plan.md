@@ -27,16 +27,16 @@ CSS layout : 2911 -
 span에 text-decoration, font-family도 그렇고 그냥 html 태그안에 attribute 붙이면 다 적용되지 않는듯
 ㄴㄴ text-decoration: overline 됨, 블로그에서는 잘됨(깃헙 미리보기에서만 안되는듯)
 
-3543 list안에 줄바꿈 후 img 잘 나오는지
-
 flexbox challenge
 [flexbox froggy](https://flexboxfroggy.com/#ko)
 
-3666 possible values 다음 자연스러운지
+블로그에서 체크해야 할 것
+- 3543 list안에 줄바꿈 후 img 잘 나오는지
+- 3666 possible values 다음 자연스러운지
+- 4903 잘 나오는지
+- 5465 코드 bold 잘 되는지
 
-1965 nth-child 설명 고쳐야함
+1965 nth-child 설명 고쳐야함(블로그도)
 nth-child는 element 상관없이 모든 자식들 카운트
-nth-of-type은 앞에 명시된 type만 카운트(nth-of-type도 앞에 아무것도 없으면 global하게 적용)
+nth-of-type은 앞에 명시된 type만 카운트(nth-of-type도 앞에 아무것도 없으면 모든 element에 대해서 적용)
 https://firerope.tistory.com/5
-
-4903 잘 나오는지

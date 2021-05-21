@@ -5439,4 +5439,123 @@ Statcounter와 같은 사이트에서 location에 따른 사용자들의 분류�
 
 ### What is the support for the features you want to use?
 site를 방문하는 browser를 알면 어떤 기술에 대해서도 지원 여부, 대안 제공 가능성 등을 쉽게 알 수 있음  
-(MDN browser compatibility에서)
+(MDN browser compatibility, Can I Use 등)
+
+### Support doesn't mean "looks the same"
+website가 모든 browsers(phone, desktop, screen reader 등)에서 같을 수는 없음  
+모두 지원한다는 것의 의미는 최신 browser에서 잘 보이고 older browsers에서도 기본적으로 사용할 수 있는 content를 제공한다는 것임
+
+basic level of support는 normal flow에서도 content가 의미를 가지는 것을 뜻함  
+이걸 위해선 HTML document부터 잘 만들어야 함
+
+아예 plain view를 fallback으로 놔두는 방법도 있음  
+fallback을 modern browser에서와 비슷하게 만들기보다 사이트를 더 accessible하게 만들어 많은 유저들을 끌어들이는게 이득임  
+CSS에서 fallback 생성을 쉽게 하도록 만들어놓음
+
+### Creating fallbacks in CSS
+CSS specifications에는 두 가지 layout methods가 겹쳤을 때 처리 방법도 정의되어 있음  
+예를 들어 float가 적용되어 있으면서 CSS Grid item인 element는, CSS Grid가 지원되지 않는 browsers에서는 float가 적용되고, CSS Grid가 지원되면 Grid item으로 처리됨  
+즉, CSS Grid가 지원되지 않는 브라우저는 `display: grid`와, 관련된 properties들을 다 무시하기 때문에 float가 적용됨  
+float와 관련된 `clear` property는 적용된 item이 grid item이 되면 효과가 없어짐
+
+#### Fallback Methods
+**`float` and `clear`**
+- `float`와 `clear` properties는 만약 적용된 item이 flex or grid item이 될 경우 효과가 없어짐
+
+**`display: inline-block;`**
+- column layout을 구성할 때 사용될 수 있음
+- 적용된 item이 flex or grid item이 되면 마찬가지로 inline-block으로 취급되지 않음
+
+**`display: table;`**
+- fallback으로 사용될 수 있음
+- 적용된 item이 flex or grid item이 될 경우 효과가 없어짐
+- 적용되지 않으면 table structure을 위해 생성되던 box들도 다 사라짐
+
+**Multiple-column Layout**
+- multi-col(`column-count`, `column-width`)을 fallback으로 사용할 수 있음
+- 적용된 item이 grid container가 되면 `column-*` properties는 적용되지 않음
+
+**Flexbox as a Fallback for Grid**
+- flexbox가 CSS Grid보다 지원이 잘 되기 때문에 flexbox를 fallback으로 이용할 수 있음
+- flex container를 grid container으로 사용할 경우 flex items에게 적용되던 `flex` property는 적용되지 않음
+
+simpler layout based on older and well-supported techniques를 적용한 다음, 대부분의 사용자를 위해 newer CSS를 적용하는 것이 나음  
+하지만, 저렇게 서로 간섭을 막을 수 없는 경우도 존재함
+
+#### Example
+percentage widths를 floated item에 적용해서 grid처럼 보이게 했을 때임
+
+HTML:  
+```html
+<div class="wrapper">
+  <div class="item">Item One</div>
+  <div class="item">Item Two</div>
+  <div class="item">Item Three</div>
+</div>
+```
+
+CSS:  
+```css
+* {box-sizing: border-box;}
+
+.wrapper {
+  background-color: rgb(79,185,227);
+  padding: 10px;
+  max-width: 400px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.item {
+  float: left;
+  border-radius: 5px;
+  background-color: rgb(207,232,220);
+  padding: 1em;
+  width: 33.333%;
+}
+```
+
+|Result:|
+|:---|
+|![css-feature-query-ex1](https://github.com/siriyaoff/MDN-note/blob/master/images/css-feature-query-ex1.PNG?raw=true)|
+
+- floated layout에서 percentage는 container으로부터 계산됨
+- Grid에서는 item이 속한 grid area로부터 계산됨<br>=>fallback으로 사용하는 float의 width 설정이 grid가 지원되는 browser에서도 영향을 미쳐 width가 제대로 나오지 않음
+
+### Feature queries
+feature queries를 이용해서 browser가 특정한 CSS feature를 지원하는지 테스트할 수 있음  
+=> 위에서의 percentage width같은 문제를 해결할 수 있음
+
+#### Example
+위 예제에서 아래 feature query만 추가:  
+```css
+@supports (display: grid) {
+  .item {
+      width: auto;
+  }
+}
+```
+
+|Result:|
+|:---|
+|![css-feature-query-ex2](https://github.com/siriyaoff/MDN-note/blob/master/images/css-feature-query-ex2.PNG?raw=true)|
+
+- CSS Grid를 지원하면 `.item`에 `width: auto;`<br>=> width가 제대로 나옴
+
+> ※ CSS Grid를 지원하지 않는 browsers는 feature queries도 지원하지 않음!!  
+> 따라서 위에서 설명한 old CSS로 fallback을 만들고 그 위에서 최신 CSS를 사용하는 접근법은 그대로 사용해야 함  
+> feature query의 용도는, fallback에서 선언했지만, grid에도 영향을 미치는 rule들을 수정해서 grid가 올바르게 출력되도록 만드는 것임
+
+### Older versions of Flexbox
+`-ms-` prefix를 사용하는 IE10과 같은 경우에서 flexbox 지원은 [여기](https://css-tricks.com/old-flexbox-and-new-flexbox/) 참고
+
+### The IE10 and 11 prefixed version of Grid
+IE10, 11은 `-ms-` prefix가 붙은 grid를 사용  
+얘네는 non-Microsoft browsers에서는 호환되지 않음(CSS Grid와는 다름)  
+[Progressive Enhancement in Grid Layout](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout/CSS_Grid_and_Progressive_Enhancement)에서 IE버전 grid에 대한 설명을 볼 수 있지만, older IE를 사용하는 유저가 많지 않으면 fallback을 만드는게 더 나음
+
+### Testing older browsers
+현재는 대부분의 browser가 flexbox, grid를 지원하기 때문에 older browser 환경을 구하는게 어려울 수도 있음  
+Sauce Labs같은 online testing tool을 이용하거나 VM([MS에서도 제공](https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/), available for Mac, Windows, Linux)을 설치해서 테스트할 수 있음
+
+## Assessment10-Fundamental-layout-comprehension
