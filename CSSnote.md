@@ -3350,17 +3350,17 @@ Multi-column은 `column-count`, `column-width` 등의 properties로 구현 가�
 CSS:  
 ```css
 .container {
-        column-width: 200px;
+  column-width: 200px;
 }
 ```
 
 HTML:  
 ```html
 <div class="container">
-    <h1>Multi-column layout</h1>
-
-    <p>Paragraph 1.</p>
-    <p>Paragraph 2.</p>
+  <h1>Multi-column layout</h1>
+  
+  <p>Paragraph 1.</p>
+  <p>Paragraph 2.</p>
 </div>
 ```
 
@@ -5559,3 +5559,21 @@ IE10, 11은 `-ms-` prefix가 붙은 grid를 사용
 Sauce Labs같은 online testing tool을 이용하거나 VM([MS에서도 제공](https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/), available for Mac, Windows, Linux)을 설치해서 테스트할 수 있음
 
 ## Assessment10-Fundamental-layout-comprehension
+|Result:|
+|:---|
+|![css-layout-assmt](https://github.com/siriyaoff/MDN-note/blob/master/images/css-layout-assmt.PNG?raw=true)|
+
+1. navigation을 한 줄로 표시
+	- `display: flex;` 적용
+2. navigation에 sticky 속성 부여
+	- `position: sticky;` 적용
+3. 이미지 float
+	- `float: left;` 적용
+	- margin 부여해서 text 사이에 여백 만듦
+4. `<article>`, `<aside>`를 flexible한 2열 layout으로 구성
+	- `display: grid;` 적용
+	- `<p>`에 padding을 넣는 것 보다 grid gap으로 여백을 주는게 나음
+5. `<aside>`의 사진들을 2열 grid, gap을 1px로 설정
+	- `display; grid;` 적용
+
+- 추가로 `<body>`에 responsive typography 적용<br>`font: calc(1rem + 0.2vw) / 1.2 Arial, Helvetica, sans-serif;`
