@@ -79,4 +79,184 @@ JS의 문법만으로는 다양한 기능을 지원하지 못함
 JS로 transpilation이 가능한 언어들의 예시:
 - CoffeeScript : 'syntatic sugar' for JS  
 	- shorter syntax를 도입, 코드 가독성 ↑
-	- Ruby와 같이 사용됨
+	- Ruby와 함께 사용됨
+- TypeScript : 'strict data typing'
+	- by Microsoft
+- Flow
+	- TypeScript와 다른 방법으로 data typing을 추가함
+	- by Facebook
+- Dart
+	- app과 같은 브라우저 환경이 아닌 곳에서 돌아가는 엔진으로 실행됨
+		독자적인 언어지만, JS로 transpile될 수 있음
+	- by Google
+- Brython : Python transpiler to JS
+- Kotlin
+	- browser나 Node에서 실행 가능한 최신 언어임
+
+## Manuals and specifications
+### Specification
+ECMA-262 specification에 의해 JS가 정의됨  
+거의 표준이 된 최신 기능(stage 3라고 불림)을 알기 위해선 [여기](https://github.com/tc39/proposals)를 보면 됨  
+browser에서의 기능들은 뒤에 챕터에서 다룰 예정
+
+### Manuals
+- MDN JS Reference가 가장 설명이 잘 되어있음
+
+### Compatibility tables
+JS는 개발중인 언어기 때문에 새로운 기능들이 정기적으로 추가됨  
+엔진, 브라우저 기준으로 지원 여부를 보기 위해선 아래 사이트들을 확인하면 됨:
+- [http://caniuse.com](http://caniuse.com) : 기능 별로 지원 여부가 표로 정리되어 있음
+- [https://kangax.github.io/compat-table](https://kangax.github.io/compat-table) : 언어 별로 지원 여부가 정리되어 있음
+
+## Code editors
+크게 IDE, lightweight editor 두 종류가 있음
+
+### IDE
+IDE(Integrated Development Environment) : 전체 프로젝트를 운영하는데 사용되는 기능을 가진, 통합 개발 환경  
+프로젝트 로드, autocompletion, version management system, testing environment 등의 프로젝트 단위 기능 제공  
+VS Code, WebStorm 등이 있음  
+※ Visual Studio는 VS Code와 다르게 Windows에서만 실행 가능하고 .NET platform, JS에 잘 맞음
+
+### Lightweight editors
+IDE보다 제공하는 기능이 적지만 빠르고 편리함  
+주로 하나의 파일을 즉시 편집하기 위해 사용  
+- IDE : 프로젝트 단위로 작동 => 로딩할 때 시간이 좀 걸림
+- Lightweight editors : 한 파일만 필요하기 때문에 훨씬 빠름
+
+사실 많은 lightweight editor에 directory-level syntax analyzers, autocompleters와 같은 기능을 지원하는 plugin이 존재하기 때문에 IDE와 분명한 차이점은 없음
+
+Lightweight editors의 예시:
+- Atom, VS Code, Sublime Text, Notepad++(Windows에서만 가능), Vim, Emacs
+
+### Let's not argue
+다른 훌륭한 editor도 많고, 프로젝트, 개인적인 성향에 따라 평가가 다름
+
+## Developer console
+script의 에러를 고치기 위해서 developer tools가 browsers에 내장되어 있음  
+Chrome, Firefox가 developer tools가 잘 되어 있어서 개발할 때 많이 사용됨  
+에러가 browser-specific한 경우도 존재함
+
+Developer tools를 이용하면 에러 확인, 코드 실행, 변수 확인 등의 여러 기능을 사용할 수 있음
+
+### Google Chrome
+`F12`, `Cmd + Opt + J`(Mac)으로 호출 가능  
+script error가 상단에 표시됨  
+`Shift + Enter`로 여러 줄 입력 가능
+
+### Firefox, Edge, and others
+대부분 `F12`로 개발자 도구를 열 수 있음  
+
+### Safari
+Safari에서는 Advanced 안에 "Develop menu"를 먼저 활성화 해야 함  
+이후 `Cmd + Opt + C`로 console을 키고 Develop를 사용 가능
+
+# JavaScript Fundamentals
+## Hello, world!
+`alert`는 browser-specific command임  
+Node.js와 같은 서버 환경에서는 `node my.js`와 같은 command로 script 실행 가능
+
+### The "script" tag
+HTML 문서 안에는 `<script>` tag를 이용해서 어디든 JS program을 삽입할 수 있음
+
+#### Example
+```html
+<script>
+  alert('Hello, world!');
+</script>
+```
+
+- `Hello, world!`라는 메시지를 띄움
+- `<script>` 태그가 처리될 때 자동으로 실행됨
+
+### Modern markup
+지금은 잘 쓰지 않지만 `<script>` 태그에 attributes가 있음
+- `type` attribute
+	- `type="text/javascript"`가 HTML4에서는 필수였지만, 현재는 아님
+	- 최신의 HTML에서는 `type`의 의미를 아예 바꿔서 JS module을 사용할 때 씀
+- `language` attribute
+	- script의 언어를 명시하지만, 현재는 JS가 default로 설정되어 있어서 안써도 됨
+
+아주 옛날에는 `<script>`를 아래와 같이 사용함  
+```html
+<script type="tet/javascript"><!--
+  ...
+//--></script>
+```
+
+- JS code를 처리하지 못하는 browsers에 대해서 코드를 숨기기 위해 사용
+- 최근 15년 동안에는 이런 이슈가 없었음
+	=> 현재는 사용하지 않음
+
+### External scripts
+`src` attribute를 이용해서 script files를 넣을 수도 있음
+
+#### Example
+```html
+<script src="/path/to/script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.js"></script>
+```
+
+- absolute path, relative path, URL 등을 value로 사용할 수 있음
+- 여러 파일을 넣기 위해선 `<script>` 태그를 반복해서 사용해야 함
+
+> 간단한 script만 HTML에 넣고 크기가 큰 script는 파일로 참조하는게 나음!  
+> 파일로 참조하면 browser의 cache에 저장되기 때문에, 여러 페이지에서 같은 script를 사용하는 상황에서 script를 한 번만 다운로드하고 cache에서 불러옴, 트래픽 ↓
+
+※ `src` attribute가 선언되어 있으면 script content는 무시됨  
+따라서 외부 script 하나를 참조하고 HTML 내부에 script 하나를 넣어야 하면 `<script>` 태그를 두 번 사용해야 함  
+e.g.  
+```html
+<script src="file.js"></script>
+<script>
+  alert(1);
+</script>
+```
+
+## Code structure
+### Statements
+```javascript
+alert('Hello'); alert("World");
+```
+
+- string에 대해서 single quotes, double quotes, backtick 모두 사용 가능함
+
+### Semicolons
+JS는 line break를 implicit semicolon으로 인식함!(automatic semicolon insertion에 의해)  
+따라서 아래의 코드도 정상적으로 작동함:  
+```javascript
+alert('Hello')
+alert('World')
+```
+
+하지만 모든 line break가 semicolon으로 interpet되는 건 아님  
+e.g.  
+```javascript
+alert(3+
+1
++2)
+```
+
+- `6`이 출력됨
+- statement가 완전하지 않기 때문에 semicolon을 넣지 않음
+
+#### Example
+```javascript
+alert("Hello")
+
+[1, 2].forEach(alert);
+```
+
+- 예상되는 결과는 `Hello`, `1`, `2`를 순서대로 출력하는 것이지만, 실제로는 세미콜론이 첫 번째 줄의 끝에 삽입되지 않기 때문에 `Hello`까지만 나옴
+
+웬만하면 세미콜론을 넣는게 나음
+
+### Comments
+One-line comments : `// Comments`  
+Multiline comments : `/* comments */`  
+multiline comments의 경우 중첩될 수 없음
+
+대부분 `Ctrl + /`, `Ctrl + Shift + /`로 단축키가 지정되어 있음
+
+주석은 대부분 production server로 publish되기 전에 지워짐
+
+## The modern mode, "use strict"
