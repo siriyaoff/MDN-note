@@ -260,3 +260,205 @@ multiline comments의 경우 중첩될 수 없음
 주석은 대부분 production server로 publish되기 전에 지워짐
 
 ## The modern mode, "use strict"
+전에는 호환성 문제가 없어 JS가 업데이트 되어도 이전의 코드를 수정할 필요가 없었음  
+하지만 2009년 ECMAScript 5(ES5)에서 기능을 추가하면서 기존의 것을 수정함  
+=> 오래된 코드들의 동작을 위해서 수정된 내용들은 기본적으로 반영되지 않은 채로 남겨놓음  
+`"use strict"`를 이용해서 변경된 내용을 활성화 해줘야 함
+
+### "use strict"
+`"use strict"`도 큰따옴표, 작은따옴표 상관없음  
+e.g.  
+```javascript
+"use strict";
+// this code works the modern way
+...
+```
+- 함수 안에서 사용하면 그 함수에서만 strict mode가 적용됨
+- 보통 코드의 맨 윗부분에 적어놓음
+	- 중간에 적어놓으면 무시되기 때문에 맨 위에 적거나 적지 않거나 둘 중 하나임
+- 한 번 적용하면 다시 해제할 수 없음
+
+### Browser console
+browser console에서는 strict mode를 바로 적용하면 페이지 전체에 영향을 미침  
+아래와 같이 console에서 입력할 내용에만 적용하는게 나음  
+```javascript
+'use strict'; <Shift + Enter for a newline>
+// codes
+<Enter to run>
+```
+
+오래된 브라우저에서는 아래와 같이 wrapper를 이용해야 함  
+```javascript
+(function() {
+  'use strict';
+  
+  // codes
+})()
+```
+
+### Should we "use strict"?
+최신의 JS는 class와 module을 지원함  
+class, module은 자동으로 strict mode를 활성화시키기 때문에 이것들을 사용하면 `'use strict'`를 코드 안에 쓰지 않아도 됨
+
+이후의 챕터들에서 다양한 기능들에 대해 strict와 old modes에서의 차이점을 알아볼 예정임(수가 적고 웬만하면 strict모드가 더 나음)  
+앞으로의 예제들은 모두 strict mode라고 가정함
+
+## Variables
+### A variable
+변수 : 이름을 가진 저장 공간  
+`let` keyword를 이용해서 변수 선언 가능  
+
+#### Example
+```javascript
+let message='Hello';
+
+alert(message);
+```
+- `let` 빼고는 cpp와 비슷함
+- 오래된 코드에서는 `let` 대신 `var`을 사용함
+
+**multiline styles**  
+```javascript
+let user='John, age=25, message='Hello';
+
+let user='John';
+let age=25;
+let message='Hello';
+
+let user='John',
+  age=25,
+  message='Hello';
+
+let user='John'
+  , age=25
+  , message='Hello';
+```
+- JS도 스페이스 2번으로 인덴팅을 하기 때문에 comma-first style이 보기 좋은 듯
+
+### A real-life analogy
+변수 개념에 대한 설명
+
+※ 함수형 언어에서는 변수의 재사용이 금지됨
+
+### Variable naming
+JS의 변수 이름에 대한 2가지 제한:
+1. 변수 이름에는 알파벳, 숫자, `$`, `_`만 들어가야 함
+2. 첫 번째 글자는 숫자가 될 수 없음
+
+변수 이름이 길면 보통 camelCase로 지음  
+`$`, `_`도 각각 변수 이름으로 사용할 수 있음  
+대소문자 구별함!  
+non-latin 문자도 가능은 함  
+예약된 keyword 존재(`let`, `class`, `return`, `function` 등)
+
+strict mode를 사용하지 않으면 `num=5;`라는 대입 자체가 변수 선언도 해줬음  
+strict mode를 사용하면 저 문장은 에러가 남
+
+### Constants
+`const`를 사용해서 선언  
+
+#### Uppercase constants
+대문자와 underscore를 이용해서 상수 이름을 짓고 사용하는게 관행임(진짜 상수값들에 대해서 alias 느낌으로)  
+e.g. `const COLOR_RED="F00";`
+
+상수 중에 프로그램이 실행되면서 계산되는 상수들은 정상적으로 이름지음  
+e.g. `cost pageLoadTime=/*calculated time*/;`
+
+### Name things right
+프로젝트를 진행하면 기존의 코드를 수정하고 확장하는게 대부분이기 때문에 변수 이름을 잘 짓는게 중요함  
+몇 가지 명명 규칙들:
+- 읽을 수 있는 이름을 사용
+- 약칭이나 `a`, `b`, `c`같은 짧은 이름을 피해야 함
+- 이름이 최대한 변수에 대해 설명하도록 지어야 함(`data`는 너무 광범위함)
+- 사전에 약속된 언어를 사용(사이트에 방문한 사람들을 user라고 정했으면 `currentUser`와 같이)
+
+※ JS minifiers, browser에 의해 코드가 최적화되기 때문에 변수를 재사용하기 보다는 새 변수를 선언하는게 나음(최적화할 때도 코드의 목적을 더 쉽게 파악할 수 있음)
+
+## Data types
+JS에는 8가지 기초적인 자료형이 있음  
+
+변수는 여러 자료형을 저장할 수 있음  
+아래 코드도 정상적으로 작동함  
+```javascript
+let message="hello";
+message=1234;
+```
+- 위와 같은 것이 허용되는 것을 dynamically typed라고 함(data type이 존재하지만 변수는 어느 자료형에도 속하지 않음)
+
+### Number
+integer, float 등  
+special numeric values도 존재함:
+- `Infinity`, `-Infinity` : `1/0`, `Infinity` 등으로 선언 가능
+	- 출력하면 Infinity라는 글자 그대로 나옴
+- `NaN` : 틀리거나 정의되지 않은 연산을 할 때 나옴
+	- `"asdf"/2` 등
+	- `NaN`과의 모든 연산 결과는 `NaN`으로 출력됨
+
+※ divide by zero, non-numeric에 대한 수학적 연산 등 일반적으로 허용되지 않는 연산을 하더라도 JS에서는 에러가 나오지 않음
+
+### BigInt
+Number은 `2^53 - 1` 초과의 수나 `-(2^53 -1)` 미만의 정수를 표현하지 못함  
+`BigInt`는 임의의 길이의 정수를 표현하기 위해 최근에 추가된 자료형임  
+정수의 끝에 `n`을 붙여서 `BigInt` value를 만들 수 있음
+
+```javascript
+const bigInt=123456486974865416541658654648541n;
+```
+- 현재는 Firefox, Chrome, Edge, Safari 등이 지원함(IE는 지원하지 않음)
+
+### String
+JS에서의 string 표현 방법 3가지:
+1. Double quotes: `"Hello"`
+2. Single quotes: `'Hello'`
+3. Backticks: `` `Hello` ``
+
+backtick을 이용하면 다른 변수나 식을 string 안에 넣을 수 있음  
+아래와 같이 `${...}`의 형식을 이용  
+```javascript
+let name="John";
+alert(`Hello, ${name}!`);
+alert(`1+2=${1+2}`);
+```
+
+> JS에는 character type이 없음!
+
+### Boolean(logical type)
+boolean은 `true`, `false` 두 가지 값만 가질 수 있음  
+비교문의 결과가 boolean으로 출력됨  
+```javascript
+let isGreater=4>1;
+alert(isGreater);
+```
+
+### The "null" value
+`null`은 그 자체로 하나의 type임  
+JS에서 `null`은 '존재하지 않는 객체로의 참조', 'null pointer'등의 의미를 가지지 않음  
+'empty', 'value unknown' 등의 의미로 생각하면 됨  
+```javascript
+let age=null;
+```
+
+### The "undefined" value
+`undefined`도 이 자체로 하나의 type임
+'값이 대입되지 않음'의 의미로 생각하면 됨  
+```javascript
+let age;
+alert(age);
+
+/* separated scripts */
+
+let age=100;
+age=undefined;
+alert(age);
+```
+- 두 script 모두 `undefined`를 출력함
+- `null`은 비었다는 뜻으로 사용되고 `undefined`는 선언되었지만 아무런 값이 대입되지 않았을 때 사용하는 default initial value임
+
+### Objects and Symbols
+위의 모든 type들은 한 가지의 값만 저장하는 **primitive**임  
+반면 `object`는 더 복잡한 데이터를 저장함
+
+`symbol`은 object의 identifier를 생성할 때 사용함
+
+### The typeof operator
+`typeof` operator를 사용해서 특정한 변수의 type을 알 수 있음
