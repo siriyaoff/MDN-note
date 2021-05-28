@@ -386,7 +386,7 @@ message=1234;
 - 위와 같은 것이 허용되는 것을 dynamically typed라고 함(data type이 존재하지만 변수는 어느 자료형에도 속하지 않음)
 
 ### Number
-integer, float 등  
+integer, float 등의 값들  
 special numeric values도 존재함:
 - `Infinity`, `-Infinity` : `1/0`, `Infinity` 등으로 선언 가능
 	- 출력하면 Infinity라는 글자 그대로 나옴
@@ -397,7 +397,7 @@ special numeric values도 존재함:
 ※ divide by zero, non-numeric에 대한 수학적 연산 등 일반적으로 허용되지 않는 연산을 하더라도 JS에서는 에러가 나오지 않음
 
 ### BigInt
-Number은 `2^53 - 1` 초과의 수나 `-(2^53 -1)` 미만의 정수를 표현하지 못함  
+`Number`은 `2^53 - 1` 초과의 수나 `-(2^53 -1)` 미만의 정수를 표현하지 못함  
 `BigInt`는 임의의 길이의 정수를 표현하기 위해 최근에 추가된 자료형임  
 정수의 끝에 `n`을 붙여서 `BigInt` value를 만들 수 있음
 
@@ -407,7 +407,7 @@ const bigInt=123456486974865416541658654648541n;
 - 현재는 Firefox, Chrome, Edge, Safari 등이 지원함(IE는 지원하지 않음)
 
 ### String
-JS에서의 string 표현 방법 3가지:
+JS에서의 `string` 표현 방법 3가지:
 1. Double quotes: `"Hello"`
 2. Single quotes: `'Hello'`
 3. Backticks: `` `Hello` ``
@@ -423,7 +423,7 @@ alert(`1+2=${1+2}`);
 > JS에는 character type이 없음!
 
 ### Boolean(logical type)
-boolean은 `true`, `false` 두 가지 값만 가질 수 있음  
+`boolean`은 `true`, `false` 두 가지 값만 가질 수 있음  
 비교문의 결과가 boolean으로 출력됨  
 ```javascript
 let isGreater=4>1;
@@ -458,7 +458,183 @@ alert(age);
 위의 모든 type들은 한 가지의 값만 저장하는 **primitive**임  
 반면 `object`는 더 복잡한 데이터를 저장함
 
-`symbol`은 object의 identifier를 생성할 때 사용함
+`symbol`은 `object`의 identifier를 생성할 때 사용함
 
 ### The typeof operator
-`typeof` operator를 사용해서 특정한 변수의 type을 알 수 있음
+`typeof` operator를 사용해서 특정한 변수의 type을 알 수 있음  
+두 가지 syntax가 존재:
+1. operator로 사용 : `typeof x`
+2. function으로 사용 : `typoef(x)`
+
+`typeof x`는 type name을 string으로 반환함
+
+#### Example
+```javascript
+typeof undefined // "undefined"
+typeof 0 // "number"
+typeof 10n // "bigint"
+typeof Math // "object"
+typeof null // "object"
+typeof alert // "function"
+```
+
+- `null`은 *object가 아니지만* 예전의 코드와 호환성을 위해서 `"object"`가 반환됨
+- function은 `object` 타입에 속해있지만 `typeof`에서는 `"function"`을 리턴함(마찬가지로 이전의 JS와 호환성을 위해)
+
+## Interaction: alert, promprt, confirm
+`alert`, `prompt`, `confirm` 총 3가지의 browser-specific functions를 소개함
+
+### alert
+메시지를 띄우고 OK버튼을 누를 때까지 기다림  
+메시지를 띄우는 창을 *modal window*라 부름
+- *modal*이라는 단어는 유저들이 정해진 조건을 만족하기 전에는 다른 요소들과 상호작용할 수 없는 것을 말함(이 경우에는 OK버튼)
+
+### prompt
+```javascript
+result=promprt(title, [default]);
+```
+와 같이 사용됨  
+input field, OK, Cancel 두 버튼이 있는 modal window를 띄움  
+- `title` : prompt(사용자에게 보여지는 메시지)
+- `default` : input field의 초기값, optional
+
+※ `[...]`는 parameter가 optional하다는 것을 나타냄
+
+#### Example
+JS:  
+```javascript
+let age = prompt('How old are you?', 100);
+
+alert(`You are ${age} years old!`); // You are 100 years old!
+```
+
+|Result:|
+|:---|
+|![js-prompt](https://github.com/siriyaoff/MDN-note/blob/master/images/js-prompt.PNG?raw=true)|
+
+- cancel을 누르거나 Esc로 창을 닫으면 `null`이 반환됨
+- IE의 경우 default를 선언해놓지 않으면 default가 반환되어야 할 때 `"undefined"`를 반환함
+	따라서 `''`와 같은 것을 default로 넣어놓는게 좋음
+
+### confirm
+```javascript
+result=comfirm(question);
+```
+와 같이 사용됨  
+`question`과 OK, Cancel 두 버튼이 있는 modal window를 띄움  
+OK를 누르면 `true`, 아니면 `false` 반환
+
+### Summary
+`alert`, `prompt`, `confirm` 모두 modal window에 대해서 위치, 스타일을 수정할 수 없음  
+browser에 따라 모두 다름  
+chrome에서는 `prompt`가 제대로 작동하지 않음
+
+## Type Conversions
+대부분 operator, function들은 자동으로 값을 알맞은 타입으로 변환해줌  
+예를 들어 `alert`는 자동으로 값을 `string`으로 바꿔서 출력하고 mathematical operations는 값을 숫자로 바꿈
+
+`object`에 대해서는 나중에 object to primitive conversion을 살펴볼 예정
+
+### String Conversion
+`String(value)` function을 이용해서 `string`으로 conversion 가능
+
+### Numeric Conversion
+수학 함수나 식 안에서 자동으로 numeric conversion이 일어남  
+예를 들어 `alert("6"/"2");`는 3을 출력함(`/`가 수학 연산자이기 때문)
+
+`Number(value)`를 이용해서 명시적으로 conversion 가능  
+Numeric conversion rules:
+
+|Value|Becomes...|
+|:---|:---|
+|`undefined`|`NaN`|
+|`null`|`0`|
+|`true` and `false`|`1` and `0`|
+|`string`|Trim 후 남아있는 string이 없으면 `0`, 아니면 숫자를 읽음, string에 숫자만 있는게 아니면 `NaN` 리턴|
+
+#### Example
+```javascript
+alert(Number("   123   ")); // 123
+alert(Number("123z")); // NaN
+alert(Number(true)); //1
+```
+
+- `undefined`일 때 `NaN`, `null`일 때 `0`으로 리턴이 다른 것에 주의!!
+- 대부분의 수학 연산자도 이러한 conversion을 수행함
+
+### Boolean Conversion
+논리 연산자에서 자동으로 일어나고, `Boolean(value)`를 이용해서 명시적으로 가능  
+Boolean conversion rules:
+- `0`, empty string(`""`), `null`, `undefined`, `NaN`과 같은 비었다는 의미의 값들은 `false`로 변환됨
+- 다른 값들은 모두 `true`로 변환됨
+
+※ `"0"`, `" "` 등 unempty string은 모두 `true`로 변환됨에 주의!(PHP에서는 `"0"`이 `false`로 반환됨)
+
+## Basic operators, maths
+### Terms: "unary", "binary", "operand"
+- *operand* : 피연산자
+- *unary* operator : 단항연산자
+- *binary* operator : 이항연산자
+
+### Maths
+`+`, `-`, `*`, `/`, `%`, `**` 등이 지원됨  
+`**` : exponentiation(python이랑 동일, 제곱근도 지원됨)
+
+### String concatenation with binary `+`
+```javascript
+alert(2 + 2 + '1' ); // "41" and not "221"
+alert('1' + 2 + 2); // "122" and not "14"
+alert( 6 - '2' ); // 4, converts '2' to a number
+alert( '6' / '2' ); // 3, converts both operands to numbers
+```
+- `+` 연산자의 경우 `string`, `number` type이 둘 다 존재하면 concatenation으로 취급됨
+	- 계산 순서에 유의(교환법칙 성립하지 않음!)
+- 다른 수학 연산자들은 모두 `string`이 `number`로 conversion된 후 계산됨
+
+### Numeric conversion, unary `+`
+`number` 타입에 대해서는 아무런 영향이 없지만, 다른 타입들에 대해선 `number`로 conversion을 실행함  
+`Number(...)` function과 동일  
+아래와 같이 `string`으로 표현된 숫자들을 더할 때 유용함  
+```javascript
+let apples="2";
+let oranges="3";
+
+alert( apples + oranges ); // "23", the binary plus concatenates strings
+
+// both values converted to numbers before the binary plus
+alert( +apples + +oranges ); // 5
+```
+- unary +가 연산자 우선순위가 더 높음
+
+### Operator precedence
+JS에서는 precedence number가 클 수록 우선순위가 큼
+
+### Assignment
+#### Assignment `=` returns a value
+`x=value`는 `x`에 `value`를 대입한 후 그걸 반환함  
+따라서 `let c=3-(a=b+1);`와 같은 statement도 가능
+
+#### Chaining assignments
+대입 연산자를 연속으로 사용하면 오른쪽에서 왼쪽으로 계산됨  
+(`a=b=c=2+2;`와 같이)
+
+### Modify-in-place
+`+=`, `*=`와 같은 것들
+
+### Increment/decrement
+`++`, `--`  
+
+### Bitwise operators
+`&`, `|`, `^`, `~`, `<<`, `>>`, `>>>`  
+`>>>` : zero-fill right shift
+
+### Comma
+`,`를 이용해서 여러 식을 쓸 수 있지만, 모두 계산된 뒤 맨 마지막 것만 리턴됨  
+예를 들어 `let a=(1+2, 3+4);`를 실행하면 `a`에는 `7`이 저장됨  
+`a=1, b=3, c=a*b`도 가능함(위에는 괄호때문에 대입이 가장 나중에 실행됨)
+
+comma가 우선순위 값이 가장 낮음
+
+### Tasks
+- `" \t \n" -2`는 `-2`가 반환됨
+	- space characters는 모두 trim되고 난 후 conversion이 일어나기 때문
