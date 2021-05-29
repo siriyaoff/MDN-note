@@ -1,4 +1,4 @@
-Part 1: The JavaScript language
+Part 1: The JavaScript language(21.05.24 ~)
 # An introduction
 ## An Introduction to JavaScript
 ### What is JavaScript?
@@ -638,3 +638,138 @@ comma가 우선순위 값이 가장 낮음
 ### Tasks
 - `" \t \n" -2`는 `-2`가 반환됨
 	- space characters는 모두 trim되고 난 후 conversion이 일어나기 때문
+
+## Comparisons
+### Boolean is the result
+모든 비교 연산자들은 `boolean`을 리턴함
+
+### String comparison
+string도 비교가 가능함(사전 순으로)  
+사전 순으로 뒤쪽에 올수록 더 큰 것으로 취급됨  
+`Bee` > `Be` : `true`
+
+※ 사실 unicode 순서이기 때문에 알파벳의 경우 소문자가 더 크다고 판단함
+
+### Comparison of different types
+비교하는 값들의 type이 다를 경우 값들을 `number`로 변환해서 비교함  
+
+#### Example
+```javascript
+alert('2'>1); // true;
+alert('01'==1); // true;
+alert(false==0); // true;
+
+let a=0;
+alert(Boolean(a)); // false
+
+let b='0';
+alert(Boolean(b)); // true
+
+alert(a==b); // true
+```
+- `"0"==0`의 결과가 `true`임에 유의!
+
+### Strict equality
+equal 연산자 `==`는 아래의 조건문처럼 `0`, `false`, `''`을 구별하지 못함  
+```javascript
+alert( 0 == false ); // true
+alert( '' == false ); // true
+```
+
+A **strict equality operator** `===` checks the equality **without type conversion**  
+=> `===`는 비교하는 두 operand의 type이 다를 경우 바로 `false`를 반환함
+
+strict non-equality operator `!==`도 존재함
+
+### Comparison with null and undefined
+`null`이나 `undefined`가 비교 대상으로 사용될 때는 예상치 못한 결과가 나올 수도 있음
+
+```javascript
+alert(null===undefined); // false
+alert(null==undefined); // true
+alert(null==0); // false
+alert(undefined==0); // false
+```
+- `==` 연산자를 사용할 때 `null`와 `undefined`는 둘을 비교할 때만 `true`를 반환, 다른 값과 비교할 때는 모두 `false`를 반환함!!
+- `<`, `>`, `<=`, `>=`와 같은 다른 비교 연산자들에서는 `null`은 `0`으로, `undefined`는 `NaN`으로 변환되어 비교됨
+
+#### Strange result: `null` vs `0`
+```javascript
+alert( null > 0 );  // (1) false
+alert( null == 0 ); // (2) false
+alert( null >= 0 ); // (3) true
+```
+- 위에서 설명했듯이 `null`은 `undefined` 이외의 값과 `==` 연산을 하면 `false`가 나오기 때문에 (2)의 결과가 나옴
+- 나머지 비교 연산자에서는 `0`으로 변환된 후 비교되기 때문에 (3)의 결과가 나옴
+
+#### An incomoparable undefined
+`undefined`는 다른 값들과 비교하면 안됨
+
+```javascript
+alert( undefined > 0 ); // false (1)
+alert( undefined < 0 ); // false (2)
+alert( undefined == 0 ); // false (3)
+```
+- (3)은 `null`을 넣었을 때와 같은 이유임
+- (1), (2)는 `undefined`가 `NaN`으로 변환되어 비교되기 때문임
+
+#### Avoid problems
+- `undefined` 또는 `null`과의 비교문은 주의해서 사용해야 함!(`===` 제외)
+- `null` 또는 `undefined`가 들어갈 수 있는 변수에 대해선 case를 나눠서 처리
+
+### Tasks
+- `"2">"12"` : `true`
+	- 둘 다 string이기 때문에 number로 변환되어 비교되지 않음
+	- `2>"12"`로 바꾸면 `false`가 됨
+
+## Conditional branching: if, '?'
+### The "if" statement
+### Boolean conversion
+### The "else" clause
+### Several conditions: "else if"
+### Conditional operator `?`
+C와 같음
+
+### Multiple `?`
+```javascript
+let age = prompt('age?', 18);
+
+let message = (age < 3) ? 'Hi, baby!' :
+  (age < 18) ? 'Hello!' :
+  (age < 100) ? 'Greetings!' :
+  'What an unusual age!';
+```
+- if else와 같음
+
+### Non-traditional use of `?`
+```javascript
+let company = prompt('Which company created JavaScript?', '');
+
+(company == 'Netscape') ?
+   alert('Right!') : alert('Wrong.');
+```
+- 아예 statement를 넣을 수도 있음
+- 가독성이 떨어지기 때문에 알고만 있으면 될 듯
+
+### Tasks
+- `string`과 `number`를 비교할 때는 `string`을 캐스팅하지 않아도 됨(`number`이 있어서 자동으로 변환됨)
+
+## Logical operators
+JS에는 `||`, `&&`, `!`, `??`, 총 4개의 논리 연산자가 존재함  
+이 article에서는 앞 3개만 다룸  
+모든 type에 적용 가능하고, 결과 또한 모든 타입이 될 수 있음
+
+### `||`(OR)
+모든 operand가 조건문이거나 `boolean`일 경우 계산 후 `true` / `false`를 반환함  
+=> C에서와 동일하게 논리 연산자로 사용 가능
+
+### OR `||` finds the first truthy value
+```javascript
+result = value1 || value2 || value3;
+```
+- 위의 코드에서 `||`는 다음과 같이 작동함
+	- 왼쪽에서 오른쪽 순서로 operand를 계산
+	- 순서대로 계산하면서 결과가 `true`면 그 operand의 원래 값을 반환
+	- 만약 모든 operand가 계산되면(모든 결과가 `false`면), 마지막 operand를 반환
+- operand가 다른 type일지라도 위의 설명처럼 논리 연산자로 사용 가능
+	
