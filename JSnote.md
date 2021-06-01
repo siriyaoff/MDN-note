@@ -772,4 +772,373 @@ result = value1 || value2 || value3;
 	- 순서대로 계산하면서 결과가 `true`면 그 operand의 원래 값을 반환
 	- 만약 모든 operand가 계산되면(모든 결과가 `false`면), 마지막 operand를 반환
 - operand가 다른 type일지라도 위의 설명처럼 논리 연산자로 사용 가능
-	
+
+boolean-only OR과 비교해서 다음과 같은 용도로 사용됨
+1. 변수들과 식들의 리스트 중 첫 번째 truthy를 구함
+	```javascript
+	let firstName = "";
+	let lastName = "";
+	let nickName = "SuperCoder";
+
+	alert( firstName || lastName || nickName || "Anonymous"); // SuperCoder
+	```
+	- 만약 모든 값들이 falsy라면 `"Anonymous"`가 출력됨
+2. Short-circuit evaluation
+	각 operand들을 순서대로 계산하면서 truthy를 마주치면 바로 그 operand를 반환하는 성질을 이용  
+	```javascript
+	true || alert("not printed");
+	false || alert("printed");
+	```
+	- 왼쪽 operand가 falsy일 때만 실행되는 statement를 만들 때 사용됨
+
+### `&&`(AND)
+operand가 모두 boolean일 때는 C와 동일하게 사용됨
+
+### AND `&&` finds the first falsy value
+```javascript
+result = value1 && value2 && value3;
+```
+- 위의 코드에서 `&&`는 위의 `||`와 반대로 작동함
+	- 왼쪽에서 오른쪽 순서로 operand를 계산
+	- 순서대로 계산하면서 결과가 `false`이면 그 operand의 원래 값을 반환
+	- 만약 모든 operand가 계산되면(모든 결과가 `ture`면), 마지막 operand를 반환
+- 마찬가지로 논리연산자로 사용 가능(애초에 falsy가 반환되면 조건문 실행이 안됨)
+
+#### Example
+```javascript
+alert( 1 && 2 && null && 3 ); // null
+alert( 1 && 2 && 3 ); // 3, the last one
+```
+
+※ `&&`가 `||`보다 우선순위가 높음
+
+아래 코드와 같이 `if`문을 `||`, `&&`를 이용해서 대신할 수 있지만 각각의 목적에 맞게 사용하는게 가독성을 높여줌  
+```javascript
+let x = 1;
+
+(x > 0) && alert( 'Greater than zero!' );
+```
+
+### `!`(NOT)
+C와 같음
+
+아래와 같이 `!!`를 이용해서 값을 `boolean`으로 바꿀 수 있음  
+```javascript
+alert( !!"non-empty string" ); // true
+alert( !!null ); // false
+```
+- `Boolean(...)`를 사용하는 것보다 간단함
+- `!`는 모든 논리 연산자 중에 가장 우선순위가 높음
+
+### Tasks
+- `alert` 함수는 아무런 값을 반환하지 않기 때문에 operand로 사용될 경우 `undefined`를 반환함
+
+```javascript
+alert(alert(1) && alert(2));
+```
+- 위 코드를 실행하면 `1`이 출력된 후 `undefined`가 출력됨
+	- `alert`가 `undefined`를 반환하기 때문에 `1`을 출력하고 `alert`의 리턴값을 반환하고 끝남
+
+## Nullish coalescing operator `??`
+`null`이나 `undefined`가 아니면 "defined"라고 부름  
+`a ?? b`:
+- `a`가 defined => `a` 리턴
+- `a`가 defined가 아님 => `b` 리턴
+
+⇔  
+```javascript
+(a !== null && a !== undefined) ? a : b
+```
+
+아래 코드와 같이 사용 가능함  
+```javascript
+let firstName = null;
+let lastName = null;
+let nickName = "Supercoder";
+
+// shows the first defined value:
+alert(firstName ?? lastName ?? nickName ?? "Anonymous"); // Supercoder
+```
+
+### Comparison with `||`
+위 예시는 `||`로 대체 가능함  
+`||`는 JS가 개발될 때부터 존재했고, `??`는 최근에 생김  
+두 연산자의 차이점은 아래와 같음
+- `||` : first *truthy* value 리턴
+	- `false`, `0`, `""`, `null/undefined`를 구별하지 않음
+- `??` : first *defined* value 리턴
+	- `null/undefined`를 다른 falsy value와 구별함
+		=> 값이 진짜로 비어있거나 설정되지 않았는지 판단 가능
+
+#### Example
+```javascript
+let height = 0;
+
+alert(height || 100); // 100
+alert(height ?? 100); // 0
+```
+- 위 예시에서는 값이 0으로 설정되었기 때문에 `??`를 이용하는 것이 올바른 결과를 출력함
+- `a=a?100;`와 같이 변수의 초깃값을 설정할 때 사용 가능
+
+### Precedence
+`??`(5)는 `||`(6)보다 우선순위가 1단계 낮음(괄호 안은 precedence value, 높을수록 우선순위가 높음)  
+=> `=`, `?` 전에, `+`, `*` 등 보다 뒤에 계산됨  
+=> `let area = (height ?? 100) * (width ?? 50)`와 같이 사용해야 함
+
+#### Using `??` with `&&` or `||`
+JS에서는 `??`를 `&&`나 `||`와 같이 사용하는 것을 금지함(괄호로 묶어서 명시적으로 우선순위를 정했을 때는 가능)  
+즉 아래의 두 번째 줄과 같이 사용해야 함
+
+```javascript
+let x = 1 && 2 ?? 3; // Syntax error
+let x = (1 && 2) ?? 3; // Works
+```
+- `??`가 생기고나서 사람들의 혼동을 방지하기 위해 이런 제한이 생김
+
+## Loops: while and for
+### The "while" loop
+### The "do...while" loop
+### The "for" loop
+C와 같음
+
+### Continue to the next iteration
+ternary operator `?`를 사용할 때 expression이 아닌 것들은 사용할 수 없음  
+예를 들어 아래와 같은 코드는 syntax error가 남
+
+```javascript
+(i > 5) ? alert(i) : continue; // continue isn't allowed here
+```
+- `if`대신 `?`를 사용하면 안되는 이유 중 한가지임
+
+### Labels for break/continue
+label을 이용해서 break/continue할 위치를 정할 수 있음
+
+```javascript
+outer:
+for (let i = 0; i < 3; i++) {
+
+  for (let j = 0; j < 3; j++) {
+
+    let input = prompt(`Value at coords (${i},${j})`, '');
+
+    // if an empty string or canceled, then break out of both loops
+    if (!input) break outer; // (*)
+
+    // do something with the value...
+  }
+}
+alert('Done!');
+```
+- `break <labelName>`을 사용하면 `<labelName>`이 붙어 있는 곳을 빠져나감
+- `continue`도 label을 동일하게 적용 가능
+
+label이 모든 곳으로 jump시켜주는 것은 아님!  
+아래 코드와 같이 사용할 수 없음  
+```javascript
+break label; // jump to the label below (doesn't work)
+
+label: for (...)
+```
+
+`break`는 code block안에 위치해야 함!!  
+아래와 같이 반복문 없이도 사용 가능함(`continue`는 불가능)  
+```javascript
+label: {
+  // ...
+  break label; // works
+  // ...
+}
+```
+
+### Tasks
+- `(i%2)||alert(i);`로 짝수 출력 가능
+- `prompt`에서 사용자가 cancel을 누르면 `null`이 들어감  
+	=> `null`은 `0`으로 변환되는 것에 주의!!!
+
+## The "switch" statement
+### The syntax
+### Grouping of "case"
+C와 같음
+
+### Type matters
+`case a:`와 같이 equality check일 때는 항상 strict equality operator `===`를 사용함!!  
+따라서 `switch`의 변수와 `case`의 비교 대상의 type이 다르면 실행이 되지 않음(`3`, `"3"`과 같이)
+
+## Functions
+### Function Declaration
+### Local variables
+### Outer variables
+C와 같음
+
+### Parameters
+Call by value가 적용됨
+
+### Default values
+아래와 같이 parameter에 default value 선언 가능  
+```javascript
+function showMessage(from, text = anotherFunction()) {
+  // anotherFunction() only executed if no text given
+  // its result becomes the value of text
+}
+```
+
+#### Alternative default parameters
+함수 내부에서 아래와 같이 기본값을 선언 가능함  
+```javascript
+// 1
+if (text === undefined) {
+  text = 'empty';
+}
+
+// 2
+text = text || 'empty';
+
+// 3
+text = count ?? 'empty'
+```
+- 상황에 따라 맞게 설정해야 함  
+	예를 들어 0도 입력으로 들어올 수 있는 경우 `||` 대신 `??` 사용해야 함
+
+### Returning a value
+`return;` 또는 `return`을 사용하지 않으면 `undefined`를 리턴함
+
+```javascript
+return
+ (some + long + expression + or + whatever * f(a) + f(b))
+```
+- 위와 같이 `return` 다음 줄을 바꾸고 리턴값을 적으면 `return;`와 같음
+	=> 긴 식을 리턴하고 싶을 때는 `return (`와 같이 괄호를 `return`과 같은 줄에 적어야 함
+
+### Naming a function
+### Functions == Comments
+함수가 복잡한 구현이 필요할 경우 여러 함수들로 세분화하는게 나음  
+=> 재사용이 많이 되지 않아도 코드의 가독성을 위해서 함수를 선언하는게 나음
+
+### Tasks
+- `?`에는 `return`이 operand로 들어갈 수 없음
+- `**` 연산자는 소숫점도 지원됨
+
+## Function expressions
+JS에서 function은 값으로도 취급됨  
+Function Expression : `function() {...}`을 expression처럼 사용하는 것  
+아래와 같이 *Function Expression*을 사용 가능함  
+```javascript
+let sayHi = function() {
+  alert( "Hello" );
+};
+
+alert(sayHi); // shows the function code
+```
+- 다른 값들처럼 출력도 가능함
+	- `sayHi()`로 함수가 호출된게 아니기 때문에 함수가 실행되지 않음
+- function declaration이 아니라 function expression으로 선언할 경우 맨 뒤에 `;`가 붙는 것에 주의!!
+
+함수가 값으로 취급될 수 있기 때문에 아래와 같이 복사도 가능함  
+```javascript
+function sayHi() {   // (1) create
+  alert( "Hello" );
+}
+
+let func = sayHi;    // (2) copy
+
+func(); // Hello     // (3) run the copy (it works)!
+sayHi(); // Hello    //     this still works too (why wouldn't it)
+```
+- `func==sayHi`는 `ture`임
+	(∵ sayHi의 코드를 다 복사하기 때문에 같음)
+
+### Callback functions
+함수 a의 parameter로 다른 함수 b, c를 넣어서  
+함수 b, c가 함수 a에서 필요시 실행될 수 있음  
+이 때 함수 b, c를 함수 a의 *callback functions* 또는 *callbacks*라고 함
+
+#### Example
+```javascript
+function ask(question, yes, no) {
+  if (confirm(question)) yes()
+  else no();
+}
+
+function showOk() {
+  alert( "You agreed." );
+}
+
+function showCancel() {
+  alert( "You canceled the execution." );
+}
+
+// usage: functions showOk, showCancel are passed as arguments to ask
+ask("Do you agree?", showOk, showCancel);
+```
+- JS에서 function은 *action*을 나타낸다고 생각하면 됨(cf. value는 *data*를 나타냄)  
+	=> variable처럼 다루고 필요할 때 실행시킬 수 있음
+
+아래와 같이 function expression으로 구현할 수도 있음
+
+```javascript
+function ask(question, yes, no) {
+  if (confirm(question)) yes()
+  else no();
+}
+
+ask(
+  "Do you agree?",
+  function() { alert("You agreed."); },
+  function() { alert("You canceled the execution."); }
+);
+```
+- 더 간단한게 구현 가능
+- `ask`를 호출하는 statement 안에서 선언되었고, 이름도 없기 때문에 밖에서 사용할 수 없음(*anonymous*라고 부름)
+
+### Function Expression vs Function Declaration
+syntax 이외에도 JS engine에 의한 함수 생성 시점이 다름
+- Function Expression은 statement를 실행할 때 생성되고 그때부터 호출 가능함
+- Function Declaration은 선언부보다 위에서도 호출 가능함
+
+Function Declaration은 명시된 scope도 중요함
+- block scope 선언되었다면 그 block 안에서만 호출 가능함
+
+Function Expression을 이용해서 아래와 같이 Declaration으로는 불가능한 것을 구현할 수 있음  
+```javascript
+let welcome = (age < 18) ?
+  function() { alert("Hello!"); } :
+  function() { alert("Greetings!"); };
+
+welcome(); // ok now
+```
+
+> Function Declaration과 Function Expression을 선택하는 방법:  
+> 가능하면 Function Declaration을 사용하는게 나음(가독성 ↑, 가용성 ↑)  
+> conditional declaration이 필요하거나 다른 이유로 Function Declaration이 맞지 않을 경우 Function Expression을 사용하면 됨
+
+## Arrow functions, the basics
+아래 두 코드는 같은 함수를 만듦  
+```javascript
+let func = (arg1, arg2, ..., argN) => expression;
+
+let func = function(arg1, arg2, ..., argN) {
+  return expression;
+};
+```
+- parameter가 없어도 `()`로 표시해줘야 함
+- Function Expression처럼 value로 사용 가능
+	```javascript
+	let welcome = (age < 18) ?
+	  () => alert('Hello') :
+	  () => alert("Greetings!");
+
+	welcome();
+	```
+- one-line action을 구현할 때 효율적임
+
+### Multiline arrow functions
+curly braces로 expression을 여러 줄로 늘릴 수 있음  
+```javascript
+let sum = (a, b) => {  // the curly brace opens a multiline function
+  let result = a + b;
+  return result; // if we use curly braces, then we need an explicit "return"
+};
+```
+- `{}`를 사용하면 반드시 `return`이 있어야 함
+
+## JavaScript specials
