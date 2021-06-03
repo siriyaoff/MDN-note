@@ -1,4 +1,4 @@
-# CSS Basics 21.02.09~
+# CSS Basics 21.02.09~21.05.22
 ## What is CSS?
 ### CSS(Cascading Style Sheets)
 - style sheet language(neither programming language nor markup language)
