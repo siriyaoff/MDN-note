@@ -21,14 +21,21 @@ Styling text : 2267 - 2908
 CSS layout : 2911 - 5579
 
 # JSnote
+1-151		an introduction
+154-1144	javascript fundamentals
+1146-1649	code quality
+
+
 Part > topic(#) > article(##)
 
-47 리스트 안에 인덴팅 잘 되어있는지
-493 개행 잘 되는지
-777 코드블럭 문단안에 잘 들어가는지
 
-code quality
-6
+####Ex => ??Ex
+####=> ##?
+##=> #
+#?=> ###
+??Ex=> ####Ex
+
+objects: the basics
 8
 12
 11
