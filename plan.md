@@ -25,6 +25,12 @@ CSS layout : 2911 - 5579
 154-1144	javascript fundamentals
 1146-1649	code quality
 
+1859 인덴팅
+1902 italicizing 잘 되는지
+1909 인덴팅
+
+
+※ tags에는 md 적용안됨!!
 
 Part > topic(#) > article(##)
 

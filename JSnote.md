@@ -1676,8 +1676,6 @@ let user = {     // an object
 
 `delete user.age;`와 같이 `delete` operator를 이용해서 property를 삭제할 수 있음
 
-※ object는 `const`로 선언해도 properties는 수정할 수 있음(`name=...`와 같이 객체 자체를 수정하려 할 때만 에러남)
-
 ### Square brackets
 multiword properties의 경우 `user.likes birds`로 호출할 수 없음  
 (∵ `.`으로 호출하기 위해선 valid variable identifier이어야 함(공백 없음, 숫자로 시작 x, 특수문자 x)  
@@ -1691,6 +1689,7 @@ let key = "likes birds";
 user[key] = true;
 ```
 - `user.key`로는 호출할 수 없음에 주의!!
+- python의 dictionary처럼 property를 추가할 수 있다고 생각하면 될 듯
 
 #### Computed properties
 object literal으로 객체를 선언할 때 `[]`를 사용할 수 있음  
@@ -1734,3 +1733,204 @@ function makeUser(name, age) {
 - property name(key)와 value가 같을 경우 사용 가능
 
 ### Property names limitations
+object는 "for", "let", "return"등의 reserved words도 property name으로 사용 가능함  
+※ `0`과 같은 숫자도 이름으로 사용 가능!!  
+```javascript
+let obj = {
+  0: "test" // same as "0": "test"
+};
+
+// both alerts access the same property (the number 0 is converted to string "0")
+alert( obj["0"] ); // test
+alert( obj[0] ); // test (same property)
+```
+- `0`이 자동으로 `"0"`(`string`)으로 바뀜
+- `obj["0"]`, `obj[0]` 두 가지 방식으로 호출할 수 있음  
+
+***************
+객체 배열을 선언하면 그것과는 구별을 어떻게 하나?
+***************
+
+`__proto__`는 non-object value로 설정할 수 없음!  
+`obj.__proto__`와 같이 호출하면 아예 object가 리턴됨
+
+### Property existence test, "in" operator
+다른 언어들과 비교해서 object에 관한 JS의 가장 큰 특징은 어떤 property라도 접근할 수 있다는 것임  
+property가 존재하지 않아도 가능  
+=> 존재하지 않는 property를 호출하면 `undefined`를 리턴함
+
+`in` operator를 사용해서 object에 property가 있는지 확인할 수 있음  
+`"key" in object` => `key`라는 property가 존재하면 `true`, 아니면 `false` 리턴  
+`"key"` 대신 변수를 넣으면 해당 변수의 value가 object의 property인지 확인함
+- property가 `undefined`를 저장하고 있을 때 유용(`undefined`를 명시적으로 대입할 일이 별로 없기 때문에 이런 상황은 잘 일어나지 않음)
+
+### The "for...in" loop
+```javascript
+let user = {
+  name: "John",
+  age: 30,
+  isAdmin: true
+};
+
+for (let key in user) {
+  // keys
+  alert( key );  // name, age, isAdmin
+  // values for the keys
+  alert( user[key] ); // John, 30, true
+}
+```
+- `in` 뒤에 object가 오면 iterator에 property name이 들어감
+
+#### Ordered like an object
+object의 poperties가 *integer properties*인지 아닌지에 따라서 나열되는 기준이 다름
+
+Integer property : `"1"`, `"41"`과 같이 property name을 Integer로 변환했다가 다시 `string`으로 변환해도 값이 같은 property(`"+41"`, `"1.2"`는 같지 않음)
+⇔ `name == String(Math.trunc(Number(name)))`
+
+"for...in"으로 key를 나열하면, 
+- Integer property인 경우 크기 순으로 나열됨
+- 아닌 경우 생성된 순으로 나열됨
+
+※ 숫자들을 key로 사용하고 싶지만 생성된 순으로 나열되기 하고 싶을 때는 `"+49"`와 같이 선언하고 출력할 때 `number`로 변환해서 출력하면 됨!!
+
+### Summary
+`Array`, `Date`, `Error` 등의 다양한 `object`들이 존재함(나중에 배울 예정)
+
+### Tasks
+객체의 isEmpty를 아래와 같이 구현할 수 있음:  
+```javascript
+function isEmpty(obj) {
+  for (let key in obj) {
+    // if the loop has started, there is a property
+    return false;
+  }
+  return true;
+}
+```
+
+## Object references and copying
+object는 저장, 복사될 때 "call by reference"로 처리됨  
+(cf. primitive는 "call by value"로 처리됨)  
+```javascript
+let user = { name: 'John' };
+
+let admin = user;
+
+admin.name = 'Pete'; // changed by the "admin" reference
+
+alert(user.name); // 'Pete', changes are seen from the "user" reference
+```
+
+### Comparison by reference
+아예 선언부터 독립적으로 해야 독립적인 두 개의 객체가 생성됨
+
+### Cloning and merging, Object.assign
+object cloning을 위한 내장 함수는 없음  
+=> 두 가지 방법 존재:
+1. for...in을 사용해서 properties를 복사  
+	```javascript
+	let user = {
+	  name: "John",
+	  age: 30
+	};
+
+	let clone = {}; // the new empty object
+
+	// let's copy all user properties into it
+	for (let key in user) {
+	  clone[key] = user[key];
+	}
+
+	// now clone is a fully independent object with the same content
+	clone.name = "Pete"; // changed the data in it
+
+	alert( user.name ); // still John in the original object
+	```
+2. `Object.assign` method 이용  
+	```javascript
+	Object.assign(dest, [src1, src2, src3...])
+	```
+	- `src1, ..., srcN`은 source **objects**임
+	- source objects의 모든 properties는 `dest`로 복사됨
+	- `dest`를 리턴함
+	
+	```javascript
+	// (1)
+	let user = { name: "John" };
+
+	let permissions1 = { canView: true };
+	let permissions2 = { canEdit: true };
+
+	Object.assign(user, permissions1, permissions2, { name: "Pete" });
+
+	// now user = { name: "Pete", canView: true, canEdit: true }
+	
+	// (2)
+	let user = {
+	  name: "John",
+	  age: 30
+	};
+
+	let clone = Object.assign({}, user);
+	```
+	
+	(2) : 위의 `for...in`을 이용한 방법이랑 같은 방법임
+
+### Nested cloning
+```javascript
+let user = {
+  name: "John",
+  sizes: {
+    height: 182,
+    width: 50
+  }
+};
+```
+- 위와 같은 nested object의 경우 위 방법만으로는 복사가 완벽하게 되지 않음  
+	`object` type인 property가 reference로 복사되기 때문  
+	=> "shallow copy"라고 함
+- 따라서 properties의 type을 확인하고 `object`일 경우 따로 복제해줘야 함  
+	=> "deep cloning"이라고 함
+	
+	재귀로 구현하거나 [lodash](https://lodash.com/)의 `_.cloneDeep(obj)` 이용
+
+※ object는 `const`로 선언해도 properties는 수정할 수 있음(`name=...`와 같이 객체 자체를 수정하려 할 때만 에러남)  
+properties를 constant로 만들기 위해선 Property flags를 사용해야 함!(나중에 다룸)
+
+## Garbage collection
+### Reachability
+*Reachability*(*도달 가능성*)이 JS memory management의 핵심 개념임  
+"reachable" values는 memory에 저장될 수 있게 보장됨
+1. 명확한 이유로 reachable values인 값들을 *roots*라고 부름
+	- 현재 실행중인 함수와 그 안의 지역 변수, 인자들
+	- 중첩된 호출에 속한 함수들과 그 지역 변수, 인자들
+	- 전역 변수들
+	
+	...
+2. root를 참조할 경우 reachable이라 판단됨  
+	예를 들어, object A가 전역 변수고 다른 object B를 property로 참조하고 있으면 B도 reachable임
+
+garbage collector가 unreachable한 objects, primitives를 제거함
+
+### A simple example
+### Two references
+unreachable해야 garbage collect됨
+
+### Interlinked objects
+```javascript
+function marry(man, woman) {
+  woman.husband = man;
+  man.wife = woman;
+
+  return {
+    father: man,
+    mother: woman
+  }
+}
+
+let family = marry({
+  name: "John"
+}, {
+  name: "Ann"
+});
+```
