@@ -1912,6 +1912,8 @@ properties를 constant로 만들기 위해선 Property flags를 사용해야 함
 
 garbage collector가 unreachable한 objects, primitives를 제거함
 
+※ garbage collection은 자동적으로 일어나고, 우리가 강제할 수 없음
+
 ### A simple example
 ### Two references
 unreachable해야 garbage collect됨
@@ -1934,3 +1936,376 @@ let family = marry({
   name: "Ann"
 });
 ```
+
+|Result:|
+|:---|
+|![js-garbage-collection1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-garbage-collection1.PNG?raw=true)|
+
+- 모든 object가 reachable함
+
+두 개의 references 제거:  
+```javascript
+delete family.father;
+delete family.mother.husband;
+```
+
+|Result:|
+|:---|
+|![js-garbage-collection2](https://github.com/siriyaoff/MDN-note/blob/master/images/js-garbage-collection2.PNG?raw=true)|
+
+- 위의 경우 `name: john`인 object가 garbage collect됨
+- incoming reference만 object를 reachable하게 만들 수 있음
+
+### Unreachable island
+위의 예시에서 아예 global variable로부터의 reference를 끊으면(`family=null`) 모든 object가 unreachable하게 됨  
+서로 incoming references가 존재하지만 reachable value로부터의 reference가 없기 때문에 unreachable함  
+=> 참조되었다고 reachable한건 아님!!
+
+### Internal algorithms
+garbage collection은 "mark-and-sweep"이라는 algorithm을 기반으로 함:  
+1. garbage collector가 roots를 찾고 mark해놓음(방문한 사실도 저장함)
+2. mark된 객체들을 방문해서 그것들이 참조하는 객체들을 다시 mark
+3. 모든 reachable references를 방문할 때까지 2를 반복
+4. mark된 객체를 제외한 객체들을 없앰
+
+bfs랑 비슷  
+JS engine에서는 아래와 같은 최적화를 실행함:
+- Generational collection  
+	object를 new, old로 분류함  
+	old들은 오랫동안 유지된 객체들이기 때문에 자주 조사하지 않음
+- Incremental collection  
+	전체를 한꺼번에 처리하는 대신, 조각으로 나눠서 조금씩 처리함  
+	visible delay가 발생하지 않음
+- Idle-time collection  
+	CPU가 idle일 때만 garbage collector를 실행해서 실행 시간에 영향을 주지 않게 만듦
+
+garbage collection에 관한 지식은 low-level optimization을 수행할 때 요구됨
+
+## Object methods, "this"
+object의 property로 선언된 function을 object의 *method*라고 함
+
+### Method examples
+```javascript
+let user = {
+  name: "John",
+  age: 30
+};
+
+user.sayHi = function() {
+  alert("Hello!");
+};
+
+user.sayHi(); // Hello!
+```
+- 위 예시에서는 `sayHi`가 `user`의 method임
+
+아래와 같이 미리 선언된 함수를 method로 사용할 수도 있음:  
+```javascript
+let user = {
+  // ...
+};
+
+// first, declare
+function sayHi() {
+  alert("Hello!");
+};
+
+// then add as a method
+user.sayHi = sayHi;
+
+user.sayHi(); // Hello!
+```
+
+> In Object-oriented programming, we use objects to represent entities
+
+#### Method shorthand
+아래 두 가지 방법으로 method를 선언할 수 있음:  
+```javascript
+user = {
+  sayHi: function() {
+    alert("Hello");
+  }
+};
+
+// method shorthand looks better, right?
+user = {
+  sayHi() { // same as "sayHi: function(){...}"
+    alert("Hello");
+  }
+};
+```
+
+### "this" in methods
+object에 접근하기 위해, method 내에서 `this` keyword를 이용함:  
+```javascript
+let user = {
+  name: "John",
+  age: 30,
+
+  sayHi() {
+    // "this" is the "current object"
+    alert(this.name);
+  }
+};
+
+user.sayHi(); // John
+```
+
+`this`를 사용하지 않고 위의 method 구현부에서 `alert(user.name);`으로 적어도 작동은 됨  
+하지만 아래와 같이 `user`을 overwrite하면 문제가 생김:  
+```javascript
+let user = {
+  name: "John",
+  age: 30,
+
+  sayHi() {
+    alert( user.name ); // leads to an error
+  }
+};
+
+
+let admin = user;
+user = null; // overwrite to make things obvious
+
+admin.sayHi(); // TypeError: Cannot read property 'name' of null
+```
+
+### "this" is not bound
+`this`를 method가 아닌 함수에서도 사용 가능함  
+=> run-time에 `this`의 값이 계산됨
+
+#### Example
+```javascript
+let user = { name: "John" };
+let admin = { name: "Admin" };
+
+function sayHi() {
+  alert( this.name );
+}
+
+// use the same function in two objects
+user.f = sayHi;
+admin.f = sayHi;
+
+// these calls have different this
+// "this" inside the function is the object "before the dot"
+user.f(); // John  (this == user)
+admin.f(); // Admin  (this == admin)
+
+admin['f'](); // Admin (dot or square brackets access the method – doesn't matter)
+```
+- method도 square brackets와 string으로 호출할 수 있다는 것에 유의!
+- `sayHi`를 method가 아닌 일반 함수로 호출하면(`sayHi();`):
+	- strict mode에서는 `this`가 `undefined`로 바뀜  
+		=> `this.name`을 접근할 때 에러가 남
+	- non-strict mode에서는 `this`가 *global object*를 가리킴  
+		strict mode로 고친 예전의 에러임
+	
+	보통 `this`를 사용하는 함수는 method로 사용되기 때문에 object를 통해서 호출되지 않으면 에러인 경우가 많음
+
+> JS에서의 `this`의 취급  
+> 다른 언어들에서는 보통 `this`를 method가 정의된 객체만을 참조함("bound this")  
+> 하지만 JS에서는 `this`가 method가 정의된 객체만을 참조하지 않고, method를 호출한 객체를 참조함  
+> 장점 : 재사용성 ↑, 단점 : 실수가 잦아질 수 있음
+
+### Arrow functions have no "this"
+arrow function에서 `this`를 사용하면, arrow function이 구현된 함수(outer normal function)를 호출한 객체를 참조함:  
+```javascript
+let user = {
+  firstName: "Ilya",
+  sayHi() {
+    let arrow = () => alert(this.firstName);
+    arrow();
+  }
+};
+
+user.sayHi(); // Ilya
+
+
+let usera = {
+  firstName: "Ilya",
+  userb: {
+    firstName: "Ilya2",
+    sayHi : () => alert(this.firstName)
+  }
+};
+
+let userc={
+  firstName: "Ilya3",
+  sayHi: ()=> alert(this.firstName)
+};
+
+usera.userb.sayHi(); // undefined
+userc.sayHi(); // undefined
+```
+- outer normal function 없이 바로 method로 사용되고 `this`를 사용할 경우 `this`는 `undefined`로 바뀜!!  
+	위의 경우에도 `this`를 사용하지 않으면 arrow function을 바로 method로 사용할 수 있음
+
+### Tasks
+```javascript
+function makeUser() {
+  return {
+    name: "John",
+    ref: this
+  };
+}
+
+let user = makeUser();
+
+alert( user.ref.name ); // Error: Cannot read property 'name' of undefined
+```
+- `ref`에는 `undefined`가 저장됨!  
+	∵ `this`의 값은 호출 시점에 결정되는데, `makeUser()`가 method가 아닌, 일반 함수로 호출되었기 때문에 전체 함수인 `undefined`가 들어감(code block과 object literal은 영향을 주지 않음)  
+	따라서 `ref: this`는 현재 `this`의 값인 `undefined`가 저장되고, `user.ref`가 `undefined`가 됨
+	
+	아래 코드와 동치임:  
+	```javascript
+	function makeUser(){
+	  return this; // 이번엔 객체 리터럴을 사용하지 않았습니다.
+	}
+
+	alert( makeUser().name ); // Error: Cannot read property 'name' of undefined
+	```
+	
+	원래 의도대로 구현한 코드:  
+	```javascript
+	function makeUser() {
+	  return {
+		name: "John",
+		ref() {
+		  return this;
+		}
+	  };
+	};
+
+	let user = makeUser();
+
+	alert( user.ref().name ); // John
+	alert( user.ref().ref().name ); // John
+	```
+	- `user.ref()`가 method가 되기 때문에 `this`는 `.`앞의 객체로 선정됨
+
+```javascript
+let ladder = {
+  step: 0,
+  up() {
+    this.step++;
+    return this;
+  },
+  down() {
+    this.step--;
+    return this;
+  },
+  showStep() { // 사다리에서 몇 번째 단에 올라와 있는지 보여줌
+    alert( this.step );
+    return this;
+  }
+};
+
+ladder.up();
+ladder.up();
+ladder.down();
+ladder.showStep(); // 1
+
+ladder.up().up().down().showStep(); // 2
+```
+- method의 리턴을 `this`로 설정해서 호출을 chainable하게 만들 수 있음
+
+## Constructor, operator "new"
+비슷한 객체를 많이 만들어야 하는 경우에는 object literal로 하기에 불필요한 반복이 많음  
+=> constructor function과 `new` operator를 사용
+
+### Constructor function
+생성자 함수는 기능적으로는 보통의 함수와 같음  
+생성자 함수의 규칙 2가지:
+1. 대문자로 시작(common agreement)
+2. `new` operator와 같이 사용되어야 함
+
+#### Example
+```javascript
+function User(name) {
+  // this = {};  (implicitly)
+
+  // add properties to this
+  this.name = name;
+  this.isAdmin = false;
+
+  // return this;  (implicitly)
+}
+
+let user = new User("Jack");
+
+alert(user.name); // Jack
+alert(user.isAdmin); // false
+```
+- 생성자 함수에서는 주석과 같이 `this`에 이미 객체가 선언되어 있다고 생각하면 됨(`undefined`가 리턴되지 않음!)
+- 모든 함수들이 생성자로 사용될 수 있음 => `new`와 같이 사용되면 모든 함수들이 위와 같이 `this`를 리턴함
+
+`let user=new function() { ... };`와 같이 사용하면 constructor는 재사용할 수 없는 대신 하나의 객체만을 생성하도록 코드를 encapsulate하는 효과가 있음
+
+### Constructor mode test: new.target
+`new.target` property를 사용하면 함수 내부에서 이 함수가 `new`와 함께 호출되었는지 알 수 있음  
+- `new`와 함께 호출된 함수에서 사용하면 함수 자체(`function User() { ... }`)가 리턴됨
+- `new`없이 호출된 함수에서 사용하면 `undefined` 리턴
+
+아래와 같이 `new`가 있던 없던 constructor mode로 동작하게 구현할 수 있음:  
+```javascript
+function User(name) {
+  if (!new.target) { // if you run me without new
+    return new User(name); // ...I will add new for you
+  }
+
+  this.name = name;
+}
+
+let john = User("John"); // redirects call to new User
+alert(john.name); // John
+```
+- 문법을 더 유연하게 만들지만, `new`를 생략해서 코드의 가독성을 떨어뜨릴 수 있음
+
+### Return from constructors
+보통 constructor는 `return` 문장이 없지만, 있을 경우 아래와 같이 처리됨:
+- `return`이 object와 같이 사용되면 `this` 대신 그 object를 리턴
+- `return`이 primitive와 같이 사용되거나 혼자 사용되면 무시됨
+
+#### Example
+```javascript
+function BigUser() {
+
+  this.name = "John";
+
+  return { name: "Godzilla" };  // <-- returns this object
+}
+
+alert( new BigUser().name );  // Godzilla, got that object
+```
+- `new` operator가 `.`보다 우선순위가 높은듯
+
+※ `new`를 사용하면 constructor의 괄호를 생략할 수 있음(인자가 없을 때)  
+하지만 이것 또한 가독성을 떨어뜨리기 때문에 좋은 코딩 스타일이 아님
+
+### Methods in constructor
+method도 `this`를 사용해서 정의 가능함:  
+```javascript
+function User(name) {
+  this.name = name;
+
+  this.sayHi = function() {
+    alert( "My name is: " + this.name );
+  };
+}
+
+let john = new User("John");
+
+john.sayHi(); // My name is: John
+```
+- class를 이용하면 더 복잡한 object를 생성할 수 있음(지금 다루는 object는 구조체 느낌인듯)
+
+### Tasks
+- constructor로 method를 정의할 때는 무조건 `this.method= function expression;`을 사용해야 하는 듯(function declaration을 사용하면 method로 추가되지 않음)  
+	아니면 function declaration으로 정의한 뒤에 `this.method=func_name;`으로 정의해도 됨
+
+## Optional chaining `?.`
+property를 호출하는 안전한 방법임(특히 A.B.C와 같이 중첩된 property 호출에서 B가 `null`일 수도 있을 때)
+
+### The "non-existing property" problem
