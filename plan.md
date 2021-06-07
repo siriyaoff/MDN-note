@@ -25,6 +25,10 @@ CSS layout : 2911 - 5579
 154-1144	javascript fundamentals
 1146-1649	code quality
 
+## tasks
+지난 article들 summary에 주요 methods 표로 정리
+
+## 블로그 업로드하고 체크
 1859 인덴팅
 1902 italicizing 잘 되는지
 1909 인덴팅

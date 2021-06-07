@@ -1886,7 +1886,7 @@ let user = {
   }
 };
 ```
-- 위와 같은 nested object의 경우 위 방법만으로는 복사가 완벽하게 되지 않음  
+- 위와 같은 nested object의 경우 위 방법(`for...in`, `object.assign`)만으로는 복사가 완벽하게 되지 않음  
 	`object` type인 property가 reference로 복사되기 때문  
 	=> "shallow copy"라고 함
 - 따라서 properties의 type을 확인하고 `object`일 경우 따로 복제해줘야 함  
@@ -2309,3 +2309,228 @@ john.sayHi(); // My name is: John
 property를 호출하는 안전한 방법임(특히 A.B.C와 같이 중첩된 property 호출에서 B가 `null`일 수도 있을 때)
 
 ### The "non-existing property" problem
+```javascript
+let user = {}; // a user without "address" property
+
+alert(user.address.street); // Error!
+```
+- 위의 상황처럼 `user`가 `address` property를 가지지 않음  
+	=> `user.address`가 `undefined`이기 때문에 `user.address.street`을 호출하면 에러가 남
+
+web development에서도 `document.querySelector('.elem')`함수를 사용할 때 해당하는 element가 없으면 `null`이 반환됨:  
+```javascript
+let html = document.querySelector('.elem').innerHTML; // error if it's null
+```
+
+#### 해당 element가 업을 때 `html`에 `null`을 대입하려면?
+`if`나 삼항연산자 `?`를 사용  
+e.g. `alert(user.address ? user.address.street : undefined);`
+
+중첩이 많아지면 코드에 불필요한 반복이 너무 많아짐  
+=> `&&` 이용:  
+`alert(user.address && user.address.street && user.address.street.name );`
+
+AND'ing 또한 반복이 너무 많음  
+이런 반복을 줄이기 위해서 optional chaining `?.`가 추가됨
+
+### Optional chaining
+`?.`는 왼쪽 대상이 `undefined`거나 `null`이면 계산을 멈추고 `undefined`를 리턴함  
+아래에서는 편의를 위해 `null`이나 `undefined`가 아니면 객체가 존재한다고 가정함
+
+즉, `value?.prop`는 아래와 같이 작동함:
+- `value`가 존재한다면 `value.prop` 리턴
+- `value`가 존재하지 않는다면(`undefined` 또는 `null`일 경우) `undefined` 리턴
+
+위의 예제에 optional chaining을 적용하면 아래와 같음:  
+```javascript
+let user = {}; // user has no address
+
+alert( user?.address?.street ); // undefined (no error)
+```
+- `user = null`일 경우에도 작동함(당연히 `undefined` 반환)
+
+> optional chaining은 존재하지 않아도 괜찮은 대상에만 사용해야 함  
+> 모든 대상에 사용하면 항상 존재해야 하는 대상이 실수로 정의되지 않아도 에러가 나지 않기 때문에 디버깅하기 어려워짐!
+
+> `?.` 전의 값은 반드시 선언되어 있어야 함!  
+> optional chaining은 선언된 변수에 대해서만 동작함
+
+### Short-circuiting
+`?.`는 왼쪽 대상이 존재하지 않으면 아예 멈춤  
+=> 아래와 같이 함수나 증가식도 계산되지 않음:  
+```javascript
+let user = null;
+let x = 0;
+
+user?.sayHi(x++); // no "sayHi", so the execution doesn't reach x++
+
+alert(x); // 0, value not incremented
+```
+
+### Other variants: `?.()`, `?.[]`
+method를 호출할 때 `method()`대신 `method?.()`로 호출해서 optional chaining과 같은 효과를 낼 수 있음:  
+```javascript
+let userAdmin = {
+  admin() {
+    alert("I am admin");
+  }
+};
+
+let userGuest = {};
+
+userAdmin.admin?.(); // I am admin
+
+userGuest.admin?.(); // nothing (no such method)
+```
+
+변수를 이용한 property 호출도 원래는 `obj[var]`과 같이 호출하지만 `obj?.[var]`로 optional chaining과 같은 효과를 낼 수 있음:  
+```javascript
+let key = "firstName";
+
+let user1 = {
+  firstName: "John"
+};
+
+let user2 = null;
+
+alert( user1?.[key] ); // John
+alert( user2?.[key] ); // undefined
+```
+
+`delete` operator도 `?.`과 함께 사용할 수 있음:  
+```javascript
+delete user?.name; // delete user.name if user exists
+```
+
+> `?.`를 이용해서 읽기, 삭제를 안전하게 수행할 수 있지만 수정은 안됨!  
+> `user?.name = "john";`은 `user`가 존재하지 않으면 `undefined`에 RHS를 대입하는 꼴이 되기 때문에 어차피 에러남
+
+## Symbol type
+specification에 따르면, object property key는 `string` type이거나 `symbol` type임  
+
+### Symbols
+`Symbol()`을 사용해서 unique identifier을 만들 수 있음:  
+```javascript
+// id is a symbol with the description "id"
+let id = Symbol("id");
+
+let id1 = Symbol("id");
+
+alert(id == id1); // false
+```
+- 같은 description을 써서 생성하더라도 둘은 다른 `symbol`들임
+
+※ symbol들은 자동으로 `string`으로 변환되지 않음!!  
+```javascript
+let id = Symbol("id");
+alert(id); // TypeError: Cannot convert a Symbol value to a string
+alert(id.toString()); // Symbol(id), now it works
+alert(id.description); // id
+```
+- `symbol`과 `string`은 근본적으로 다르기 때문에 `symbol`은 아예 다른 형으로 변환되는 것이 막혀있음
+- `symbol`을 출력하기 위해서는 `toString()`을 이용하거나 description을 출력해야 함
+
+### "Hidden" properties
+`symbol`을 key로 이용해서 숨겨진 property를 생성할 수 있음  
+=> `symbol`을 이용하지 않고는 접근할 수 없음
+
+#### Example
+```javascript
+let user = { // belongs to another code
+  name: "John"
+};
+
+let id = Symbol("id");
+
+user[id] = 1;
+
+alert( user[id] ); // we can access the data using the symbol as the key
+```
+- `symbol`은 항상 다르기 때문에, 다른 곳에서 똑같은 `id`를 `symbol`로 사용하더라도 `user[id]`는 서로 다른 properties가 됨  
+	cf. `"id"`를 property name으로 사용할 경우 충돌이 일어남
+
+### Symbols in an object literal
+square brackets `[]`를 이용해서 object literal에서도 `symbol`을 사용할 수 있음:  
+```javascript
+let id = Symbol("id");
+
+let user = {
+  name: "John",
+  [id]: 123 // not "id": 123
+};
+```
+
+### Symbols are skipped by for...in
+`symbol`로 선언된 property는 심지어 `for...in` 반복문에서도 배제됨:  
+```javascript
+let id = Symbol("id");
+let user = {
+  name: "John",
+  age: 30,
+  [id]: 123
+};
+
+for (let key in user) alert(key); // name, age (no symbols)
+
+// the direct access by the symbol works
+alert( "Direct: " + user[id] );
+```
+
+`object.assign`을 이용해서 object를 복제할 때는 symbol properties도 복사됨
+
+### Global symbols
+global symbol을 이용해서 다른 곳에서 같은 `symbol`을 사용할 수 있음  
+`Symbol.for(key)`를 사용해서 *global symbol registry*에 *global symbol*을 등록하거나 등록되어 있는 것을 읽음
+- global symbol registry에 `key`에 해당하는 global symbol이 등록되어 있지 않으면 생성, 등록하고 반환
+- 등록되어 있는 경우 해당 global symbol을 반환함
+
+```javascript
+// read from the global registry
+let id = Symbol.for("id"); // if the symbol did not exist, it is created
+
+// read it again (maybe from another part of the code)
+let idAgain = Symbol.for("id");
+
+// the same symbol
+alert( id === idAgain ); // true
+```
+
+> Ruby에서의 symbol이 JS에서의 global symbol과 비슷함
+
+#### `Symbol.keyFor`
+`Symbol.keyFor(sym)`을 사용해서 global symbol 값에 해당하는 `key`를 찾을 수 있음  
+```javascript
+let globalSymbol = Symbol.for("name");
+let localSymbol = Symbol("name");
+
+alert( Symbol.keyFor(globalSymbol) ); // name, global symbol
+alert( Symbol.keyFor(localSymbol) ); // undefined, not global
+
+alert( localSymbol.description ); // name
+alert( globalSymbol.description ); // name
+```
+- `Symbol.keyFor(sym)`은 global symbol registry에서 `sym`에 해당하는 key를 찾아서 반환함  
+	=> non-global symbol에 대해서는 key값을 찾을 수 없기 때문에 `undefined` 반환
+- 모든 `symbol`들은 `description` property를 가짐!  
+	global symbol도 key가 description이기 때문에 `.description`으로 출력 가능함
+
+### System symbols
+system symbols가 존재함:
+- Symbol.hasInstance
+- Symbol.isConcatSpreadable
+- Symbol.iterator
+- Symbol.toPrimitive
+	- object to primitive conversion에 필요함
+
+### Summary
+|function|description|
+|:---|:---|
+|`Symbol([description])`|`symbol` 생성|
+|`sym.description`|`sym`의 description 출력|
+|`Symbol.for(key)`|global symbol 생성|
+|`Symbol.keyFor(sym)`|global symbol의 key|
+
+`Object.getOwnPropertySymbols(obj)`를 사용하면 properties 뿐만 아니라 symbol들까지 알 수 있음  
+`Reflect.ownKeys(obj)`를 사용하면 symbolic properties를 포함해서 모든 properties의 key를 알 수 있음
+
+## Object to primitive conversion
