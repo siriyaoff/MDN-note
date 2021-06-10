@@ -1749,6 +1749,7 @@ alert( obj[0] ); // test (same property)
 
 ***************
 객체 배열을 선언하면 그것과는 구별을 어떻게 하나?
+
 ***************
 
 `__proto__`는 non-object value로 설정할 수 없음!  
@@ -1794,7 +1795,18 @@ Integer property : `"1"`, `"41"`과 같이 property name을 Integer로 변환했
 ※ 숫자들을 key로 사용하고 싶지만 생성된 순으로 나열되기 하고 싶을 때는 `"+49"`와 같이 선언하고 출력할 때 `number`로 변환해서 출력하면 됨!!
 
 ### Summary
-`Array`, `Date`, `Error` 등의 다양한 `object`들이 존재함(나중에 배울 예정)
+
+|code|description|
+|:---|:---|
+|`let user = {};`|object literal|
+|`user[key]=1;`|computed properties<br>object literal에서도 사용 가능|
+|`"key" in obj`|이름이 `"key"`인 property 존재 여부|
+|`for(let key in user) {...}`|properties 탐색<br>숫자 property만 오름차순, 나머지는 생성 시간 기준으로 나열됨|
+
+- property 선언
+	- object literal 안에서 : `name: "John",`
+	- 선언 후 : `user.name="John";`
+- `Array`, `Date`, `Error` 등의 다양한 `object`들이 존재함(나중에 배울 예정)
 
 ### Tasks
 객체의 isEmpty를 아래와 같이 구현할 수 있음:  
@@ -1874,7 +1886,7 @@ object cloning을 위한 내장 함수는 없음
 	let clone = Object.assign({}, user);
 	```
 	
-	(2) : 위의 `for...in`을 이용한 방법이랑 같은 방법임
+	- (2) : 위의 `for...in`을 이용한 방법이랑 같은 방법임
 
 ### Nested cloning
 ```javascript
@@ -1897,6 +1909,15 @@ let user = {
 ※ object는 `const`로 선언해도 properties는 수정할 수 있음(`name=...`와 같이 객체 자체를 수정하려 할 때만 에러남)  
 properties를 constant로 만들기 위해선 Property flags를 사용해야 함!(나중에 다룸)
 
+### Summary
+
+|code|description|
+|:---|:---|
+|`Object.assign(dest, [src1, src2...]);`|object cloning(shallow copy)|
+
+- `object`는 호출될 때 항상 call by reference로 처리됨
+- deep copy는 lodash의 `_.cloneDeep(obj)` 이용
+
 ## Garbage collection
 ### Reachability
 *Reachability*(*도달 가능성*)이 JS memory management의 핵심 개념임  
@@ -1904,9 +1925,8 @@ properties를 constant로 만들기 위해선 Property flags를 사용해야 함
 1. 명확한 이유로 reachable values인 값들을 *roots*라고 부름
 	- 현재 실행중인 함수와 그 안의 지역 변수, 인자들
 	- 중첩된 호출에 속한 함수들과 그 지역 변수, 인자들
-	- 전역 변수들
-	
-	...
+	- 전역 변수들  
+		...
 2. root를 참조할 경우 reachable이라 판단됨  
 	예를 들어, object A가 전역 변수고 다른 object B를 property로 참조하고 있으면 B도 reachable임
 
@@ -1914,7 +1934,6 @@ garbage collector가 unreachable한 objects, primitives를 제거함
 
 ※ garbage collection은 자동적으로 일어나고, 우리가 강제할 수 없음
 
-### A simple example
 ### Two references
 unreachable해야 garbage collect됨
 
@@ -2141,6 +2160,18 @@ userc.sayHi(); // undefined
 - outer normal function 없이 바로 method로 사용되고 `this`를 사용할 경우 `this`는 `undefined`로 바뀜!!  
 	위의 경우에도 `this`를 사용하지 않으면 arrow function을 바로 method로 사용할 수 있음
 
+### Summary
+- method에서 property를 참조하기 위해서는 `this`를 이용해야 함(`this.prop`)
+- property만 있는 객체는 object literal을 리턴하는 것으로 간단하게 constructor를 구현 가능  
+	(constructor function syntax를 사용하지 않고)  
+	
+	`this`를 사용해야 하는 경우 constructor function을 사용  
+	(호출할 때 `new`와 같이 사용되기 때문에 일반 함수와 분명한 차이가 있음)
+- arrow function으로 method를 구현할 때 `this`를 사용하면 arrow function을 사용한 method를 소유한 객체를 리턴함  
+	※ 반드시 method안에서 arrow function을 function expression으로 사용해야 함!!  
+	arrow function 자체를 method로 정의하면 `this`가 `undefined`를 반환함  
+	이런 특징때문에 arrow function은 method를 구현할 때 사용하지 않는 것이 좋음!!
+
 ### Tasks
 ```javascript
 function makeUser() {
@@ -2301,6 +2332,17 @@ john.sayHi(); // My name is: John
 ```
 - class를 이용하면 더 복잡한 object를 생성할 수 있음(지금 다루는 object는 구조체 느낌인듯)
 
+### Summary
+
+|code|description|
+|:---|:---|
+|`let user = new User([param...]);`|Constructor function|
+|`new.target`|현재 함수가 `new`와 함께 호출되었는지 판별|
+
+- `new` operator가 `.`보다 우선순위가 높음  
+	`new User().name`을 실행하면 만들어진 객체의 `name` property가 정상적으로 출력됨
+- object literal으로 선언할 때는 `:`, constructor function에서 선언할 때는 일반 statement처럼 `=` 사용
+
 ### Tasks
 - constructor로 method를 정의할 때는 무조건 `this.method= function expression;`을 사용해야 하는 듯(function declaration을 사용하면 method로 추가되지 않음)  
 	아니면 function declaration으로 정의한 뒤에 `this.method=func_name;`으로 정의해도 됨
@@ -2404,6 +2446,14 @@ delete user?.name; // delete user.name if user exists
 
 > `?.`를 이용해서 읽기, 삭제를 안전하게 수행할 수 있지만 수정은 안됨!  
 > `user?.name = "john";`은 `user`가 존재하지 않으면 `undefined`에 RHS를 대입하는 꼴이 되기 때문에 어차피 에러남
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`user?.address`|optional chaining<br>연산자 이전의 값은 반드시 선언되어 있어야 함|
+|`obj.method?.()`|method에 대해 optional chaining 적용|
+|`obj?.[var]`|computed property에 대해 optional chaining 적용|
 
 ## Symbol type
 specification에 따르면, object property key는 `string` type이거나 `symbol` type임  
@@ -2523,14 +2573,375 @@ system symbols가 존재함:
 	- object to primitive conversion에 필요함
 
 ### Summary
-|function|description|
-|:---|:---|
-|`Symbol([description])`|`symbol` 생성|
-|`sym.description`|`sym`의 description 출력|
-|`Symbol.for(key)`|global symbol 생성|
-|`Symbol.keyFor(sym)`|global symbol의 key|
 
-`Object.getOwnPropertySymbols(obj)`를 사용하면 properties 뿐만 아니라 symbol들까지 알 수 있음  
-`Reflect.ownKeys(obj)`를 사용하면 symbolic properties를 포함해서 모든 properties의 key를 알 수 있음
+|code|description|
+|:---|:---|
+|`let id = Symbol("description");`|symbol 생성|
+|`sym.description`|symbol의 `"description"` 반환|
+|`let id = Symbol.for("description");`|global symbol 생성|
+|`Symbol.keyFor(sym)`|global symbol의 key(`"description"`) 반환|
+
+- symbolic property는 `for...in`에서도 배제됨
+- global symbol은 `sym.description`을 사용하든 `Symbol.keyFor()`을 사용하든 생성될 때 사용한 description을 리턴함
+- `Object.getOwnPropertySymbols(obj)`를 사용하면 properties 뿐만 아니라 symbol들까지 알 수 있음  
+- `Reflect.ownKeys(obj)`를 사용하면 symbolic properties를 포함해서 모든 properties의 key를 알 수 있음
 
 ## Object to primitive conversion
+`obj1 + obj2` 등 객체끼리 연산될 때는 자동으로 primitives로 변환됨:
+1. 모든 객체는 boolean으로 변환될 때 `true`로 취급됨 => 객체를 변환할 때는 numeric, string으로의 변환만 사용함
+2. 객체끼리 뺄셈이나 수학적 함수를 적용할 때 numeric conversion이 일어남  
+	e.g. `Date` 객체의 연산 : `date1 - date2`
+3. string conversion은 보통 `alert(obj)`와 같이 객체를 출력할 때 일어남
+
+### ToPrimitive
+`"string"`, `"number"`, `"default"` 3개의 hint를 이용해서 객체의 변환을 조절할 수 있음  
+hint는 목표로 하는 자료형으로 이해하면 됨
+
+#### `"string"`
+`alert()`와 같이 문자열이 들어가는 연산을 수행하면 hint가 string이 됨:  
+```javascript
+// output
+alert(obj);
+
+// using object as a property key
+anotherObj[obj] = 123;
+```
+
+#### `"number"`
+계산할 때는 hint가 number가 됨:  
+```javascript
+// explicit conversion
+let num = Number(obj);
+
+// maths (except binary plus)
+let n = +obj; // unary plus
+let delta = date1 - date2;
+
+// less/greater comparison
+let greater = user1 > user2;
+```
+
+#### `"default"`
+`+`, `==`와 같이 숫자, 문자 모두에서 사용되는 연산자에서는 hint가 default가 됨:  
+```javascript
+// binary plus uses the "default" hint
+let total = obj1 + obj2;
+
+// obj == number uses the "default" hint
+if (user == 1) { ... };
+```
+- `<`, `>`와 같은 비교 연산자들도 숫자, 문자 모두 피연산자로 사용 가능하지만 hint가 number로 됨  
+	`Date` 객체를 제외하면 대부분의 내장된 객체에서 default도 number처럼 동작하기 때문에 다 외울 필요는 없음
+
+※ hint는 3개만 존재함!(number, string, default)  
+boolean은 hint가 아님!!
+
+conversion을 할 때 JS는 아래 순서대로 작동함:
+1. 객체에 `obj[Symbol.toPrimitive](hint)` method를 찾고, 있으면 호출함  
+	`Symbol.toPrimitive`는 system symbol으로, 따로 만드는게 아님
+2. 위의 경우에 해당하지 않고 hint가 string일 때  
+	`obj.toString()`, `obj.valueOf()` 순서대로 찾으면서 존재하는 것을 실행함
+3. 위의 경우에 해당하지 않고 hint가 number 또는 default일 때  
+	`obj.valueOf()`, `obj.toString()` 순서대로 찾으면서 존재하는 것을 실행함  
+
+### Symbol.toPrimitive
+`Symbol.toPrimitive`는 내장 symbol로, conversion method로 사용됨
+
+#### Example
+```javascript
+let user = {
+  name: "John",
+  money: 1000,
+
+  [Symbol.toPrimitive](hint) {
+    alert(`hint: ${hint}`);
+    return hint == "string" ? `{name: "${this.name}"}` : this.money;
+  }
+};
+
+// conversions demo:
+alert(user); // hint: string -> {name: "John"}
+alert(+user); // hint: number -> 1000
+alert(user + 500); // hint: default -> 1500
+```
+
+### toString/valueOf
+위의 symbolic key와 다르게 string-named method임  
+반드시 primitive value를 리턴해야 함  
+(`object`를 리턴할 경우 아예 무시됨)
+
+각 함수의 default:
+- `toString`은 `"[object Object]"`를 리턴함
+- `valueOf`는 object 자체를 리턴함
+
+```javascript
+let user = {name: "John"};
+
+alert(user); // [object Object]
+alert(user.valueOf() === user); // true
+```
+
+- 재정의하고 사용하기 때문에 큰 의미는 없음
+
+#### Example
+```javascript
+let user = {
+  name: "John",
+  money: 1000,
+
+  // for hint="string"
+  toString() {
+    return `{name: "${this.name}"}`;
+  },
+
+  // for hint="number" or "default"
+  valueOf() {
+    return this.money;
+  }
+
+};
+```
+- `[Symbol.toPrimitive](hint)`와 동일한 기능임
+- 객체를 변환하는 순서에 따라서, `Symbol.toPrimitive`와 `valueOf`가 없으면 `toString`이 모든 변환을 담당함  
+	
+
+### Return types
+primitive-conversion method들이 반드시 hint와 같은 primitive를 리턴할 필요는 없음  
+primtivie만 리턴하면 됨
+
+> `toString`과 `valueOf`는 객체를 리턴해도 에러가 나지 않고 method가 존재하지 않는 것처럼 무시됨  
+> 예전에는 JS에 에러에 관한 명확한 정의가 없었기 때문  
+> 반면, `Symbol.toPrimitive`는 primitive를 리턴하지 않으면 에러남
+
+### Further conversions
+객체가 인자로 사용될 때 두 단계에 거쳐서 conversion이 일어남:
+1. 위 규칙에 따라서 객체가 primitive로 변환됨
+2. 변환된 primitive가 적절한 type이 아니면 변환됨
+
+#### Example
+```javascript
+let obj = {
+  // toString handles all conversions in the absence of other methods
+  toString() {
+    return "2";
+  }
+};
+
+alert(obj * 2); // 4
+alert(obj + 2); // 22
+```
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`[Symbol.toPrimitive](hint)`|conversion method|
+|`toString()`|conversion method|
+|`valueOf()`|conversion method|
+
+- 실무에서는 `obj.toString()`가 모든 변환을 담당하는 "catch-all" method로 구현되는 경우가 많음
+- 호환성을 위해서 `toString()`, `valueOf()`을 `return this[Symbol.toPrimitive]('string or number')`과 같이 구현할 수 있음
+
+
+# Data types
+## Methods of primitives
+primitive와 object의 차이점:
+- A primitive
+	- primitive type의 값임
+	- 7개의 type이 존재 : `string`, `number`, `bigint`, `boolean`, `symbol`, `null`, `undefined`
+- An object
+	- 여러 개의 값을 property로 저장할 수 있음
+	- `{}`로 생성할 수 있고 JS에는 함수와 같은 여러 종류의 object가 있음
+	- 함수도 property로 저장(method)할 수 있음
+	- primitive보다 자원을 많이 소모함
+
+### A primitive as an object
+primitive를 method와 함께 사용하기 위해 아래와 같은 방법을 사용함:
+- `string`, `number`, `boolean`, `symbol`의 method와 property에 접근하는 것을 허용함
+- 위 접근을 가능하게 하기 위해, *object wrapper*를 제공함(임시적으로 생성, 소멸됨)
+
+object wrapper는 각각의 primitive type에 따라 다르며, primitive의 이름과 같음(`String`, `Number`, `Boolean`, `Symbol`)  
+각각 다른 methods를 제공함
+
+#### Example
+string method `str.toUpperCase()`는 `str`를 capitalize한 것을 반환함:  
+```javascript
+let str = "Hello";
+
+alert( str.toUpperCase() ); // HELLO
+```
+이 method를 호출했을 때 일어나는 일:
+1. `str`은 primitive이기 때문에, property에 접근하는 순간 string의 값과 `toUpperCase()` 등의 method를 가진 객체가 생성됨
+2. method가 실행되고 새로운 string이 반환됨
+3. 객체가 파괴되고 primitive인 `str`만 남음
+
+이렇게 primitive가 method를 제공하면서 가볍게 유지됨  
+JS 엔진은 추가적인 객체를 생성하지 않을 만큼 최적화되어 있지만 명세서에는 그것을 생성하는 것처럼 적혀있음
+
+`number`에는 `toFixed(n)`과 같은 method가 존재함  
+`alert( n.toFixed(2) );` : 소수점 `n`자리까지 남도록 반올림함
+
+> ※ `String/Number/Boolean`을 생성자로는 사용하지 않는 게 좋음  
+> Java와 같은 언어에서는 명시적으로 wrapper object를 생성할 수 있음(`new Number(0)`과 같이)  
+> JS에서도 가능은 하지만 크게 아래의 이유로 추천되지 않음:  
+> - primitive가 아닌 object로 인식되기 때문에 조건문에서 값에 상관없이 참을 반환함
+> 반면 `new`를 사용하지 않고 `String/Number/Boolean`만 쓰는 것은 값을 원하는 type으로 변환하게 도와주기 때문에 유용함  
+> e.g. `let num = Number("123");`
+
+> ※ `null/undefined`는 method가 없음  
+> 위 type들은 wrapper object가 없음  
+> `alert(null.test);`와 같이 proeprty에 접근하려 하면 에러가 발생함
+
+### Summary
+- primitive를 다룰 때 유용한 기능들이 각각의 primitive 안에 있음
+	- method로 구현된 기능을 호출하면 임시적으로 object wrapper라는 객체가 생성되고, method가 실행된 뒤 파괴됨
+
+### Tasks
+#### primitive가 method를 호출하면 객체로 처리되는데, property를 추가할 수 있을까?  
+```javascript
+let str = "Hello";
+
+str.test = 5;
+
+alert(str.test);
+```
+- strict mode의 사용 여부에 따라 결과가 다름
+	- strict mode를 사용하지 않으면 `undefined`가 출력됨
+	- strict mode를 사용하면 error가 발생함
+
+- property에 접근할 때 wrapper object가 생성은 됨!
+	- strict mode에서는 값을 수정할 수 없음
+	- strict mode가 아닐 경우, 객체가 `test` property를 가지지만, 그 statement가 끝난 후 사라짐!  
+		따라서 마지막 줄에서 `str`은 `test`라는 property를 찾을 수 없음!
+	
+	primitive와 object의 차이점 중 하나임:  
+	primitive는 추가적인 데이터를 저장할 수 없음!!
+
+## Numbers
+최신의 JS에는 두 가지 타입의 숫자가 존재함:
+1. 일반적인 숫자는 64-bit format IEEE-764(double precision floating point number)으로 저장됨
+2. 임의의 길이의 숫자를 표현하기 위해서 BigInt가 사용됨  
+	일반적인 숫자는 `[-2^53, 2^53]`의 수만 표현 가능하기 때문
+
+이 article에서는 일반적인 숫자에 대해 다룰 예정
+
+### More ways to write a number
+underscore `_`를 숫자 사이에 구분자로 넣을 수 있음:  
+```javascript
+let billion = 1_000_000_000;
+```
+- 숫자의 가독성을 높여줌
+- JS 엔진은 숫자 자리수 사이에 사용된 `_`는 무시함
+
+`"e"`를 지수승 표기로 사용할 수 있음:
+```javascript
+let billion = 1e-6;  // 0.000001
+
+alert( 7.3e9 );  // 7300000000
+```
+
+#### Hex, binary and octal numbers
+`0x`, `0b`, `0o` for hex, binary, octal numbers  
+case doesn't matter  
+for other numeral systems, we should use the function `parseInt`
+
+### toString(base)
+`num.toString(base)`를 사용하면 숫자를 `base`진법으로 변환한 결과를 string으로 반환함  
+```javascript
+let num = 255;
+
+alert( num.toString(16) );  // ff
+alert( 123456..toString(36) ); // 2n9c
+```
+- `base`는 `[2, 36]` 내의 숫자만 가능
+- 마지막 줄의 `..`은 method를 호출하기 위해 사용한 것임  
+	점을 하나만 쓰면 소수점이라 인식하기 때문에 method를 바로 호출하려면 `..`을 사용해야 함  
+	`(1234).toString(36)`과 같이 괄호로 묶어도 됨
+
+### Rounding
+- `Math.floor` : rounds down
+- `Math.ceil` : rounds up
+- `Math.round` : rounds to the nearest integer
+- `Math.trunc` : removes anything afer the decimal point
+
+위 함수들의 계산 결과는 모두 integer임  
+소수점 이하 n자리까지 나오게 계산하고 싶다면?
+1. 수학적 조작(2자리까지 나오게 하고싶다면 100을 곱한 값을 함수에 넣음)
+2. `toFixed(n)` 사용(자동으로 반올림됨)
+	- 결과는 `string`이기 때문에 unary plus로 변환해줘야 함
+
+### Imprecise calculations
+64비트 IEEE-754에서 52비트는 가수(fraction), 11비트는 지수(exponent), 1비트가 부호로 사용됨
+- 숫자가 너무 크면 `Infinity`로 바뀜
+- 정밀도 손실이 일어남(`0.1 + 0.2 == 0.3`은 `false`임)  
+	(+ `alert( 9999999999999999 ); // shows 10000000000000000`)  
+	부동 소수점으로 저장하기 때문  
+	해결 방법:
+	1. 소수들을 계산할 동안만 정수로 바꿔서 계산
+		- 값이 크지 않을 때 사용해야 함
+		- 다시 소수점을 돌려놓는 과정에서 에러가 발생하기 때문에 오차를 줄이는 정도임
+	2. `toFixed(n)`을 사용해서 오차를 표현하지 않으면 됨  
+		e.g. `alert( sum.toFixed(2) );`
+
+> ※ 부동소수점 덕분에 두 개의 0이 존재함(`0`, `-0`)
+
+### Tests: isFinite and isNaN
+`isNaN(value)`는 `value`가 `NaN`이면 `ture`를 리턴함:  
+```javascript
+alert( isNaN(NaN) ); // true
+alert( isNaN("str") ); // true
+
+alert( NaN === NaN ); // false
+```
+- 마지막 줄처럼, `NaN`은 자신을 포함해서 모든 것들과 같지 않기 때문에 `isNaN()` 함수가 필요함
+
+`isFinite(value)`는 `value`를 숫자로 변환하고 일반적인 숫자면 `true`, `NaN/Infinity/-Infinity`면 `false`를 반환함:  
+```javascript
+alert( isFinite("15") ); // true
+alert( isFinite("str") ); // false, because a special value: NaN
+alert( isFinite(Infinity) ); // false, because a special value: Infinity
+```
+- 빈 문자열이나 공백은 `0`으로 취급되기 때문에 `true`를 반환함
+
+> ※ `Object.is`는 `===`와 비슷한 기능의 내장 메소드지만, 아래 두 가지 edge case에서 더 신뢰할만한 결과를 반환함:
+> 1. `Object.is(NaN, NaN) === true`
+> 2. `Object.is(0, -0) === false`
+> 
+> 위와 같은 비교 방식은 specification에서 SameValue라고 불림
+
+### parseInt and parseFloat
+인자의 시작부터 변환 가능한 문자까지만 변환해서 리턴, 변환할 수 없다면 `NaN` 리턴:  
+```javascript
+alert( parseInt('100px') ); // 100
+alert( parseFloat('12.5em') ); // 12.5
+
+alert( parseInt('12.3') ); // 12, only the integer part is returned
+alert( parseFloat('12.3.4') ); // 12.3, the second point stops the reading
+
+alert( parseInt('a123') ); // NaN, the first symbol stops the process
+```
+- `parseInt(str, radix)`로도 사용 가능, `radix` 진법으로 `str`를 읽고 숫자로 변환함  
+	e.g. `alert( parseInt('2n9c', 36) ); // 123456`
+
+### Other math functions
+- `Math.random()` : returns a random number in `[0, 1)`
+- `Math.max(a, b, c...)` / `Math.min(a, b, c...)` : returns the max / min
+- `Math.pow(n, power)` : returns `n^pow`
+
+### Summary
+
+|code|description|
+|:---|:---|
+|num.toString(base)|`num`을 `base`진법의 문자열으로 변환|
+|Math.floor()<br>Math.ceil()<br>Math.round()<br>Math.trunc()|소수점 처리|
+|num.toFixed(n)|소수점 이하 `n`자리까지 남도록 반올림|
+|isNaN(val)|`val`이 `NaN`인지 판별|
+|isFinite(val)|`val`이 finite한 수인지 판별|
+|Object.is(v1, v2)|`v1`, `v2`가 SameValue인지 판별|
+|parseInt(str, [radix])|`str`을 `radix` 진법으로 파싱함|
+|parseFloat(str)|`str`을 소수점까지 파싱함|
+|Math.random()|`[0, 1)` 범위의 임의의 수 반환|
+|Math.max(a, b, c...)<br>Math.min(a, b, c...)|max, min 반환|
+|Math.pow(n, pow)|`n^pow` 반환|
+
+- SameValue는 `===`과 비슷하지만, `(NaN, NaN)`은 같고, `(0, -0)`은 다름
