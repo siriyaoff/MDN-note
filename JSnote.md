@@ -493,7 +493,7 @@ typeof alert // "function"
 
 ### prompt
 ```javascript
-result=promprt(title, [default]);
+result=promprt(title [,default]);
 ```
 와 같이 사용됨  
 input field, OK, Cancel 두 버튼이 있는 modal window를 띄움  
@@ -1913,7 +1913,7 @@ properties를 constant로 만들기 위해선 Property flags를 사용해야 함
 
 |code|description|
 |:---|:---|
-|`Object.assign(dest, [src1, src2...]);`|object cloning(shallow copy)|
+|`Object.assign(dest [,src1, src2...]);`|object cloning(shallow copy)|
 
 - `object`는 호출될 때 항상 call by reference로 처리됨
 - deep copy는 lodash의 `_.cloneDeep(obj)` 이용
@@ -2901,7 +2901,7 @@ alert( isFinite("15") ); // true
 alert( isFinite("str") ); // false, because a special value: NaN
 alert( isFinite(Infinity) ); // false, because a special value: Infinity
 ```
-- 빈 문자열이나 공백은 `0`으로 취급되기 때문에 `true`를 반환함
+- 빈 문자열이나 공백, `null`은 `0`으로 취급되기 때문에 `true`를 반환함
 
 > ※ `Object.is`는 `===`와 비슷한 기능의 내장 메소드지만, 아래 두 가지 edge case에서 더 신뢰할만한 결과를 반환함:
 > 1. `Object.is(NaN, NaN) === true`
@@ -2938,10 +2938,254 @@ alert( parseInt('a123') ); // NaN, the first symbol stops the process
 |isNaN(val)|`val`이 `NaN`인지 판별|
 |isFinite(val)|`val`이 finite한 수인지 판별|
 |Object.is(v1, v2)|`v1`, `v2`가 SameValue인지 판별|
-|parseInt(str, [radix])|`str`을 `radix` 진법으로 파싱함|
+|parseInt(str [,radix])|`str`을 `radix` 진법으로 파싱함|
 |parseFloat(str)|`str`을 소수점까지 파싱함|
 |Math.random()|`[0, 1)` 범위의 임의의 수 반환|
 |Math.max(a, b, c...)<br>Math.min(a, b, c...)|max, min 반환|
 |Math.pow(n, pow)|`n^pow` 반환|
 
 - SameValue는 `===`과 비슷하지만, `(NaN, NaN)`은 같고, `(0, -0)`은 다름
+
+### Tasks
+- `num.toFixed(n)`는 소수점 이하 `n`까지 나오도록 실제 값을 반올림하기 때문에 오차가 발생 가능함  
+	```javascript
+	alert( 6.35.toFixed(1) ); // 6.3
+	alert( 6.35.toFixed(20) ); // 6.34999999999999964473
+	
+	alert( Math.round(6.35 * 10) / 10); // 6.35 -> 63.5 -> 64(rounded) -> 6.4
+	```
+	따라서 `n` 번째 자리까지 구하기 위해선 마지막 줄같이 소수점 이하 `n` 번째 자리를 소수점 이하 1 번째 자리로 만든 후 `Math.round()`를 사용하는게 좋음
+- `prompt`에서 취소를 누르면 `null`이 입력되는 것에 유의!!!
+
+## Strings
+`string`의 포맷은 항상 **UTF-16**임!(page encoding과는 연관이 없음)
+
+### Quotes
+quotes 중 backtick(`` ` ` ``)은 안에 변수를 포함(`${}`)하거나 줄바꿈을 할 수 있음  
+추가로 backtick을 이용하면 template function을 사용할 수 있음:
+- ``func`string` ``으로 사용
+- string과 내장된 식을 받아서 처리할 수 있음([tagged template](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates)이라고도 불림)
+- 자동완성같은 기능으로, 실무에서는 잘 사용하지 않는 듯
+
+### Special characters
+
+|Character|Description|
+|:---|:---|
+|`\n`|New line|
+|`\r`|Carriage return<br>window에서는 line break가 `\r\n`으로 표현됨|
+|`\'`, `\"`|Quotes|
+|`\\`|Backslash|
+|`\t`|Tab|
+|`\b`, `\f`, `\v`|Backspace, Form feed, Vertical tab<br>호환성을 위해서 유지되지만, 현재는 사용되지 않음|
+|`\xXX`|Unicode character with the given hexadecimal Unicode `XX`<br>e.g. `\x7A` = `'z'`|
+|`\uXXXX`|Unicode symbol with the hex code `XXXX` in UTF-16 encoding|
+|`\u{X...XXXXXX}`<br>(1 to 6 hex characters)|Unicode symbol with the given UTF-32 encoding|
+
+- escape character `\`를 이용해서 특수문자를 표현
+
+### String length
+`length` property를 사용해서 구함:  
+```javascript
+alert( `My\n`.length ); // 3
+```
+
+### Accessing characters
+1. square brackets `[]`
+	- `str[0]`
+	- 해당하는 문자가 없으면 `undefined` 리턴
+2. `str.charAt(pos)`
+	- `str.charAt(pos)`
+	- 해당하는 문자가 없으면 empty string `''` 리턴
+3. iterating
+	- `for (let char of "Hello")`
+
+### Strings are immutable
+`string`의 일부를 수정할 수는 없음  
+`string` 전체를 바꿀 수는 있음:  
+```javascript
+let str = 'Hi';
+str[0] = 'h'; // doesn't work
+alert( str[0] ); // H
+
+str = 'h' + str[1]; // replace the string
+alert( str ); // hi
+```
+
+### Changing the case
+`toLowerCase()`, `toUpperCase()` method를 사용:  
+```javascript
+alert( 'Interface'.toUpperCase() ); // INTERFACE
+alert( 'Interface'.toLowerCase() ); // interface
+alert( 'Interface'[0].toLowerCase() ); // 'i'
+```
+- 한 문자에 대해서도 사용 가능
+
+### Searching for a substring
+#### str.indexOf
+`str.indexOf(substr [,pos])` : `substr`을 `str`의 `pos` 번째 문자부터 찾아나감  
+일치하는 부분이 있을 경우 시작하는 위치를 리턴, 없을 경우 `-1` 리턴:  
+```javascript
+let str = 'Widget with id';
+
+alert( str.indexOf('Widget') ); // 0
+alert( str.indexOf('widget') ); // -1
+alert( str.indexOf('id', 2) ) // 12
+```
+- 대소문자 구별함
+- `str.lastIndexOf(substr [,pos])`도 있음
+	- `str`의 마지막부터 `substr`을 찾아나감
+
+#### The bitwise NOT trick
+JS에서 bitwise NOT `~`는 숫자를 32-bit 정수로 변환한 다음 NOT 연산을 실행함  
+`~n`이 `-(n+1)`과 같다는 점을 이용해서 `indexOf`로 부분문자열을 찾지 못했을 때 조건을 간단히 할 수 있음  
+=> `if (~str.indexOf("Widget"))`
+
+큰 숫자는 잘리고, `~(2^31-1)`도 `0`이기 때문에 긴 문자열에 대해서는 사용할 수 없음  
+최신의 JS에서는 `.includes` method를 이용함
+
+#### includes, startsWith, endsWith
+`str.includes(substr [,pos])`는 `str`에 `substr`이 들어있는지 판별함  
+=> `true/false` 리턴
+
+`str.startsWith(substr)`, `str.endsWith(substr)`는 `str`이 `substr`로 시작하거나, 끝나는지 판별함  
+=> `true/false` 리턴
+
+```javascript
+alert( "Widget".startsWith("Wid") ); // true
+alert( "Widget".endsWith("get") ); // true
+```
+
+### Getting a substring
+1. `str.slice(start [,end])`
+	- `str`의 `[start, end)` 부분문자열을 반환  
+		`end`가 없을 경우 `start`부터 끝까지 포함한 부분문자열을 반환
+	- `start`, `end`에 음수도 넣을 수 있음
+2. `str.substring(start [,end])`
+	- `str`의 `start`와 `end` 사이를 포함한 부분문자열을 반환  
+		`slice`와 비슷하지만, `start`가 `end`보다 클 수 있음:  
+		```javascript
+		let str = "stringify";
+
+		// these are same for substring
+		alert( str.substring(2, 6) ); // "ring"
+		alert( str.substring(6, 2) ); // "ring"
+
+		// ...but not for slice:
+		alert( str.slice(2, 6) ); // "ring" (the same)
+		alert( str.slice(6, 2) ); // "" (an empty string)
+		```
+	- Negative arguments가 허용되지 않음
+3. `str.substr(start [,length])`
+	- `str`의 `start`부터 시작하는, 길이가 `length`인 부분문자열을 반환
+	- `start`는 음수를 넣을 수 있음
+
+> ※ `substr`은 JS specification에 나와있지 않아서 non-browser 환경에서는 지원하지 않을 수도 있음  
+> 웬만하면 다 지원됨  
+> `slice`는 음수도 인자로 넣을 수 있기 때문에 `substr`보다 유연함  
+> 사실상 `slice`만 기억해도 충분함
+
+### Comparing strings
+문자끼리는 알파벳 순서로 비교 가능함  
+ASCII를 이용하지 않고 UTF-16을 이용!
+
+`str.codePointAt(pos)` : `str`의 `pos` 번째 문자의 코드 반환  
+`String.fromCodePoint(code)` : `code`에 해당하는 문자 반환
+
+#### Example
+```javascript
+alert( "z".codePointAt(0) ); // 122
+alert( "Z".codePointAt(0) ); // 90
+
+alert( String.fromCodePoint(90) ); // Z
+alert( '\u005a' ); // Z(0x005a == 90)
+```
+- `\u` prefix를 사용해서 UTF-16 코드를 직접 입력할 수 있음
+
+#### Correct comparisons
+다른 언어들끼리 비교하기 위해서 ECMA-402 안의 `str.localeCompare(str2)` 함수를 사용하면 됨
+- `str`이 `str2`보다 작으면 음수 리턴
+- `str`이 `str2`보다 크면 양수 리턴
+- 둘이 같으면 `0` 리턴
+
+> ※ default로 diacritical marks(Ö와 같은 발음 구별 부호)가 알파벳(O와 같이)과 동일하게 처리됨
+
+> ※ IE10 이하는 Intl.js라는 라이브러리가 필요함
+
+### Internals, Unicode
+#### Surrogate pairs
+자주 사용되는 문자들은 2-byte code에 저장되지만, 잘 쓰이지 않는 문자들은 추가적으로 2바이트를 더해 surrogate pair로 인코딩됨:  
+```javascript
+alert( '𝒳'.length ); // 2, MATHEMATICAL SCRIPT CAPITAL X
+alert( '😂'.length ); // 2, FACE WITH TEARS OF JOY
+alert( '𩷶'.length ); // 2, a rare Chinese hieroglyph
+```
+
+`String.fromCodePoint`와 `str.codePointAt`은 surrogate pairs를 넣어도 정상적으로 작동함  
+이 함수들이 개발되기 이전의 함수들인 `String.fromCharCode`와 `str.charCodeAt`은 surrogate pairs를 넣으면 제대로 작동하지 않음
+
+```javascript
+alert( '𝒳'[0] ); // strange symbols...
+alert( '𝒳'[1] ); // ...pieces of the surrogate pair
+
+alert( '𝒳'.charCodeAt(0).toString(16) ); // d835, between 0xd800 and 0xdbff
+alert( '𝒳'.charCodeAt(1).toString(16) ); // dcb3, between 0xdc00 and 0xdfff
+
+alert('𝒳'.codePointAt(0).toString(16)); // 1d4b3
+alert('𝒳'.codePointAt(1).toString(16)); // dcb3 (*)
+
+alert(String.fromCodePoint(0x1d4b3)); // 𝒳
+
+alert('\u{1d4b3}'); // 𝒳
+```
+- 이전의 함수들은 surrogate pair를 분리해서 처리해줘야 함  
+	surrogate pair의 첫 번째 문자는 `[0xd800, 0xdbff]` 사이의 코드,  
+	두 번째는 `[0xdc00, 0xdfff]` 사이의 코드를 가짐
+- 최신의 두 함수(`String.fromCodePoint`, `str.codePointAt`)은 surrogate pair도 정상적으로 한 문자처럼 처리함  
+	하지만 `(*)`와 같이 두 번째 문자에 접근은 가능하고, surrogate pair는 두 개의 인덱스를 가지는 건 같음!
+
+#### Diacritical marks and normalization
+발음 구별 기호 중 자주 사용되는 것은 UTF-16에 등록되어 있지만, 나머지도 표현하기 위해서 문자를 조합 가능함:  
+```javascript
+alert( 'S\u0307' ); // Ṡ
+alert( 'S\u0307\u0323' ); // Ṩ
+```
+- `\u0307`이 위에 점, `\u0323`이 아래 점임
+
+두 코드의 순서를 바꾸면, 보기에는 똑같지만 `==`를 사용해서 비교할 경우 `false`를 반환함  
+이것을 해결하기 위해 Unicode normalization을 사용함  
+`str.normalize()`로 구현되어 있음:  
+```javascript
+alert( "S\u0307\u0323".normalize() == "S\u0323\u0307".normalize() ); // true
+alert( "S\u0307\u0323".normalize().length ); // 1
+
+alert( "S\u0307\u0323".normalize() == "\u1e68" ); // true
+```
+- `str.normalize()`를 사용하면 보기에 똑같은 문자들을 모두 같게 만들어 준다는 것을 알 수 있음
+- normalization을 거친 문자는 code 상으로 여러 개가 합쳐졌어도 길이가 `1`이라는 것에 유의!
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`str.length`|`str`의 길이 리턴|
+|`str[n]`|`str`의 `n` 번째 문자(없으면 `undefined`) 리턴|
+|`str.charAt(pos)`|`str`의 `pos` 번째 문자(없으면 `''`) 리턴|
+|`for...of`|iterating할 때 사용|
+|`str.toUpperCase()`<br>`str.toLowerCase()`|`str`을 대/소문자화|
+|`str.indexOf(substr [,pos])`|`str`의 `pos` 번째 문자부터 오른쪽으로 `substr`을 찾고 첫 번째 위치(없으면 `-1`) 리턴|
+|`str.lastIndexOf(substr [,pos])`|`str`의 `pos` 번째 문자부터 왼쪽으로 `substr`을 찾고 첫 번째 위치(없으면 `-1`) 리턴|
+|`str.includes(substr [,pos])`|`str`에 `substr`이 있는지 판별<br>`true/false` 리턴|
+|`str.startsWith(substr)`<br>`str.endsWith(substr)`|`str`이 `substr`로 시작/끝나는지 판별<br>`true/false` 리턴|
+|`str.slice(start [,end])`|`str`의 `[start, end)`(`end` 없으면 끝까지) 반환<br>`start`, `end`는 음수가 허용됨|
+|`str.substring(start [,end])`|`start`와 `end` 사이의 부분문자열 반환<br>`start`가 `end`보다 클 수 있지만, 음수가 허용되지 않음|
+|`str.substr(start [,length])`|`str`에서 `start`부터 시작하고 길이가 `length`인 부분문자열 반환<br>`start`는 음수가 허용됨|
+|`str.codePointAt(pos)`|`str`의 `pos`번째 문자의 코드 반환|
+|`String.fromCodePoint(code)`|`code`에 해당하는 문자 반환|
+|`str.localeCompare(str2)`|`str`과 `str2`를 비교, (`<`, `>`, `==`) 각각의 경우에 (음수, 양수, 0) 리턴|
+|str.normalize()|`str`을 Unicode normalization 처리함|
+
+- `str.toUpperCase()`, `str.toLowerCase()`는 문자 하나에도 사용 가능
+- 문자열을 비교할 때 기본적으로 발음 구별 기호들은 알파벳으로 취급됨
+
+### Tasks
+- `Number(str)` 보다 `+str`가 편리함

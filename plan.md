@@ -34,6 +34,7 @@ Part > topic(#) > article(##)
 ## tasks
 1751 질문 알게되면 정리
 2787 인용 안에 리스트 잘 되는지
+3077 인덴팅
 
 ## 블로그 업로드하고 체크
 
@@ -45,7 +46,7 @@ Part > topic(#) > article(##)
 // ?? Ex=> #### Ex
 
 Data types
-12
+9
 11
 2
 4
