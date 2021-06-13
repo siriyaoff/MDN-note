@@ -3176,16 +3176,557 @@ alert( "S\u0307\u0323".normalize() == "\u1e68" ); // true
 |`str.lastIndexOf(substr [,pos])`|`str`의 `pos` 번째 문자부터 왼쪽으로 `substr`을 찾고 첫 번째 위치(없으면 `-1`) 리턴|
 |`str.includes(substr [,pos])`|`str`에 `substr`이 있는지 판별<br>`true/false` 리턴|
 |`str.startsWith(substr)`<br>`str.endsWith(substr)`|`str`이 `substr`로 시작/끝나는지 판별<br>`true/false` 리턴|
-|`str.slice(start [,end])`|`str`의 `[start, end)`(`end` 없으면 끝까지) 반환<br>`start`, `end`는 음수가 허용됨|
-|`str.substring(start [,end])`|`start`와 `end` 사이의 부분문자열 반환<br>`start`가 `end`보다 클 수 있지만, 음수가 허용되지 않음|
-|`str.substr(start [,length])`|`str`에서 `start`부터 시작하고 길이가 `length`인 부분문자열 반환<br>`start`는 음수가 허용됨|
-|`str.codePointAt(pos)`|`str`의 `pos`번째 문자의 코드 반환|
-|`String.fromCodePoint(code)`|`code`에 해당하는 문자 반환|
+|`str.slice(start [,end])`|`str`의 `[start, end)`(`end` 없으면 끝까지) 리턴<br>`start`, `end`는 음수가 허용됨|
+|`str.substring(start [,end])`|`start`와 `end` 사이의 부분문자열 리턴<br>`start`가 `end`보다 클 수 있지만, 음수가 허용되지 않음|
+|`str.substr(start [,length])`|`str`에서 `start`부터 시작하고 길이가 `length`인 부분문자열 리턴<br>`start`는 음수가 허용됨|
+|`str.codePointAt(pos)`|`str`의 `pos`번째 문자의 코드 리턴|
+|`String.fromCodePoint(code)`|`code`에 해당하는 문자 리턴|
 |`str.localeCompare(str2)`|`str`과 `str2`를 비교, (`<`, `>`, `==`) 각각의 경우에 (음수, 양수, 0) 리턴|
-|str.normalize()|`str`을 Unicode normalization 처리함|
+|`str.normalize()`|`str`을 Unicode normalization 처리함|
+|`str.trim()`|`str`을 trim한 결과 리턴|
+|`str.repeat(n)`|`str`을 `n`번 반복한 결과 리턴|
 
 - `str.toUpperCase()`, `str.toLowerCase()`는 문자 하나에도 사용 가능
 - 문자열을 비교할 때 기본적으로 발음 구별 기호들은 알파벳으로 취급됨
 
 ### Tasks
 - `Number(str)` 보다 `+str`가 편리함
+
+## Arrays
+### Declaration
+```javascript
+let arr = new Array();
+let arr = [];
+
+let fruits = ["Apple", "Orange", "Plum"];
+fruits[3] = 'Lemon';
+alert( fruits.length ); // 4
+alert( fruits ); // Apple,Orange,Plum,Lemon
+
+let arr = [ 'Apple', { name: 'John' }, true, function() { alert('hello'); } ];
+```
+- 대부분 두 번째 방법 이용
+- `append`같은 method 없이 원소를 바로 추가 가능
+- `arr.length`로 길이 반환
+- 배열 자체를 출력할 수도 있음(csv같이 나옴)
+- pyhton의 list처럼 자료형에 제한이 없음
+- object literal처럼 trailing comma를 사용할 수 있음
+
+### Methods pop/push, shift/unshift
+JS의 array는 아래 4가지 method를 사용해서 queue나 stack으로 활용 가능함:
+- `pop`
+	- array의 마지막 원소를 빼서 반환
+	- `array.pop();`
+- `push`
+	- array의 마지막에 원소를 추가, 전체 길이 반환
+	- `array.push(elem [,elem2...]);`
+- `shift`
+	- array의 첫 번째 원소를 빼서 반환
+	- `array.shift();`
+- `unshift`
+	- array의 맨 처음에 원소를 추가, 전체 길이 반환
+	- `array.unshift(elem [,elem2...]);`
+
+### Internals
+array도 근본적으로는 object이기 때문에, **reference로 복사됨**  
+JS에서도 배열이 순서가 있는 데이터를 처리하는데 최적화가 되어있음  
+하지만 배열을 아래 예시처럼 일반적인 객체로 사용하면 소용이 없어짐:  
+```javascript
+let fruits = []; // make an array
+
+fruits[99999] = 5; // assign a property with the index far greater than its length
+
+fruits.age = 25; // create a property with an arbitrary name
+```
+- array를 잘 못 사용하는 경우:
+	- non-numeric property를 추가
+	- 인덱스를 불연속적이게 정의
+	- 배열을 역순으로 채움
+
+### Performance
+`push`, `pop`은 `O(1)`이지만, `unshift`, `shift`는 `O(n)`임!
+
+### Loops
+기본 `for`문, `for...of`, `for...in` 세 가지 방법으로 반복문을 돌릴 수 있음:
+- `for...in`과 `for...of`를 사용하면 index는 알 수 없음
+- `for...in`은 numeric이 아닌 property와 method에도 접근함  
+	`for...in`은 일반적인 객체와 사용하는 것에 최적화되어있기 때문에 10-100배 정도 느림  
+	=> array-like object와 사용하지 않는게 좋음
+
+### A word about "length"
+`length`는 배열 안에 값의 개수를 세는 것이 아닌, *가장 큰 인덱스* + 1로 계산됨:  
+```javascript
+let fruits = [];
+fruits[123] = "Apple";
+
+alert( fruits.length ); // 124
+```
+- 이런 식으로 쓰면 안됨!
+
+`length`는 수정이 가능함:  
+```javascript
+let arr = [1, 2, 3, 4, 5];
+
+arr.length = 2; // truncate to 2 elements
+alert( arr ); // [1, 2]
+
+arr.length = 5; // return length back
+alert( arr[3] ); // undefined: the values do not return
+```
+- 배열에 들어있는 원소의 개수보다 작게 만들면 뒤쪽의 원소들은 없어짐  
+	다시 길이를 늘려도 복구되지 않음  
+	따라서 `arr.length = 0;`으로 간단하게 배열을 초기화할 수 있음
+
+### new Array()
+```javascript
+let arr = new Array("Apple", "Pear", "etc");
+
+let arr = new Array(2); // (*)
+alert( arr[0] ); // undefined! no elements.
+```
+- `(*)`와 같이 선언하면 `vector<int> vi(2);`와 같이 원소가 선언되지만 안에 값이 없음
+
+### Multidimensional arrays
+```javascript
+let matrix = [
+  [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9]
+];
+
+alert( matrix[1][1] ); // 5, the central element
+```
+
+### toString
+array에는 `toString`만 존재(`Symbol.toPrimitive`, `valueOf`는 구현되어있지 않음):  
+```javascript
+let arr = [1, 2, 3];
+
+alert( arr ); // 1,2,3
+alert( String(arr) === '1,2,3' ); // true
+
+alert( [] + 1 ); // "1"
+alert( [1] + 1 ); // "11"
+alert( [1,2] + 1 ); // "1,21"
+```
+- 배열은 csv처럼 변환됨
+- `[]`와 같은 비어있는 배열은 `""`로 변환됨
+
+### Don't compare arrays with `==`
+`==`은 array를 위한 처리가 구현되어있지 않아서 다른 객체들처럼 처리됨:  
+```javascript
+alert( [] == [] ); // false, (1)
+alert( [0] == [0] ); // false, (2)
+
+alert( 0 == [] ); // true, (3)
+alert('0' == [] ); // false, (4)
+```
+- `(1), (2)`는 operand가 양쪽 다 객체이기 때문에 객체끼리 비교
+- `(3), (4)`는 `[]`가 내장 `toString`에 의해 `''`로 변환된 다음 알맞은 type으로 다시 변환됨  
+	`(3)`에서는 숫자로 변환되는데 `''`가 `0`으로 변환되기 때문에 `ture`  
+	`(4)`에서는 `'0'`과 `''`를 비교하기 때문에 `false`
+
+> ※ `===`는 type이 다르면 바로 `false`, 같으면 `==`와 동일하게 비교!!
+
+배열을 비교하기 위해선 원소를 하나하나 비교하거나 iteration methods를 사용해야 함
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`arr.length`|`arr`의 길이 반환|
+|`arr.push(val [, val2...])`<br>`arr.pop()`|`arr`의 뒤쪽에 원소 삽입/삭제|
+|`arr.unshift(val [, val2...])`<br>`arr.shift()`|`arr`의 앞쪽에 원소 삽입/삭제|
+
+- `unshift`, `shift`는 `O(n)`임
+- 웬만하면 `for...of` 사용해서 탐색
+- `arr.length=0;`으로 간단하게 초기화 가능
+
+### Tasks
+- `ar=ar+ar2;`를 실행하면 `ar`들이 `string`으로 변환된 후 합쳐져 `ar`의 type이 `string`으로 바뀜!!  
+	`ar[0]`을 출력하면 첫 번째 원소가 아니라 첫 번째 문자가 출력됨
+- `ar.push(ar2);`를 실행하면 `ar2`가 `ar`의 원소로 들어감  
+	=> 둘 다 길이가 2였다면 실행한 후 `ar`의 길이는 4가 아니라 3이 됨
+- method도 배열의 원소로 들어갈 수 있음:  
+	```javascript
+	let arr = ["a", "b"];
+
+	arr.push(function() {
+	  alert( this );
+	})
+
+	arr[2](); // a,b,function(){...}
+	```
+	- `arr[2]`에는 함수 자체가 들어가 있기 때문에 호출하면 `arr`이 리턴됨
+
+## Array methods
+### Add/remove items
+`push/pop/unshift/shift` 이외에도 아래 method들이 있음
+
+#### splice
+array도 객체이므로 `delete`를 사용해서 property를 지울 수 있긴 하지만 index는 그대로 남음:  
+```javascript
+let arr = ["I", "go", "home"];
+
+delete arr[2]; // remove "go"
+
+alert( arr[2] ); // undefined
+
+// now arr = ["I",  , "home"];
+alert( arr.length ); // 3
+```
+- `delete obj.key`는 `key`에 해당하는 값을 지우는 것이기 때문에 index가 줄어들지는 않음
+
+`arr.splice`을 사용하면 됨  
+```javascript
+arr.splice(start [,deleteCount, elem1, ..., elemN]);
+```
+- `arr`의 `start` 번째부터 `deleteCount`만큼 지운 다음 `elem1, ..., elemN`을 삽입하고,  
+	지운 원소들의 배열을 반환함
+
+#### Example
+```javascript
+let arr = ["I", "study", "JavaScript", "right", "now"];
+
+// remove 3 first elements and replace them with another
+arr.splice(0, 3, "Let's", "dance");
+alert( arr ) // now ["Let's", "dance", "right", "now"]
+
+let removed = arr.splice(0, 2);
+alert( removed ); // "Let's", "dance"
+```
+- `deleteCount`에 `0`을 넣어서 삽입만 할 수 있음
+- `start`는 음수가 허용됨
+
+#### slice
+```javascript
+arr.slice([start [,end]]);
+```
+- `string`의 method함수 `str.slice(start [,end])`와 같은 기능임
+- 인자 없이 `arr.slice()`를 실행하면 `arr`을 복사할 수 있음
+- `arr`이 수정되는게 아니라 새로운 배열이 반환됨
+
+#### concat
+```javascript
+arr.concat(arg1, arg2...);
+```
+- `arr`의 원소 + `arg...`로 이루어진 배열이 반환됨  
+	**`arr`에 원소가 추가되지 않음!!**  
+	`arr`에 추가하기 위해선 `arr = arr.concat(arg);`와 같이 사용해야 함
+- `arg`로 array, value 둘 다 들어갈 수 있음
+- 순서대로 추가됨
+- `arg`가 array면 원소들이 반환되는 배열에 추가됨  
+	array 이외의 type이면 `arg` 자체가 복사(shallow copy)되어 추가됨  
+	
+	e.g.  
+	```javascript
+	let arr = [1, 2];
+
+	let arrayLike = {
+	  0: "something",
+	  length: 1
+	};
+
+	alert( arr = arr.concat(arrayLike) ); // 1,2,[object Object]
+	alert( arr.length); // 3
+	arr[2][0] = 'other';
+	alert( arrayLike[0] ); // other
+	
+	arr.length = 2;
+	
+	let stra="asdf";
+	alert( arr = arr.concat(stra) ); // 1,2,asdf
+	arr[2]="iiii";
+	alert(arr[2]); // iiii
+	alert(stra); // asdf
+	```
+	- `.`으로 호출하기 위해선 valid variable identifier이어야 함(공백 없음, 숫자로 시작 x, 특수문자 x)
+	- numeric property와 length만 있다해도 `new Array()`나 `[]`으로 선언하지 않으면 array-like object가 됨
+	
+	array-like object는 array처럼 원소가 추가되도록 만들 수 있음  
+	=> `Symbol.isConcatSpreadable` property를 `true`로 설정하면 됨!  
+	```javascript
+	let arrayLike = {
+	  0: "something",
+	  1: "else",
+	  [Symbol.isConcatSpreadable]: true,
+	  length: 2
+	};
+
+	alert( [].concat(arrayLike) ); // something,else
+	```
+
+### Iterate: forEach
+```javascript
+arr.forEach(function(item, index, array) { ... });
+```
+- `item`, `index`, `array`는 필요하면 함수의 parameter로 사용 가능
+- parameter name은 `item/index/array`로 고정된게 아니고 순서대로 저렇게 들어가는 듯
+
+#### Example
+```javascript
+// for each element call alert
+["Bilbo", "Gandalf", "Nazgul"].forEach(alert);
+
+["Bilbo", "Gandalf", "Nazgul"].forEach((item, index, array) => {
+  alert(`${item} is at index ${index} in ${array}`);
+});
+```
+- 함수의 result는 무시됨
+
+### Searching in array
+#### indexOf/lastIndexOf and includes
+`string`의 method들과 같음
+
+- `arr.indexOf(item [,from])`
+- `arr.lastIndexOf(item [,from])`
+- `arr.includes(item [,from])`
+
+> ※ 모두 비교할 때 `===`을 사용함  
+> => `false`를 넣으면 falsy value가 아닌 `false`만 찾음
+
+`includes` method는 `indexOf/lastIndexOf`와 다르게 `NaN`을 처리할 수 있음:  
+```javascript
+const arr = [NaN];
+alert( arr.indexOf(NaN) ); // -1 (should be 0, but === equality doesn't work for NaN)
+alert( arr.includes(NaN) );// true (correct)
+```
+- 포함 여부를 확인할 때는 `includes`를 사용하는게 좋음
+
+#### find and findIndex
+```javascript
+let result = arr.find(function(item, index, array) { ... });
+let result = arr.findIndex(function(item, index, array) { ... });
+```
+- argument로 들어가는 함수가 `true`를 반환할 경우 탐색을 멈추고 그 `item/index`을 반환  
+	만족하는 `item/index`가 없을 경우 `undefined/-1` 반환
+
+#### Example
+```javascript
+let users = [
+  {id: 1, name: "John"},
+  {id: 2, name: "Pete"},
+  {id: 3, name: "Mary"}
+];
+
+let user = users.find(item => item.id == 1);
+
+alert(user.name); // John
+```
+
+#### filter
+```javascript
+let results = arr.filter(function(item, index, array) { ... });
+```
+- 함수가 `true`를 반환할 경우 result array에 item을 추가하고 반복을 계속함  
+	반복이 끝난 후 result를 반환(만족하는 item이 없었다면 empty array가 반환됨)
+- `find`와 유사하지만, `find`는 만족하는 item 하나만 찾아주는 반면 `filter`는 만족하는 모든 item을 찾아줌
+
+#### Example
+```javascript
+let users = [
+  {id: 1, name: "John"},
+  {id: 2, name: "Pete"},
+  {id: 3, name: "Mary"}
+];
+
+// returns array of the first two users
+let someUsers = users.filter(item => item.id < 3);
+
+alert(someUsers.length); // 2
+```
+
+### Transform an array
+#### map
+```javascript
+let result = arr.map(function(item, index, array) { ... });
+
+/*-------------example--------------*/
+
+let lengths = ["Bilbo", "Gandalf", "Nazgul"].map(item => item.length);
+alert(lengths); // 5,7,6
+```
+- argument로 들어가는 함수를 사용해서 `arr`의 item을 매핑하고, 그 결과를 반환
+
+#### sort(fn)
+```javascript
+arr.sort([function() { ... }]);
+
+/*-------------example--------------*/
+
+let arr = [ 1, 2, 15 ];
+arr.sort();
+alert( arr );  // 1, 15, 2
+
+function compareNumeric(a, b) {
+  if (a > b) return 1;
+  if (a == b) return 0;
+  if (a < b) return -1;
+}
+
+arr.sort(compareNumeric);
+alert(arr);  // 1, 2, 15
+```
+- `sort`도 정렬된 array를 반환하긴 하지만, `arr` 자체도 바뀌기 때문에 보통 리턴값을 사용하지 않음
+- 인자를 넣지 않으면 `string`을 기준으로 정렬함
+	- 비교함수를 넣어서 정렬 기준을 바꿀 수 있음  
+		비교함수는 `(a, b)`를 비교할 때 `a`가 더 크면 양수, `b`가 더 크면 음수를 리턴하도록 구현하면 됨  
+		=> `arr.sort( (a, b) => a-b )`로 코드를 간결하게 만들 수 있음
+
+> ※ chrome에서는 항상 stable sort로 정렬됨
+
+string을 비교하는 경우 `localeCompare`을 사용하는게 좋음:  
+```javascript
+let countries = ['Österreich', 'Andorra', 'Vietnam'];
+
+alert( countries.sort( (a, b) => a > b ? 1 : -1) );
+// Andorra, Vietnam, Österreich (wrong)
+
+alert( countries.sort( (a, b) => a.localeCompare(b) ) );
+// Andorra,Österreich,Vietnam (correct!)
+```
+
+#### reverse
+```javascript
+arr.reverse();
+
+/*-------------example--------------*/
+
+let arr = [1, 2, 3, 4, 5];
+arr.reverse();
+
+alert( arr ); // 5,4,3,2,1
+```
+- `sort`와 마찬가지로 reversed array를 반환함
+
+#### split and join
+```javascript
+str.split([delim [,limit]]);
+
+/*-------------example--------------*/
+
+let names = 'Bilbo, Gandalf, Nazgul';
+
+let arr = names.split(', '); // ['Bilbo', 'Gandalf', 'Nazgul']
+```
+- `delim`이 생략되면 `str` 전체가 하나의 element로 들어감  
+	`delim`에 문자열이 들어갈 수 있음  
+	`delim`이 `str`의 시작/끝에 나타나면 empty string이 시작/끝에 element로 들어감
+- `limit`이 `0`이면 empty array를 반환  
+	배열의 길이가 `limit`가 되기 전에 `str`의 끝에 다다르면 바로 종료됨  
+	(배열의 길이가 `limit`가 되도록 채우지 않음)
+
+```javascript
+arr.join(glue);
+
+/*-------------example--------------*/
+
+let arr = ['Bilbo', 'Gandalf', 'Nazgul'];
+
+let str = arr.join(';'); // glue the array into a string using ;
+
+alert( str ); // Bilbo;Gandalf;Nazgul
+```
+- `glue`를 넣지 않으면 원소만 이음
+
+#### reduce/reduceRight
+```javascript
+let value = arr.reduce(function(accumulator, item, index, array) { ... }, [initial]);
+let value = arr.reduceRight(function(accumulator, item, index, array) { ... }, [initial]);
+
+/*-------------example--------------*/
+
+let arr = [1, 2, 3, 4, 5];
+let result = arr.reduce((sum, current) => sum + current, 0);
+
+alert(result); // 15
+```
+- array를 기반으로 값을 도출할 때 사용
+- `accumulator` : 이전 호출의 결과(`initial`이 있는 경우 처음에는 `initial`)  
+	반복이 끝난 뒤 `accumulator`가 `reduce`의 결과로 반환됨
+- empty array에서 `initial` 없이 `reduce`를 호출할 경우 에러남!
+
+### Array.isArray
+array도 `object` type에 속하기 때문에 `typeof`로 타입을 알 수 없음  
+=> `Array.isArray(value)`으로 배열인지 판별
+
+### Most methods support "thisArg"
+array method 중 `find`, `filter`, `map`과 같이 함수를 argument로 호출하는 method들은 `thisArg`를 추가적으로 붙일 수 있음:  
+```javascript
+arr.find(func, thisArg);
+arr.filter(func, thisArg);
+arr.map(func, thisArg);
+```
+- `thisArg`는 optional last argument임
+- `thisArg`의 값은 `func`의 `this`가 됨
+
+#### Example
+```javascript
+let army = {
+  minAge: 18,
+  maxAge: 27,
+  canJoin(user) {
+    return user.age >= this.minAge && user.age < this.maxAge;
+  }
+};
+
+let users = [
+  {age: 16},
+  {age: 20},
+  {age: 23},
+  {age: 30}
+];
+
+// find users, for who army.canJoin returns true
+let soldiers = users.filter(army.canJoin, army);
+
+alert(soldiers.length); // 2
+alert(soldiers[0].age); // 20
+alert(soldiers[1].age); // 23
+```
+- `army.canJoin`은 method로 호출된게 아니라 `filter`의 argument로 들어간 것이기 때문에 함수의 구현부(코드)만 인자로 들어간 상태임  
+	=> 실행될 때 `this`가 가리키는 것은 없는 상태이기 때문에 `thisArg`로 `this`를 표시해줘야 함  
+	
+	`users.filter(user => army.canJoin(user));`로 `thisArg` 없이 사용할 수 있음
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`arr.splice(start [,deleteCount, elem1, ..., elemN])`|`arr`의 `start` 번째부터 `deleteCount`만큼 지운 다음 `elem1, ..., elemN`을 삽입하고, 지운 원소들의 배열을 리턴<br>`arr`도 변화함|
+|`arr.slice([start [,end]])`|`arr`의 `[start, end)`를 리턴|
+|`arr.concat(arg1, arg2...)`|`arr`에 `arg...`을 더한 배열을 리턴|
+|`arr.forEach(function(item, index, array) { ... })`|`arr`의 원소들을 순회하면서 함수에 대입함|
+|`arr.indexOf(item [,from])`<br>`arr.lastIndexOf(item [,from])`|`arr`의 `from` 번째부터 `item`을 찾고 첫 번째 일치하는 원소의 인덱스(없으면 `-1`)을 리턴<br>`arr`의 `from`부터 왼쪽으로 `item`을 찾고 첫 번째 일치하는 원소의 인덱스(없으면 `-1`)을 리턴|
+|`arr.includes(item [,from])`|`arr`의 `from` 번째부터 `item`이 존재하는지 판별<br>`true/false` 리턴|
+|`arr.find(function(item, index, array) { ... })`<br>`arr.findIndex(function(item, index, array) { ... })`|함수가 `true`를 반환하면 탐색을 멈추고 해당 원소 리턴<br>`arr.find`와 같지만, 해당 index 리턴|
+|`arr.filter(function(item, index, array) { ... })`|함수를 `true`로 만드는 원소들의 배열 리턴|
+|`arr.map(function(item, index, array) { ... })`|함수로 `arr`을 매핑하고 result array를 리턴|
+|`arr.sort([function() { ... })`|함수를 기준으로 정렬한 결과를 리턴<br>`arr`도 변화함<br>함수를 생략하면 string으로 비교해서 정렬함|
+|`arr.reverse()`|`arr`을 역순으로 정렬하고 결과 리턴<br>`arr`도 변화함|
+|`str.split([delim [,limit]])`|`str`을 `delim`으로 구분하고 `limit` 개까지만 array에 저장 후 리턴<br>아무 것도 넣지 않을 경우 나눠지지 않고, `''`을 넣을 경우 한 글자씩 나눠짐|
+|`arr.join(glue)`|`arr`의 원소들을 `glue`를 사이에 넣어서 이은 string을 리턴|
+|`arr.reduce(function(accumulator, item, index, array) { ... }, [initial])`|`arr`의 원소들을 함수에 넣으면서 `accumulator`에 결과를 저장하고 반환<br>`initial`은 `accumulator`의 초기값|
+|`arr.reduceRight(function(accumulator, item, index, array) { ... }, [initial])`|`arr.reduce`와 같은 기능이지만 원소들을 역순으로 처리함|
+|`Array.isArray(value)`|`value`가 `Array` type인지 판별|
+|`arr.some(function(item, index, array) { ... })`<br>`arr.every(function(item, index, array) { ... })`|`arr` 안에 함수를 `true`로 만드는 원소가 있는지 판별<br>모든 원소가 함수를 `ture`로 만드는지 판별|
+|`arr.fill(value [,start [,end]])`|`arr`의 `[start, end)`를 `value`로 채우고 리턴<br>`arr`도 변화함|
+|`arr.copyWithin(target [,start [,end]])`|`arr`의 `[start, end)`를 `target` 번째부터 시작해서 붙여넣고 리턴<br>`arr`도 변화함|
+|`arr.flat([depth])`|`arr`의 원소들을 `depth`만큼 차원을 낮춘 결과를 리턴<br>`depth`를 `Infinity`로 설정할 수 있음|
+|`arr.flatMap(function(item, index, array) { ... })`|`arr`의 원소들을 함수로 매핑 후 한 차원 낮춘 결과를 리턴|
+
+- `arr.concat`은 shallow copy이기 때문에 객체의 배열은 deep copy를 따로 해야함
+- `includes`는 `NaN`도 찾을 수 있음  
+	cf. `NaN === NaN`이 `false`이기 때문에 `indexOf`로는 찾지 못함
+- 함수를 argument로 받는 method들은 `thisArg` parameter를 추가할 수 있음  
+	(argument인 함수가 method일 때 `this`가 가리키는 객체 지정)
+- `arr.every`를 이용해서 배열 2개가 같은지 판별할 수 있음:  
+	```javascript
+	function arraysEqual(arr1, arr2) {
+	  return arr1.length === arr2.length && arr1.every((value, index) => value === arr2[index]);
+	}
+
+	alert( arraysEqual([1, 2], [1, 2])); // true
+	```
+
+### Tasks
