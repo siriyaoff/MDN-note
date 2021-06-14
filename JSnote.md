@@ -3728,5 +3728,34 @@ alert(soldiers[1].age); // 23
 
 	alert( arraysEqual([1, 2], [1, 2])); // true
 	```
+- 호출 후 `arr`도 변화하는 함수들:
+	- `arr.splice`
+	- `arr.sort`
+	- `arr.reverse`
+	- `arr.fill`
+	- `arr.copyWithin`
 
 ### Tasks
+- string을 `-`로 split하고 첫 번째 단어 제외 camelize:  
+	```javascript
+	function camelize(str) {
+	  return str.split('-')
+	  .map((word, index) => index == 0 ? word : word[0].toUpperCase() + word.slice(1))
+	  .join('');
+	}
+	```
+- `forEach`도 반복문과 비슷하게 인덱스를 기반으로 돌아감  
+	=> 안에서 `splice` 등으로 배열의 index가 바뀔 경우 영향을 받음  
+	e.g. `splice(i, 1)`과 같이 원소 하나를 뺄 경우 반복문처럼 i 바로 다음 원소는 순회하지 않음!
+- `f(ar)`에서 arr을 argument로 넘기면, arr의 레퍼런스가 argument로 들어감  
+	=> 레퍼런스를 이용해서 method, property를 호출하면 arr을 수정할 수 있지만, 그냥 ar에 배열을 대입하려 하면 함수의 local variable ar에 대입되기 때문에 함수 밖의 arr은 수정되지 않음
+- 확장 가능한 계산기 만들기:  
+	operator, expression을 분리할 필요 없이 operator를 property로 사용하는 객체를 property로 사용하면 됨  
+	```javascript
+	this.methods = {
+      "-": (a, b) => a - b,
+      "+": (a, b) => a + b
+    };
+	```
+- arrow function에서 object literal을 리턴할 경우 `({ ... })`와 같이 괄호로 감싸야 함  
+	∵ arrow function에는 `value => expr`, `value => { ... }`와 같이 두 종류가 있음!
