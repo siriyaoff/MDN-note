@@ -409,7 +409,7 @@ const bigInt=123456486974865416541658654648541n;
 - 현재는 Firefox, Chrome, Edge, Safari 등이 지원함(IE는 지원하지 않음)
 
 ### String
-JS에서의 `string` 표현 방법 3가지:
+JS에서의 `String` 표현 방법 3가지:
 1. Double quotes: `"Hello"`
 2. Single quotes: `'Hello'`
 3. Backticks: `` `Hello` ``
@@ -425,7 +425,7 @@ alert(`1+2=${1+2}`);
 > JS에는 character type이 없음!
 
 ### Boolean(logical type)
-`boolean`은 `true`, `false` 두 가지 값만 가질 수 있음  
+`Boolean`은 `true`, `false` 두 가지 값만 가질 수 있음  
 비교문의 결과가 boolean으로 출력됨  
 ```javascript
 let isGreater=4>1;
@@ -458,9 +458,9 @@ alert(age);
 
 ### Objects and Symbols
 위의 모든 type들은 한 가지의 값만 저장하는 **primitive**임  
-반면 `object`는 더 복잡한 데이터를 저장함
+반면 object는 더 복잡한 데이터를 저장함
 
-`symbol`은 `object`의 identifier를 생성할 때 사용함
+symbol은 object의 identifier를 생성할 때 사용함
 
 ### The typeof operator
 `typeof` operator를 사용해서 특정한 변수의 type을 알 수 있음  
@@ -533,12 +533,12 @@ chrome에서는 `prompt`가 제대로 작동하지 않음
 
 ## Type Conversions
 대부분 operator, function들은 자동으로 값을 알맞은 타입으로 변환해줌  
-예를 들어 `alert`는 자동으로 값을 `string`으로 바꿔서 출력하고 mathematical operations는 값을 숫자로 바꿈
+예를 들어 `alert`는 자동으로 값을 `String` type으로 바꿔서 출력하고 mathematical operations는 값을 숫자로 바꿈
 
 `object`에 대해서는 나중에 object to primitive conversion을 살펴볼 예정
 
 ### String Conversion
-`String(value)` function을 이용해서 `string`으로 conversion 가능
+`String(value)` function을 이용해서 `String` type으로 conversion 가능
 
 ### Numeric Conversion
 수학 함수나 식 안에서 자동으로 numeric conversion이 일어남  
@@ -552,7 +552,7 @@ Numeric conversion rules:
 |`undefined`|`NaN`|
 |`null`|`0`|
 |`true` and `false`|`1` and `0`|
-|`string`|Trim 후 남아있는 string이 없으면 `0`, 아니면 숫자를 읽음, string에 숫자만 있는게 아니면 `NaN` 리턴|
+|string|Trim 후 남아있는 string이 없으면 `0`, 아니면 숫자를 읽음, string에 숫자만 있는게 아니면 `NaN` 리턴|
 
 #### Example
 ```javascript
@@ -589,14 +589,14 @@ alert('1' + 2 + 2); // "122" and not "14"
 alert( 6 - '2' ); // 4, converts '2' to a number
 alert( '6' / '2' ); // 3, converts both operands to numbers
 ```
-- `+` 연산자의 경우 `string`, `number` type이 둘 다 존재하면 concatenation으로 취급됨
+- `+` 연산자의 경우 `String`, `Number` type이 둘 다 존재하면 concatenation으로 취급됨
 	- 계산 순서에 유의(교환법칙 성립하지 않음!)
-- 다른 수학 연산자들은 모두 `string`이 `number`로 conversion된 후 계산됨
+- 다른 수학 연산자들은 모두 `String`이 `Number`로 conversion된 후 계산됨
 
 ### Numeric conversion, unary `+`
-`number` 타입에 대해서는 아무런 영향이 없지만, 다른 타입들에 대해선 `number`로 conversion을 실행함  
+`Number` 타입에 대해서는 아무런 영향이 없지만, 다른 타입들에 대해선 `Number`로 conversion을 실행함  
 `Number(...)` function과 동일  
-아래와 같이 `string`으로 표현된 숫자들을 더할 때 유용함  
+아래와 같이 `String` type으로 표현된 숫자들을 더할 때 유용함  
 ```javascript
 let apples="2";
 let oranges="3";
@@ -653,7 +653,7 @@ string도 비교가 가능함(사전 순으로)
 ※ 사실 unicode 순서이기 때문에 알파벳의 경우 소문자가 더 크다고 판단함
 
 ### Comparison of different types
-비교하는 값들의 type이 다를 경우 값들을 `number`로 변환해서 비교함  
+비교하는 값들의 type이 다를 경우 값들을 `Number`로 변환해서 비교함  
 
 #### Example
 ```javascript
@@ -754,7 +754,7 @@ let company = prompt('Which company created JavaScript?', '');
 - 가독성이 떨어지기 때문에 알고만 있으면 될 듯
 
 ### Tasks
-- `string`과 `number`를 비교할 때는 `string`을 캐스팅하지 않아도 됨(`number`이 있어서 자동으로 변환됨)
+- `String`과 `Number`를 비교할 때는 `String`을 캐스팅하지 않아도 됨(`Number`이 있어서 자동으로 변환됨)
 
 ## Logical operators
 JS에는 `||`, `&&`, `!`, `??`, 총 4개의 논리 연산자가 존재함  
@@ -1744,7 +1744,7 @@ let obj = {
 alert( obj["0"] ); // test
 alert( obj[0] ); // test (same property)
 ```
-- `0`이 자동으로 `"0"`(`string`)으로 바뀜
+- `0`이 자동으로 `"0"`(`String`)으로 바뀜
 - `obj["0"]`, `obj[0]` 두 가지 방식으로 호출할 수 있음  
 
 ***************
@@ -1785,14 +1785,14 @@ for (let key in user) {
 #### Ordered like an object
 object의 poperties가 *integer properties*인지 아닌지에 따라서 나열되는 기준이 다름
 
-Integer property : `"1"`, `"41"`과 같이 property name을 Integer로 변환했다가 다시 `string`으로 변환해도 값이 같은 property(`"+41"`, `"1.2"`는 같지 않음)
+Integer property : `"1"`, `"41"`과 같이 property name을 Integer로 변환했다가 다시 `String`으로 변환해도 값이 같은 property(`"+41"`, `"1.2"`는 같지 않음)
 ⇔ `name == String(Math.trunc(Number(name)))`
 
 "for...in"으로 key를 나열하면, 
 - Integer property인 경우 크기 순으로 나열됨
 - 아닌 경우 생성된 순으로 나열됨
 
-※ 숫자들을 key로 사용하고 싶지만 생성된 순으로 나열되기 하고 싶을 때는 `"+49"`와 같이 선언하고 출력할 때 `number`로 변환해서 출력하면 됨!!
+※ 숫자들을 key로 사용하고 싶지만 생성된 순으로 나열되기 하고 싶을 때는 `"+49"`와 같이 선언하고 출력할 때 `Number`로 변환해서 출력하면 됨!!
 
 ### Summary
 
@@ -2456,7 +2456,7 @@ delete user?.name; // delete user.name if user exists
 |`obj?.[var]`|computed property에 대해 optional chaining 적용|
 
 ## Symbol type
-specification에 따르면, object property key는 `string` type이거나 `symbol` type임  
+specification에 따르면, object property key는 `String` type이거나 `Symbol` type임  
 
 ### Symbols
 `Symbol()`을 사용해서 unique identifier을 만들 수 있음:  
@@ -2468,21 +2468,21 @@ let id1 = Symbol("id");
 
 alert(id == id1); // false
 ```
-- 같은 description을 써서 생성하더라도 둘은 다른 `symbol`들임
+- 같은 description을 써서 생성하더라도 둘은 다른 symbol들임
 
-※ symbol들은 자동으로 `string`으로 변환되지 않음!!  
+※ symbol들은 자동으로 `String`으로 변환되지 않음!!  
 ```javascript
 let id = Symbol("id");
 alert(id); // TypeError: Cannot convert a Symbol value to a string
 alert(id.toString()); // Symbol(id), now it works
 alert(id.description); // id
 ```
-- `symbol`과 `string`은 근본적으로 다르기 때문에 `symbol`은 아예 다른 형으로 변환되는 것이 막혀있음
-- `symbol`을 출력하기 위해서는 `toString()`을 이용하거나 description을 출력해야 함
+- `Symbol`과 `String`은 근본적으로 다르기 때문에 `Symbol`은 아예 다른 형으로 변환되는 것이 막혀있음
+- `Symbol`을 출력하기 위해서는 `toString()`을 이용하거나 description을 출력해야 함
 
 ### "Hidden" properties
-`symbol`을 key로 이용해서 숨겨진 property를 생성할 수 있음  
-=> `symbol`을 이용하지 않고는 접근할 수 없음
+`Symbol`을 key로 이용해서 숨겨진 property를 생성할 수 있음  
+=> `Symbol`을 이용하지 않고는 접근할 수 없음
 
 #### Example
 ```javascript
@@ -2496,11 +2496,11 @@ user[id] = 1;
 
 alert( user[id] ); // we can access the data using the symbol as the key
 ```
-- `symbol`은 항상 다르기 때문에, 다른 곳에서 똑같은 `id`를 `symbol`로 사용하더라도 `user[id]`는 서로 다른 properties가 됨  
+- symbol은 항상 다르기 때문에, 다른 곳에서 똑같은 `id`를 symbol로 사용하더라도 `user[id]`는 서로 다른 properties가 됨  
 	cf. `"id"`를 property name으로 사용할 경우 충돌이 일어남
 
 ### Symbols in an object literal
-square brackets `[]`를 이용해서 object literal에서도 `symbol`을 사용할 수 있음:  
+square brackets `[]`를 이용해서 object literal에서도 symbol을 사용할 수 있음:  
 ```javascript
 let id = Symbol("id");
 
@@ -2511,7 +2511,7 @@ let user = {
 ```
 
 ### Symbols are skipped by for...in
-`symbol`로 선언된 property는 심지어 `for...in` 반복문에서도 배제됨:  
+symbol로 선언된 property는 심지어 `for...in` 반복문에서도 배제됨:  
 ```javascript
 let id = Symbol("id");
 let user = {
@@ -2529,7 +2529,7 @@ alert( "Direct: " + user[id] );
 `object.assign`을 이용해서 object를 복제할 때는 symbol properties도 복사됨
 
 ### Global symbols
-global symbol을 이용해서 다른 곳에서 같은 `symbol`을 사용할 수 있음  
+global symbol을 이용해서 다른 곳에서 같은 symbol을 사용할 수 있음  
 `Symbol.for(key)`를 사용해서 *global symbol registry*에 *global symbol*을 등록하거나 등록되어 있는 것을 읽음
 - global symbol registry에 `key`에 해당하는 global symbol이 등록되어 있지 않으면 생성, 등록하고 반환
 - 등록되어 있는 경우 해당 global symbol을 반환함
@@ -2561,7 +2561,7 @@ alert( globalSymbol.description ); // name
 ```
 - `Symbol.keyFor(sym)`은 global symbol registry에서 `sym`에 해당하는 key를 찾아서 반환함  
 	=> non-global symbol에 대해서는 key값을 찾을 수 없기 때문에 `undefined` 반환
-- 모든 `symbol`들은 `description` property를 가짐!  
+- 모든 symbol들은 `description` property를 가짐!  
 	global symbol도 key가 description이기 때문에 `.description`으로 출력 가능함
 
 ### System symbols
@@ -2748,7 +2748,7 @@ alert(obj + 2); // 22
 primitive와 object의 차이점:
 - A primitive
 	- primitive type의 값임
-	- 7개의 type이 존재 : `string`, `number`, `bigint`, `boolean`, `symbol`, `null`, `undefined`
+	- 7개의 type이 존재 : `String`, `Number`, `Bigint`, `Boolean`, `Symbol`, `null`, `undefined`
 - An object
 	- 여러 개의 값을 property로 저장할 수 있음
 	- `{}`로 생성할 수 있고 JS에는 함수와 같은 여러 종류의 object가 있음
@@ -2757,7 +2757,7 @@ primitive와 object의 차이점:
 
 ### A primitive as an object
 primitive를 method와 함께 사용하기 위해 아래와 같은 방법을 사용함:
-- `string`, `number`, `boolean`, `symbol`의 method와 property에 접근하는 것을 허용함
+- `String`, `Number`, `Boolean`, `Symbol`의 method와 property에 접근하는 것을 허용함
 - 위 접근을 가능하게 하기 위해, *object wrapper*를 제공함(임시적으로 생성, 소멸됨)
 
 object wrapper는 각각의 primitive type에 따라 다르며, primitive의 이름과 같음(`String`, `Number`, `Boolean`, `Symbol`)  
@@ -2778,7 +2778,7 @@ alert( str.toUpperCase() ); // HELLO
 이렇게 primitive가 method를 제공하면서 가볍게 유지됨  
 JS 엔진은 추가적인 객체를 생성하지 않을 만큼 최적화되어 있지만 명세서에는 그것을 생성하는 것처럼 적혀있음
 
-`number`에는 `toFixed(n)`과 같은 method가 존재함  
+`Number`에는 `toFixed(n)`과 같은 method가 존재함  
 `alert( n.toFixed(2) );` : 소수점 `n`자리까지 남도록 반올림함
 
 > ※ `String/Number/Boolean`을 생성자로는 사용하지 않는 게 좋음  
@@ -2868,7 +2868,7 @@ alert( 123456..toString(36) ); // 2n9c
 소수점 이하 n자리까지 나오게 계산하고 싶다면?
 1. 수학적 조작(2자리까지 나오게 하고싶다면 100을 곱한 값을 함수에 넣음)
 2. `toFixed(n)` 사용(자동으로 반올림됨)
-	- 결과는 `string`이기 때문에 unary plus로 변환해줘야 함
+	- 결과는 `String`이기 때문에 unary plus로 변환해줘야 함
 
 ### Imprecise calculations
 64비트 IEEE-754에서 52비트는 가수(fraction), 11비트는 지수(exponent), 1비트가 부호로 사용됨
@@ -2958,7 +2958,7 @@ alert( parseInt('a123') ); // NaN, the first symbol stops the process
 - `prompt`에서 취소를 누르면 `null`이 입력되는 것에 유의!!!
 
 ## Strings
-`string`의 포맷은 항상 **UTF-16**임!(page encoding과는 연관이 없음)
+`String`의 포맷은 항상 **UTF-16**임!(page encoding과는 연관이 없음)
 
 ### Quotes
 quotes 중 backtick(`` ` ` ``)은 안에 변수를 포함(`${}`)하거나 줄바꿈을 할 수 있음  
@@ -3000,8 +3000,8 @@ alert( `My\n`.length ); // 3
 	- `for (let char of "Hello")`
 
 ### Strings are immutable
-`string`의 일부를 수정할 수는 없음  
-`string` 전체를 바꿀 수는 있음:  
+`String`의 일부를 수정할 수는 없음  
+`String` 전체를 바꿀 수는 있음:  
 ```javascript
 let str = 'Hi';
 str[0] = 'h'; // doesn't work
@@ -3343,7 +3343,7 @@ alert('0' == [] ); // false, (4)
 - `arr.length=0;`으로 간단하게 초기화 가능
 
 ### Tasks
-- `ar=ar+ar2;`를 실행하면 `ar`들이 `string`으로 변환된 후 합쳐져 `ar`의 type이 `string`으로 바뀜!!  
+- `ar=ar+ar2;`를 실행하면 `ar`들이 `String`으로 변환된 후 합쳐져 `ar`의 type이 `String`으로 바뀜!!  
 	`ar[0]`을 출력하면 첫 번째 원소가 아니라 첫 번째 문자가 출력됨
 - `ar.push(ar2);`를 실행하면 `ar2`가 `ar`의 원소로 들어감  
 	=> 둘 다 길이가 2였다면 실행한 후 `ar`의 길이는 4가 아니라 3이 됨
@@ -3402,7 +3402,7 @@ alert( removed ); // "Let's", "dance"
 ```javascript
 arr.slice([start [,end]]);
 ```
-- `string`의 method함수 `str.slice(start [,end])`와 같은 기능임
+- `String`의 method함수 `str.slice(start [,end])`와 같은 기능임
 - 인자 없이 `arr.slice()`를 실행하면 `arr`을 복사할 수 있음
 - `arr`이 수정되는게 아니라 새로운 배열이 반환됨
 
@@ -3476,7 +3476,7 @@ arr.forEach(function(item, index, array) { ... });
 
 ### Searching in array
 #### indexOf/lastIndexOf and includes
-`string`의 method들과 같음
+`String`의 method들과 같음
 
 - `arr.indexOf(item [,from])`
 - `arr.lastIndexOf(item [,from])`
@@ -3568,7 +3568,7 @@ arr.sort(compareNumeric);
 alert(arr);  // 1, 2, 15
 ```
 - `sort`도 정렬된 array를 반환하긴 하지만, `arr` 자체도 바뀌기 때문에 보통 리턴값을 사용하지 않음
-- 인자를 넣지 않으면 `string`을 기준으로 정렬함
+- 인자를 넣지 않으면 `String`을 기준으로 정렬함
 	- 비교함수를 넣어서 정렬 기준을 바꿀 수 있음  
 		비교함수는 `(a, b)`를 비교할 때 `a`가 더 크면 양수, `b`가 더 크면 음수를 리턴하도록 구현하면 됨  
 		=> `arr.sort( (a, b) => a-b )`로 코드를 간결하게 만들 수 있음
@@ -3759,3 +3759,200 @@ alert(soldiers[1].age); // 23
 	```
 - arrow function에서 object literal을 리턴할 경우 `({ ... })`와 같이 괄호로 감싸야 함  
 	∵ arrow function에는 `value => expr`, `value => { ... }`와 같이 두 종류가 있음!
+- cpp에서의 string은 객체라서 때문에 문자 하나를 수정 가능하지만,  
+	JS의 string은 primitive이기 때문에 문자 하나의 수정은 불가능함
+- shuffle an array
+	- `arr`에서 하나씩 골라 집어넣는 방법(`O(N^2)`)  
+		```javascript
+		function shuffle(arr) {
+		  let iar=[];
+		  for(let i=0;i<arr.length;i++)
+			iar.push(arr[i]);
+		  for(let i=0;i<arr.length;i++) {
+			let t=Math.trunc(Math.random()*iar.length);
+			arr[i]=iar[t];
+			iar.splice(t, 1);
+		  }
+		}
+		```
+	- Fisher-Yates shuffle(`O(N)`)  
+		```javascript
+		function shuffle(array) {
+		  for (let i = array.length - 1; i > 0; i--) {
+			let j = Math.floor(Math.random() * (i + 1));
+			[array[i], array[j]] = [array[j], array[i]];
+		  }
+		}
+		```
+		- `[a, b] = [b, a]`는 destructing assignment로, 나중에 다룰 예정
+		- 모든 케이스가 동일한 확률을 가짐
+- `arr.reduce`를 사용해서 데이터들을 하나의 객체로 변환할 수 있음
+
+## Iterables
+객체가 array가 아니더라도 데이터의 모음(list, set 등)으로 표현되면, *iterable*로 만들어 `for...of`로 효과적으로 순회하도록 만들 수 있음
+
+### Symbol.iterator
+```javascript
+let range = {
+  from: 1,
+  to: 5
+};
+
+range[Symbol.iterator] = function() {  // 1
+  return { // 2
+    current: this.from,
+    last: this.to,
+
+    // 3
+    next() { // 4
+      if (this.current <= this.last) {
+        return { done: false, value: this.current++ };
+      } else {
+        return { done: true };
+      }
+    }
+  };
+};
+
+
+for (let num of range) {
+  alert(num); // 1, then 2, 3, 4, 5
+}
+```
+- `range`를 iterable로 만들기 위해서 `[Symbol.iterator]()` method를 추가해야 함  
+	`Symbol.iterator` : 객체를 iterable하게 만들기 위해 존재하는 내장 symbol  
+	1. `for...of`가 처음 실행될 때 이 메소드를 호출함  
+		이 메소드는 *iterator*(`next`라는 method를 가지는 객체)를 리턴해야 함  
+		이 메소드를 찾지 못하면 에러를 반환함
+	2. `for...of`는 리턴된 iterator로만 실행됨
+	3. `for...of`가 다음 iteration으로 넘어가려 할 때마다 `next()`를 호출함
+	4. `next()`는 `{done: Boolean, value: any}` 형식의 객체를 리턴해야 함  
+		`done=true`는 iteration이 끝났다는 것을 의미함  
+		그게 아니면 `value`에 다음 값을 넣어야함
+- `next()`가 리턴하는 객체의 key는 이름을 바꾸면 에러남
+- `range` 자체를 iterator로 만들어도 됨:  
+	```javascript
+	let range = {
+	  from: 1,
+	  to: 5,
+
+	  [Symbol.iterator]() {
+		this.current = this.from;
+		return this;
+	  },
+
+	  next() {
+		if (this.current <= this.to) {
+		  return { done: false, value: this.current++ };
+		} else {
+		  return { done: true };
+		}
+	  }
+	};
+	```
+	- `Symbol.iterator` method에서 iterator를 다른 객체로 만들어 리턴하지 않고, `range` 자신을 리턴함  
+		=> `range`에 `next()`가 선언되어 있어야 함
+- 하나의 `range`로 중첩된 `for...of`를 돌릴 수 없음  
+	안쪽 반복이 끝난 후 `current`가 공유되기 때문에 바깥쪽 반복도 바로 종료됨
+
+### String is iterable
+`Array`와 `String`이 널리 쓰이는 내장 iterable임  
+`String`의 경우 `for...of`를 돌리면 문자 하나씩 순회함:  
+```javascript
+for (let char of "test") {
+  // triggers 4 times: once for each character
+  alert( char ); // t, then e, then s, then t
+}
+
+let str = '𝒳😂';
+for (let char of str) {
+    alert( char ); // 𝒳, and then 😂
+}
+```
+- surrogate pair로 이루어진 문자열을 넣어도 정상적으로 작동함!
+
+### Calling an iterator explicitly
+iterator을 명시적으로 호출할 수도 있음:  
+```javascript
+let str = "Hello";
+
+// does the same as
+// for (let char of str) alert(char);
+
+let iterator = str[Symbol.iterator]();
+
+while (true) {
+  let result = iterator.next();
+  if (result.done) break;
+  alert(result.value); // outputs characters one by one
+}
+```
+- `for...of`를 호출한 것과 같은 결과임
+- string은 method를 호출할 때 wrapper object가 생성되기 때문에 따로 method를 정의해도 그 구문 뒤에 바로 사라짐
+
+### Iterables and array-likes
+- iterable : `[Symbol.iterator]()` method를 구현한 객체
+	- `for...of` 반복문에 넣을 수 있음
+- array-like : indexes, `length`를 key로 가지는 객체
+	- numeric indexes를 가짐
+
+string은 iterable이면서(`for...of`에서 작동함) array-like(numeric indexes, `length`가 존재)임  
+보통은 iterable이거나 array-like이거나 둘 중에 하나임  
+둘 다 `push`, `pop`과 같은 method가 없다는 것은 같음
+
+### Array.from
+`Array.from` method를 사용해서 iterable이나 array-like로 진짜 `Array` type으로 만들 수 있음:  
+```javascript
+Array.from(obj [,mapFn, thisArg]);
+
+/*-------------example--------------*/
+
+let arrayLike = {
+  0: "Hello",
+  1: "World",
+  length: 2
+};
+
+let arr = Array.from(arrayLike); // (*)
+alert(arr.pop()); // World (method works)
+
+let str = '𝒳😂';
+
+// splits str into array of characters
+let chars = Array.from(str);
+
+alert(chars[0]); // 𝒳
+alert(chars[1]); // 😂
+alert(chars.length); // 2
+```
+- iterable, array-like 모두에 대해서 작동함
+- surrogate pairs에 대해서도 정상적으로 작동함
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`range.[Symbol.iterator]()`|`range` 객체를 iterable로 만들기 위해서 정의해야 함<br>iterator 객체를 리턴해야 함|
+|`iterator.next()`|`iterator` 객체가 다음 반복으로 넘어가기 전에 호출하는 함수<br>`done`, `value` property를 가진 객체를 리턴해야 함|
+|`Array.from(obj [,mapFn, thisArg])`|iterable 또는 array-like 객체인 `obj`를 `Array` type으로 바꾸고 `mapFn`을 사용해서 매핑한 배열을 리턴|
+
+- `[Symbol.iterator]()` method는 `for...of`가 호출될 때 자동으로 실행됨
+- `String`, `Array` 같은 built-in iterables도 위 메소드가 구현되어 있음
+- string iterable을 이용하면 surrogate pairs를 수월하게 처리 가능
+
+## Map and Set
+object를 사용해서 keyed collection을 저장  
+array를 사용해서 ordered collection을 저장
+
+### Map
+Map은 object와 비슷하게 keyed data를 저장하지만, **모든 타입의 key를 허용**함  
+기본적인 method, property들:
+- `new Map()` : map 생성
+- `map.set(key, value)` : `key`와 `value`를 저장하고 `map` 리턴
+- `map.get(key)` : `key`에 해당하는 값(`key`가 존재하지 않으면 `undefined`)을 리턴
+- `map.has(key)` : `key`가 존재하면 `true`, 아니면 `false` 리턴
+- `map.delete(key)` : `key`와 해당하는 `value`를 삭제
+	- 성공적으로 삭제했다면 `true`, 해당하는 `key`가 었다면 `false` 리턴
+- `map.clear()` : `map`을 비움
+- `map.size` : `map`의 현재 원소 수를 리턴
+
