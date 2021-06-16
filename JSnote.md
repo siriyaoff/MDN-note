@@ -1747,10 +1747,9 @@ alert( obj[0] ); // test (same property)
 - `0`이 자동으로 `"0"`(`String`)으로 바뀜
 - `obj["0"]`, `obj[0]` 두 가지 방식으로 호출할 수 있음  
 
-***************
-객체 배열을 선언하면 그것과는 구별을 어떻게 하나?
-
-***************
+> 객체 배열을 선언하면 그것과는 구별을 어떻게 하나?  
+> - Integer property와 배열은 코드에서 바로 구분할 수는 없을 듯  
+	꼭 알아야 할 상황이면 `Array.isArray()`를 사용하면 됨
 
 `__proto__`는 non-object value로 설정할 수 없음!  
 `obj.__proto__`와 같이 호출하면 아예 object가 리턴됨
@@ -3947,8 +3946,9 @@ array를 사용해서 ordered collection을 저장
 ### Map
 Map은 object와 비슷하게 keyed data를 저장하지만, **모든 타입의 key를 허용**함  
 기본적인 method, property들:
-- `new Map()` : map 생성
+- `new Map([entries])` : entries로 초기화된 map 리턴
 - `map.set(key, value)` : `key`와 `value`를 저장하고 `map` 리턴
+	- 자신을 리턴하기 때문에 chaining이 가능함
 - `map.get(key)` : `key`에 해당하는 값(`key`가 존재하지 않으면 `undefined`)을 리턴
 - `map.has(key)` : `key`가 존재하면 `true`, 아니면 `false` 리턴
 - `map.delete(key)` : `key`와 해당하는 `value`를 삭제
@@ -3956,3 +3956,168 @@ Map은 object와 비슷하게 keyed data를 저장하지만, **모든 타입의 
 - `map.clear()` : `map`을 비움
 - `map.size` : `map`의 현재 원소 수를 리턴
 
+> ※ `map[key]`로 해도 property를 추가할 수 있지만, 이 문법은 일반 객체에 적용되는 제한(string/symbol key만 가능)을 적용시킴  
+> 따라서 `Map`의 method인 `set`, `get`을 사용하는게 좋음
+
+`Map`은 객체도 key로 사용할 수 있음  
+cf. 일반 객체는 객체를 key로 사용하면 모든 객체가 `"[object Object]"`로 변환되기 때문에, 다른 객체를 넣어도 `obj["[object Object]"]`라는 property 하나로 처리됨
+
+> ※ `Map`은 SameValue 알고리즘을 이용해서 key들을 비교함  
+> 이 알고리즘은 수정될 수 없음
+
+### Iteration over Map
+`Map`을 순회하는 3가지 method:
+- `map.keys()` : key의 iterable을 리턴
+- `map.values()` : value의 iterable을 리턴
+- `map.entries()` : `[key, value]`의 iterable을 리턴
+	- `Map`을 `for...of`를 사용하여 순회할 때 default로 호출됨
+
+#### Example
+```javascript
+let recipeMap = new Map([
+  ['cucumber', 500],
+  ['tomatoes', 350],
+  ['onion',    50]
+]);
+
+// iterate over keys (vegetables)
+for (let vegetable of recipeMap.keys()) {
+  alert(vegetable); // cucumber, tomatoes, onion
+}
+
+// iterate over values (amounts)
+for (let amount of recipeMap.values()) {
+  alert(amount); // 500, 350, 50
+}
+
+// iterate over [key, value] entries
+for (let entry of recipeMap) { // the same as of recipeMap.entries()
+  alert(entry); // cucumber,500 (and so on)
+}
+```
+- `Map`은 값이 삽입된 순서대로 순회함  
+	cf. 일반 객체는 반복할 때 Integer property일 경우 정렬한 순서대로 순회함
+
+> ※ `Map`도 `Array`와 비슷하게 `forEach` method를 가지고 있음:  
+```javascript
+// runs the function for each (key, value) pair
+recipeMap.forEach( (value, key, map) => {
+  alert(`${key}: ${value}`); // cucumber: 500 etc
+});
+```
+
+### Object.entries: Map from Object
+`Map`을 생성할 때 array나 다른 iterable을 argument로 사용해서 초기화할 수 있음:  
+```javascript
+// array of [key, value] pairs
+let map = new Map([
+  ['1',  'str1'],
+  [1,    'num1'],
+  [true, 'bool1']
+]);
+
+alert( map.get('1') ); // str1
+```
+- 다른 iterable도 key/value pair가 property로 들어가 있어야 하고 `next()`를 정의할 수 있어야 하기 때문에, `Map`을 초기화할 때 사용하기 위해선 해봤자 integer property를 가지는 객체일 듯
+
+`Object.entries(obj)` : `obj` -> entries  
+```javascript
+let obj = {
+  name: "John",
+  age: 30
+};
+
+let map = new Map(Object.entries(obj));
+
+alert( map.get('name') ); // John
+```
+- `Object.entries(obj)`는 `Map`의 constructor 안에 들어가는 entries를 `obj`로부터 만들어서 반환함  
+	이 코드에서는 `[ ["name","John"], ["age", 30] ]`를 리턴함
+
+### Object.fromEntries: Object from Map
+`Object.fromEntries(entries)` : `entries` -> obj  
+```javascript
+let prices = Object.fromEntries([
+  ['banana', 1],
+  ['orange', 2],
+  ['meat', 4]
+]);
+
+// now prices = { banana: 1, orange: 2, meat: 4 }
+
+alert(prices.orange); // 2
+```
+- parameter가 꼭 `Array`일 필요는 없음  
+	iterable object면 됨 => map을 바로 넣어도 됨  
+	e.g. `obj = Object.fromEntries(map)`
+
+### Set
+`Set`를 이용해서 set of values를 저장  
+key가 없고 각 값들은 여러 번 추가해도 처음 한 번만 저장됨  
+기본적인 method, property들:
+- `new Set([iterable])` : `iterable`의 values로 초기화된 set 리턴
+- `set.add(value)` : `value`를 추가하고 자신을 리턴
+- `set.delete(value)` : `value`가 존재하면 삭제하고 `true`, 아니면 `false` 리턴
+- `set.has(value)` : `value`가 존재하면 `true`, 아니면 `false` 리턴
+- `set.clear()` : `set`을 비움
+- `set.size` : `set`의 현재 원소 개수 리턴
+
+> uniqueness check가 필요한 자료구조에 효율적
+
+### Iteration over Set
+`for...of`, `forEach` 둘 다 사용 가능:  
+```javascript
+let set = new Set(["oranges", "apples", "bananas"]);
+
+for (let value of set) alert(value);
+
+// the same with forEach:
+set.forEach((value, valueAgain, set) => {
+  alert(value);
+});
+```
+- `forEach`를 사용할 때 callback function에 parameter가 3개임에 주의!  
+	`valueAgain`은 `Map`과의 호환성을 위한 것임  
+	`Map`을 `Set`으로 바꿀 때 유용함
+- `Map`과 비슷하게 아래의 메소드들을 `for...of`에서 사용 가능
+	- `set.keys()` : value의 iterable을 리턴
+	- `set.values()` : value의 iterable을 리턴
+	- `set.entries()` : `[value, value]`의 iterable을 리턴
+	
+	`Map`과의 호환을 위해서 구현됨
+
+### Summary
+
+|code|description|
+|:---|:---|
+|**Map**| |
+|`new Map([entries])`|`entries`로 초기화된 map 리턴|
+|`map.set(key, value)`|`key`와 `value`를 저장하고 `map` 리턴|
+|`map.get(key)`|`key`에 해당하는 값(존재하지 않으면 `undefined`) 리턴|
+|`map.has(key)`|`key`가 존재하면 `ture`, 아니면 `false` 리턴|
+|`map.delete(key)`|`key`, `value`가 존재한다면 삭제하고 `true`, 아니면 `false` 리턴|
+|`map.clear()`|`map`을 비움|
+|`map.size`|`map`의 현재 원소 수를 리턴|
+|`map.keys()`<br>`map.values()`<br>`map.entries()`|key의 iterable을 리턴<br>value의 iterable을 리턴<br>`[key, value]`의 iterable을 리턴|
+|`Object.entries(obj)`|`obj`로부터 entries의 **array**를 만들어서 리턴|
+|`Object.fromEntries(entries)`|`entries`로부터 object를 만들어서 리턴<br>`entries`는 꼭 array를 이용하지 않아도 entries를 포함한 iterable이면 됨|
+|**Set**| |
+|`new Set([iterable])`|`iterable`의 values로 초기화된 set 리턴|
+|`set.add(value)`|`value`를 추가하고 `set` 리턴|
+|`set.delete(value)`|`value`가 존재한다면 삭제하고 `true`, 아니면 `false` 리턴|
+|`set.has(key)`|`value`가 존재하면 `true`, 아니면 `false` 리턴|
+|`set.clear()`|`set`을 비움|
+|`set.size`|`set`의 현재 원소 수를 리턴|
+|`set.keys()`<br>`set.values()`<br>`set.entries()`|value의 iterable을 리턴<br>value의 iterable을 리턴<br>`[value, value]`의 iterable을 리턴|
+
+- `Object` : collection of keyed values  
+	`Map` : collection of keyed values  
+	`Array` : collection of ordered values  
+	`set` : collection of unique values
+- `Set`에는 `Map`과의 호환성을 위해서 구현된 메소드가 많음
+
+### Tasks
+- `Array.from(obj)`는 **모든 Array-like, iterable에 대해 사용 가능**
+- `Object.keys/values/entries`는 **array**를 리턴하는 반면,  
+	`map/set.keys/values/entries`는 **iterable**을 리턴함
+- `Array.from(iterable)`을 `[iterable]`로 간단한게 구현 가능
