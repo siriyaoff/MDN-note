@@ -4095,7 +4095,7 @@ set.forEach((value, valueAgain, set) => {
 |`map.set(key, value)`|`key`와 `value`를 저장하고 `map` 리턴|
 |`map.get(key)`|`key`에 해당하는 값(존재하지 않으면 `undefined`) 리턴|
 |`map.has(key)`|`key`가 존재하면 `ture`, 아니면 `false` 리턴|
-|`map.delete(key)`|`key`, `value`가 존재한다면 삭제하고 `true`, 아니면 `false` 리턴|
+|`map.delete(key)`|`key`, `value`가 존재하면 삭제하고 `true`, 아니면 `false` 리턴|
 |`map.clear()`|`map`을 비움|
 |`map.size`|`map`의 현재 원소 수를 리턴|
 |`map.keys()`<br>`map.values()`<br>`map.entries()`|key의 iterable을 리턴<br>value의 iterable을 리턴<br>`[key, value]`의 iterable을 리턴|
@@ -4104,8 +4104,8 @@ set.forEach((value, valueAgain, set) => {
 |**Set**| |
 |`new Set([iterable])`|`iterable`의 values로 초기화된 set 리턴|
 |`set.add(value)`|`value`를 추가하고 `set` 리턴|
-|`set.delete(value)`|`value`가 존재한다면 삭제하고 `true`, 아니면 `false` 리턴|
-|`set.has(key)`|`value`가 존재하면 `true`, 아니면 `false` 리턴|
+|`set.delete(value)`|`value`가 존재하면 삭제하고 `true`, 아니면 `false` 리턴|
+|`set.has(value)`|`value`가 존재하면 `true`, 아니면 `false` 리턴|
 |`set.clear()`|`set`을 비움|
 |`set.size`|`set`의 현재 원소 수를 리턴|
 |`set.keys()`<br>`set.values()`<br>`set.entries()`|value의 iterable을 리턴<br>value의 iterable을 리턴<br>`[value, value]`의 iterable을 리턴|
@@ -4113,7 +4113,7 @@ set.forEach((value, valueAgain, set) => {
 - `Object` : collection of keyed values  
 	`Map` : collection of keyed values  
 	`Array` : collection of ordered values  
-	`set` : collection of unique values
+	`Set` : collection of unique values
 - `Set`에는 `Map`과의 호환성을 위해서 구현된 메소드가 많음
 
 ### Tasks
@@ -4121,3 +4121,155 @@ set.forEach((value, valueAgain, set) => {
 - `Object.keys/values/entries`는 **array**를 리턴하는 반면,  
 	`map/set.keys/values/entries`는 **iterable**을 리턴함
 - `Array.from(iterable)`을 `[iterable]`로 간단한게 구현 가능
+
+## WeakMap and WeakSet
+`Map`은 객체도 key로 사용할 수 있는데, key로 사용되는 객체는 garbage collect되지 않음  
+하지만 `WeakMap`은 key로 사용되는 객체가 garbage collect의 대상이 되는 것을 막아주지 않음
+
+### WeakMap
+`WeakMap`의 key는 object만 가능함  
+object가 `WeakMap`의 key로 사용되는 상황에서 object로의 reference가 하나도 없다면 그 object는 `WeakMap`과 메모리에서 자동으로 지워짐(garbage collect됨):  
+```javascript
+let john = { name: "John" };
+
+let weakMap = new WeakMap();
+weakMap.set(john, "...");
+
+john = null; // overwrite the reference
+
+// john is removed from memory!
+```
+
+추가로, `WeakMap`은 iteration과 `keys/values/entries()`와 같은 method를 지원하지 않고, 아래의 method만 지원함:
+- `weakMap.get(key)`
+- `weakMap.set(key, value)`
+- `weakMap.delete(key)`
+- `weakMap.has(key)`
+
+=> 모든 key나 value를 알아낼 수 없음  
+∵ 객체가 다른 reference를 가지지 않으면 garbage collect의 대상이 되지만, garbage collection이 언제 일어나는지는 JS engine에 의해 결정되기 때문(바로 지워질지, 기다렸다가 한꺼번에 지워질지)  
+즉, `WeakMap`의 현재 원소 개수는 알 수 없음
+
+### Use case: additional data
+`WeakMap`은 *additional data storage*로써 유용하게 사용됨  
+third-party library에 속하거나 다른 이유로 객체 안에 property를 추가하는게 적합하지 않은 상황에서, 객체가 살아있는 동안에만 유효한 데이터를 저장하고 싶을 때 `WeakMap`이 적합한 자료구조임  
+`WeakMap`에 데이터를 넣으면 key인 object가 garbage collect될 때 데이터도 자동으로 삭제되기 때문
+
+#### Example
+```javascript
+// 📁 visitsCount.js using Map
+let visitsCountMap = new Map(); // map: user => visits count
+
+// increase the visits count
+function countUser(user) {
+  let count = visitsCountMap.get(user) || 0;
+  visitsCountMap.set(user, count + 1);
+}
+
+// 📁 main.js
+let john = { name: "John" };
+
+countUser(john); // count his visits
+
+// later john leaves us
+john = null;
+
+// 📁 visitsCount.js using WeakMap
+let visitsCountMap = new WeakMap(); // weakmap: user => visits count
+
+// increase the visits count
+function countUser(user) {
+  let count = visitsCountMap.get(user) || 0;
+  visitsCountMap.set(user, count + 1);
+}
+```
+- `Map`을 사용할 경우 `john`이 사라져도 수동으로 `visitsCountMap`에서 데이터를 삭제해야 함  
+	프로젝트가 커지면 수동으로 삭제하는데 많은 자원이 들어감  
+	=> `WeakMap`으로 해결
+
+### Use case: caching
+객체를 parameter로 받는 함수가 객체별로 결과를 저장(cache)해놓고 재사용할 수 있음  
+이 때 `Map`보다 `WeakMap`을 사용하는게 적합함:  
+```javascript
+// 📁 cache.js
+let cache = new WeakMap();
+
+// calculate and remember the result
+function process(obj) {
+  if (!cache.has(obj)) {
+    let result = /* calculate the result for */ obj;
+
+    cache.set(obj, result);
+  }
+
+  return cache.get(obj);
+}
+
+// 📁 main.js
+let obj = {/* some object */};
+
+let result1 = process(obj);
+let result2 = process(obj);
+
+// ...later, when the object is not needed any more:
+obj = null;
+
+// Can't get cache.size, as it's a WeakMap,
+// but it's 0 or soon be 0
+// When obj gets garbage collected, cached data will be removed as well
+```
+- memoization과 비슷
+
+### WeakSet
+- `Set`과 유사하지만, 객체만 저장 가능
+- `WeakMap`과 마찬가지로 객체가 reachable할 때만 `WeakSet`안에서 유지됨
+- `WeakMap`과 마찬가지로 iteration 불가
+	- `weakSet.add(value)`
+	- `weakSet.has(value)`
+	- `weakSet.delete(value)`
+	
+	위 3개의 method만 지원함
+
+`WeakMap`과 마찬가지로 additional storage 역할이지만, 임의의 데이터가 아닌, "yes/no"만 표현하는 데이터를 위한 자료구조임  
+e.g. 사용자의 방문 횟수가 아닌, 방문 여부
+
+`WeakMap`과 `WeakSet`의 가장 큰 단점은 반복 작업이 불가능한 것과 현재의 모든 원소에 대한 정보(개수 등)을 알 수 없다는 점임  
+다른 곳에서 관리되거나 저장된 객체들에 대한 "additional" storage를 제공하는 역할임을 생각해야 함
+
+### Summary
+
+|code|description|
+|:---|:---|
+|**WeakMap**| |
+|`weakMap.get(key)`|`weakMap`에 `key`에 해당하는 값 리턴|
+|`weakMap.set(key, value)`|`weakMap`에 `key`, `value`를 추가하고 `weakMap` 리턴|
+|`weakMap.delete(key)`|`weakMap`에서 `key`가 존재하면 삭제 후 `true`, 아니면 `false` 리턴|
+|`weakMap.has(key)`|`weakMap`에 `key`가 존재하는지 판별|
+|**WeakSet**| |
+|`weakSet.add(value)`|`value`를 추가하고 `weakSet` 리턴|
+|`weakSet.has(value)`|`value`가 존재하는지 판별|
+|`weakSet.delete(value)`|`value`가 존재하면 삭제하고 `true`, 아니면 `false` 리턴|
+
+- `WeakMap`과 `WeakSet`은 secondary storage로서, primary storage에서 객체가 지워지면 이 자료구조들에서도 자동으로 지워짐
+
+### Tasks
+- 객체 안에 property를 추가할 수 있다면, symbolic property를 추가해서 다른 사람들은 접근할 수 없는 property를 만들어서 `WeakSet`, `WeakMap`의 역할을 대신할 수 있음
+	- 구조적인 관점에서 보면 `WeakSet`이나 `WeakMap`을 사용하는게 나음(secondary storage라는 semantic role이 있기 때문)
+
+## Object.keys, values, entries
+`keys/values/entries()`는 모든 자료 구조들에 대해서 사용 가능하도록 약속되어 있음  
+=> 자료구조를 만들게 된다면 이 메소드들도 구현해야 함
+
+`Map`, `Set`, `Array`에 대해서는 이미 배움(iterable을 리턴함)  
+`Object`에 대해서도 사용 가능하지만, **array를 리턴**함!
+- `Object.keys(obj)` : keys의 array를 리턴
+- `Object.values(obj)` : values의 array를 리턴
+- `Object.entries(obj)` : `[key, value]`의 array를 리턴
+	- 호출 방법이 `map.keys()`와 다른 것에 유의  
+		∵ `obj`가 `keys`라는 method를 가질 수도 있기 때문
+
+> ※ `Object.keys/values/entries`는 symbolic properties를 무시함!!
+> `Object.getOwnPropertySymbols(obj)`가 symbolic keys만 나열된 array를 리턴  
+> `Reflect.ownKeys(obj)`가 모든 key가 나열된 array 리턴
+
+### Transforming objects
