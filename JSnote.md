@@ -3334,8 +3334,8 @@ alert('0' == [] ); // false, (4)
 |code|description|
 |:---|:---|
 |`arr.length`|`arr`의 길이 반환|
-|`arr.push(val [, val2...])`<br>`arr.pop()`|`arr`의 뒤쪽에 원소 삽입/삭제|
-|`arr.unshift(val [, val2...])`<br>`arr.shift()`|`arr`의 앞쪽에 원소 삽입/삭제|
+|`arr.push(val [,val2...])`<br>`arr.pop()`|`arr`의 뒤쪽에 원소 삽입/삭제|
+|`arr.unshift(val [,val2...])`<br>`arr.shift()`|`arr`의 앞쪽에 원소 삽입/삭제|
 
 - `unshift`, `shift`는 `O(n)`임
 - 웬만하면 `for...of` 사용해서 탐색
@@ -4273,3 +4273,298 @@ e.g. 사용자의 방문 횟수가 아닌, 방문 여부
 > `Reflect.ownKeys(obj)`가 모든 key가 나열된 array 리턴
 
 ### Transforming objects
+객체에는 array의 `map`, `filter`와 같은 method들이 없음  
+하지만 아래와 같이 property들을 순회할 수 있는 방법이 존재:
+1. `Object.entries(obj)`를 사용해서 `obj`로부터 key/value pair의 배열을 얻음
+2. 얻은 배열에 배열의 method를 적용
+3. 반환된 배열을 `Object.fromEntries(array)`로 다시 객체로 만듦
+
+```javascript
+let prices = {
+  banana: 1,
+  orange: 2,
+  meat: 4,
+};
+
+let doublePrices = Object.fromEntries(
+  // convert to array, map, and then fromEntries gives back the object
+  Object.entries(prices).map(([key, value]) => [key, value * 2])
+);
+
+alert(doublePrices.meat); // 8
+```
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`Object.keys(obj)`<br>`Object.values(obj)`<br>`Object.entries(obj)`|`obj`의 key들의 array 리턴<br>`obj`의 value들의 array 리턴<br>`obj`의 `[key, value]`들의 array 리턴|
+|`Object.fromEntries(array)`|entry들로 이루어진 `array`를 바탕으로 객체를 생성하고 리턴|
+
+- `Object.keys/values/entries`는 `Map`이나 다른 객체들의 method와 같이 iterable이 아닌 `Array`를 리턴함에 주의!
+
+```javascript
+let arr = ['a', , 'c'];
+let sparseKeys = Object.keys(arr);
+let denseKeys = [...arr.keys()];
+alert(sparseKeys); // ['0', '2']
+alert(denseKeys);  // [0, 1, 2]
+
+alert(arr[1]);
+```
+- `Object.keys(arr)`은 arr의 arr[n]의 값이 `undefined`면 무시하지만, `arr.keys()`는 무시하지 않고 모두 출력함!
+
+## Destructuring assignment
+*Destructuring assignment*는 배열이나 객체를 변수들로 분리하는 문법임  
+Destructuring은 수많은 파라미터, 기본값을 가지는 복잡한 함수에도 알맞음
+
+### Array destructuring
+```javascript
+// 1
+let [firstName, surname] = "John Smith".split(' ');
+alert(surname);  // Smith
+
+// 2
+let [firstName, , title] = ["Julius", "Caesar", "Consul", "of the Roman Republic"];
+alert( title ); // Consul
+
+// 3
+let [a, b, c] = "abc"; // ["a", "b", "c"]
+let [one, two, three] = new Set([1, 2, 3]);
+
+// 4
+let user = {
+  name: "John",
+  age: 30
+};
+
+// loop over keys-and-values
+for (let [key, value] of Object.entries(user)) {
+  alert(`${key}:${value}`); // name:John, then age:30
+}
+
+// 5
+[guest, admin] = [admin, guest];
+
+```
+1. `"John Smith".split(' ')`와 같이 배열을 리턴하는 method도 "destructurize" 가능함
+2. `,`를 사용해서 원소를 무시할 수 있음
+3. 오른쪽에는 모든 iterable이 올 수 있음
+4. destructuring을 이용해서 entries를 순회할 수 있음
+	- `Map`, `Set`도 가능함
+5. 손쉽게 swap을 구현할 수 있음
+
+> ※ Destructuring은 destructive와 다른 의미임  
+> 객체를 분해하지만, 객체 자체에 영향을 주지는 않음
+
+#### The rest `...`
+```javascript
+let arr = ["Julius", "Caesar", "Consul", "of the Roman Republic"];
+let [name1, name2] = arr;
+
+alert(name1); // Julius
+alert(name2); // Caesar
+
+let [name1, name2, ...rest] = arr;
+
+alert(rest[0]); // Consul
+alert(rest[1]); // of the Roman Republic
+alert(rest.length); // 2
+```
+- 길이가 4인 배열을 `[a1, a2]`로 destructurize하면 배열의 3, 4번째 원소들은 무시됨
+- `...`을 사용하면 남는 원소들을 한꺼번에 저장할 수 있음
+	- `...` 다음에 남는 원소들을 저장할 변수의 이름을 넣음
+	- destructuring assignment에서만 사용 가능
+	- 항상 left-side의 마지막에 사용해야 함
+
+#### Default values
+```javascript
+// default values
+let [name = "Guest", surname = "Anonymous"] = ["Julius"];
+
+alert(name);    // Julius (from array)
+alert(surname); // Anonymous (default used)
+
+// runs only prompt for surname
+let [name = prompt('name?'), surname = prompt('surname?')] = ["Julius"];
+
+alert(name);    // Julius (from array)
+alert(surname); // whatever prompt gets
+```
+- destructuring을 사용할 때 left-side에 default value 설정 가능
+	- `prompt`를 사용해서 부족한 값을 입력받을 수 있음
+
+### Object destructuring
+```javascript
+let {var1, var2} = {var1:..., var2:...};
+
+/*-------------example--------------*/
+
+let options = {
+  title: "Menu",
+  width: 100,
+  height: 200
+};
+
+// 1
+let {title, width, height} = options;
+
+// 2
+let {width, title, height} = options;
+
+// 3
+let {width: w, height: h, title} = options;
+
+// 4
+let {width = 100, height = prompt("height?"), title} = options;
+
+// 5
+let {width: w = 100, height: h = 200, title} = options;
+```
+1. destructurize할 객체의 key를 left-side에 넣어야 함  
+	=> `title`, `width`, `height`라는 변수 안에 property의 값이 저장됨
+2. left-side의 변수의 순서들은 상관없음
+3. left-side에서 `sourceProperty: targetVariable`과 같이 이름을 다시 설정 가능함
+4. array destructuring 같이 default value를 설정 가능함
+5. `:`와 `=`를 동시에 사용 가능함
+
+#### The rest pattern `...`
+array destructuring과 같이 남는 property들을 rest pattern `...`을 사용해서 다른 객체에 저장 가능함:  
+```javascript
+let options = {
+  title: "Menu",
+  height: 200,
+  width: 100
+};
+
+let {title, ...rest} = options;
+
+alert(rest.height);  // 200
+```
+- 나머지 property들은 `rest`라는 객체 안에 저장됨
+	- old IE의 경우 Babel 등으로 polyfill 해야함
+
+> ※ `let` 없이 destructuring을 사용하기 위해선 아래와 같이 괄호로 묶어야 함!  
+> `({title, width, height} = {title: "Menu", width: 200, height: 100});`  
+> ∵ JS는 `{...}`을 code block으로 인식하기 때문
+
+### Nested destructuring
+```javascript
+let options = {
+  size: {
+    width: 100,
+    height: 200
+  },
+  items: ["Cake", "Donut"],
+  extra: true
+};
+
+let {
+  size: {
+    width,
+    height
+  },
+  items: [item1, item2],
+  title = "Menu"
+} = options;
+
+alert(title);  // Menu
+alert(width);  // 100
+alert(height); // 200
+alert(item1);  // Cake
+alert(item2);  // Donut
+```
+- left-side pattern을 알맞게 설정해서 중첩된 객체도 destructurize 가능
+
+### Smart function parameters
+함수의 parameter에도 destructuring을 적용 가능:  
+```javascript
+function({
+  incomingProperty: varName = defaultValue
+  ...
+}) { ... }
+
+/*-------------example--------------*/
+
+let options = {
+  title: "My menu",
+  items: ["Item1", "Item2"]
+};
+
+function showMenu({
+  title = "Untitled",
+  width: w = 100,  // width goes to w
+  height: h = 200, // height goes to h
+  items: [item1, item2] // items first element goes to item1, second to item2
+} = {}) {
+  alert( `${title} ${w} ${h}` ); // My Menu 100 200
+  alert( item1 ); // Item1
+  alert( item2 ); // Item2
+}
+
+showMenu(options);
+```
+- 함수의 parameter가 많을 때 객체 하나로 담아서 보낸 후 분해해서 사용가능하게 만듦
+- destructuring은 항상 argument가 존재한다고 가정하기 때문에 destructuring에도 기본값(`= {}`)을 넣어줘야 함!
+
+### Summary
+
+|`let [...] = array;`|array destructuring|
+|`let {...} = obj;`|object destructuring|
+|`...`|rest pattern<br>객체일 경우 새로운 객체 안에, 배열일 경우 새로운 배열을 저장 공간으로 사용함|
+
+- 기존에 존재하는 변수에 대해 수행할 경우 전체 문장을 괄호로 묶어야 함
+
+## Date and time
+### Creation
+```javascript
+new Date()
+new Date(milliseconds)
+new Date(datestring)
+new Date(year, month, date, hours, minutes, seconds, ms)
+
+/*-------------example--------------*/
+
+let now = new Date();
+let Jan02_1970 = new Date(24 * 3600 * 1000);
+let date = new Date("2017-01-26");
+let date = new Date(2011, 0, 1);
+```
+- argument 없이 호출하면 현재 시간을 저장
+- milliseconds는 1970.01.01 UTC 기준, 음수도 가능
+- datestring은 GMT 기준 0시로 설정된 후 실행되는 환경의 timezone을 따라서 수정됨
+- 직접 입력하는 경우 끝쪽부터 연속으로 0인 부분은 생략 가능
+
+### Access date components
+- `date.getFullyear()` : 4자리로 `date`의 연도 리턴
+- `date.getMonth()` : `[0, 11]`으로 `date`의 달 리턴
+- `date.getDate()` : `date`의 일 리턴
+- `date.getHours()/.getMinutes()/.getSeconds()/.getMilliseconds()` : `date`의 시/분/초/밀리초 리턴
+- `date.getDay()` : `[0, 6]`으로 `date`의 요일 리턴(0이 일요일)
+
+> ※ 위의 메소드들은 모두 실행 환경의 timezone이 기준임  
+> get뒤에 UTC를 붙여서 UTC 기준으로 시간을 출력할 수도 있음
+
+- `date.getTime()` : 1970.01.01 UTC으로부터 현재까지 지난 시간을 ms단위로 리턴
+- `date.getTimezoneOffset()` : UTC와 현재 timezone의 차이를 분 단위로 리턴  
+	timezone이 UTC-1이면 `60`이 리턴됨(UTC+0이 기준임)
+
+> ※ UTC+1이면 UTC보다 1시간 빠름
+
+### Setting date components
+- `date.setFullYear(year [,month [,date]])`
+- `date.setMonth(month [,date])`
+- `date.setDate(date)`
+- `date.setHours(hour [,min [,sec [,ms]]])`
+- `date.setMinutes(min [,sec [,ms]])`
+- `date.setSeconds(sec [,ms])`
+- `date.setMilliseconds(ms)`
+- `date.setTime(milliseconds)` : `date`의 시간을 1970.01.01 UTC 기준으로 `milliseconds` ms 만큼 지난 시간으로 설정
+
+`setTime`을 제외한 메소드들은 UTC-variant를 가짐  
+e.g. `setUTCHours`
+
+> ※ argument 이외의 부분은 수정되지 않음!
+
+### Autocorrection
+윤년이나 범위를 넘어선 값들은 알아서 계산해서 대입함
