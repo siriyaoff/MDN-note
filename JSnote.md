@@ -4509,6 +4509,8 @@ showMenu(options);
 
 ### Summary
 
+|code|description|
+|:---|:---|
 |`let [...] = array;`|array destructuring|
 |`let {...} = obj;`|object destructuring|
 |`...`|rest pattern<br>객체일 경우 새로운 객체 안에, 배열일 경우 새로운 배열을 저장 공간으로 사용함|
@@ -4536,9 +4538,9 @@ let date = new Date(2011, 0, 1);
 - 직접 입력하는 경우 끝쪽부터 연속으로 0인 부분은 생략 가능
 
 ### Access date components
-- `date.getFullyear()` : 4자리로 `date`의 연도 리턴
+- `date.getFullYear()` : 4자리로 `date`의 연도 리턴
 - `date.getMonth()` : `[0, 11]`으로 `date`의 달 리턴
-- `date.getDate()` : `date`의 일 리턴
+- `date.getDate()` : `[1, 31]`으로 `date`의 일 리턴
 - `date.getHours()/.getMinutes()/.getSeconds()/.getMilliseconds()` : `date`의 시/분/초/밀리초 리턴
 - `date.getDay()` : `[0, 6]`으로 `date`의 요일 리턴(0이 일요일)
 
@@ -4567,4 +4569,184 @@ e.g. `setUTCHours`
 > ※ argument 이외의 부분은 수정되지 않음!
 
 ### Autocorrection
-윤년이나 범위를 넘어선 값들은 알아서 계산해서 대입함
+윤년이나 범위를 넘어선 값들은 알아서 계산해서 대입함:  
+```javascript
+let date = new Date(2013, 0, 32); // 1 Feb 2013
+
+let date = new Date(2016, 1, 28); // 28 Feb 2016
+date.setDate(date.getDate() + 2); // 1 Mar 2016
+
+date.setDate(0); // 최소가 1이기 때문에 이전 달의 말일으로 변경됨 = 29 Feb 2016
+```
+- 달의 경우 `[0, 11]`으로 표현됨에 주의
+- 일은 `[1, 31]`로 표현됨
+
+### Date to number, date diff
+`Date` 객체가 `Number`로 변환되면 `date.getTime()`과 같은 결과가 나옴  
+=> 1970.01.01부터 현재까지 경과한 ms를 반환함  
+=> 아래와 같이 실행시간 측정에 사용 가능  
+```javascript
+let start = new Date();
+
+// do the job
+for (let i = 0; i < 100000; i++) {
+  let doSomething = i * i * i;
+}
+
+let end = new Date();
+alert( `The loop took ${end - start} ms` );
+```
+
+### Date.now()
+시간을 측정하기 위해서 `Date` 객체를 선언할 필요는 없음  
+`Date.now()` method를 사용하면 현재 timestamp(1970.01.01부터 경과한 ms)를 알 수 있음  
+`new Date().getTime()`과 같은 기능이지만 객체를 생성하지 않기 때문에 더 빠름  
+```javascript
+let start = Date.now();
+
+// do the job
+for (let i = 0; i < 100000; i++) {
+  let doSomething = i * i * i;
+}
+
+let end = Date.now();
+alert( `The loop took ${end - start} ms` );
+```
+
+### Benchmarking
+```javascript
+function diffSubtract(date1, date2) {
+  return date2 - date1;
+}
+
+function diffGetTime(date1, date2) {
+  return date2.getTime() - date1.getTime();
+}
+```
+- 각 함수를 100000번씩 돌리면 `diffGetTime`이 더 빠름
+	- type conversion을 하지 않기 때문
+- multi-process OS에서는 병렬로 작업을 처리되는 작업이 존재할 수 있으므로 각 함수들을 번갈아가면서 여러 번 측정해야 더 신뢰할 수 있는 결과를 얻을 수 있음  
+	```javascript
+	// added for "heating up" prior to the main loop
+	bench(diffSubtract);
+	bench(diffGetTime);
+
+	// now benchmark
+	for (let i = 0; i < 10; i++) {
+	  time1 += bench(diffSubtract);
+	  time2 += bench(diffGetTime);
+	}
+	```
+	- JS의 engine은 자주 실행되는 'hot code'만을 최적화하기 때문에 벤치마킹할 코드를 미리 실행시켜 heat-up하는게 좋음
+- 최신의 JS engine들은 최적화를 많이 하기 때문에 연산자나 내장 함수 등을 측정하는 것은 테스트와 실제 환경에서 많이 다를 수 있음
+
+### Date.parse from a string
+`Date.parse(str)`을 사용해서 `String`으로부터 timestamp를 파싱할 수 있음  
+`str`의 format은 `YYYY-MM-DDTHH:mm:ss.sssZ`이어야 함:
+- `YYYY-MM-DD` : year-month-day
+- `"T"` : delimiter(character)
+- `HH:mm:ss.sss` : hour-minute-second-millisecond
+- `Z` : timezone(`+-hh:mm`)
+	- `Z`만 사용하면 UTC+0을 나타냄
+
+#### Example
+```javascript
+let ms = Date.parse('2012-01-26T13:51:50.417-07:00');
+alert(ms); // 1327611110417  (timestamp)
+
+let date = new Date( Date.parse('2012-01-26T13:51:50.417-07:00') );
+alert(date);
+```
+- 입력 포맷이 잘못되면 `NaN` 리턴
+- 결과값을 바로 `Date`의 생성자에 넣어서 `Date` 객체 생성 가능
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`date.getFullYear()`|`date`의 연도를 4자리로 리턴|
+|`date.getMonth()`|`date`의 달을 `[0, 11]`으로 리턴|
+|`date.getDate()`|`date`의 일을 `[1, 31]`으로 리턴|
+|`date.getHours()`<br>`date.getMinutes()`<br>`date.getSeconds()`<br>`date.getMilliseconds()`|`date`의 시/분/초/밀리초 리턴|
+|`date.getDay()`|`date`의 요일을 `[0, 6]`으로 리턴<br>0이 일요일|
+|`date.getTime()`|1970.01.01 UTC+0부터 현재까지 경과한 시간을 ms 단위로 리턴|
+|`date.getTimezoneOffset()`|UTC+0과 현재 timezone의 차이를 분 단위로 리턴<br>UTC+0 기준임|
+|`date.setFullYear(year [,month [,date]])`<br>`date.setMonth(month [,date])`<br>`date.setDate(date)`<br>`date.setHours(hour [,min [,sec [,ms]]])`<br>`date.setMinutes(min [,sec [,ms]])`<br>`date.setSeconds(sec [,ms])`<br>`date.setMilliseconds(ms)`|`date`의 시간 설정|
+|`date.setTime(milliseconds)`|`date`의 시간을 1970.01.01 UTC 기준으로 `milliseconds` ms 만큼 지난 시간으로 설정|
+|`Date.now()`|`new Date().getTime()`과 같음|
+|`Date.parse(str)`|`YYYY-MM-DDTHH:mm:ss.sssZ` 포맷의 `str`을 파싱해서 timestamp 리턴<br>`str`의 포맷이 잘못된 경우 `NaN` 리턴|
+
+- 이름에 "Time"이 들어가지 않은 method들은 `get/set` 다음에 `UTC`를 붙여서 UTC+0 기준으로 설정 가능(= UTC-variant)
+- `set*` 메소드들은 argument 이외의 정보들은 수정되지 않음  
+	리턴값은 설정된 시간의 timestamp임
+- Month은 `[0, 11]`, Day는 `[0, 6]`, Date는 `[1, 31]`로 표현됨에 주의
+- `Date`를 `Number`로 변환하면 `date.getTime()`과 같은 결과임
+- JS는 마이크로초로 시간을 측정해주는 메소드를 지원하지 않음  
+	browser가 `performance.now()`로 페이지가 로딩될 때부터 경과된 시간을 마이크로초로 측정하는 메소드 지원  
+	Node.js는 `microtime` 모듈로 지원함
+
+### Tasks
+- `new Date(year, month+1, 0).getDate()`로 `year.month`의 마지막 날을 알 수 있음
+
+## JSON methods, toJSON
+복잡한 객체를 전송/로깅 등의 이유로 `String`으로 바꿔야 한다고 가정하자.  
+`toString()` method를 구현하는 방법은 property가 바뀔 때마다 갱신해줘야 하고, 중첩된 객체가 있을 경우도 고려해야 하므로 비효율적임  
+=> JSON을 이용해서 표현 가능
+
+### JSON.stringify
+JSON(JavaScript Object Notation) : 값과 객체를 나타내는 범용적인 format  
+원래는 JS를 위해서 만들어졌지만, 다른 언어들도 JSON을 처리하는 라이브러리를 가짐  
+따라서 client가 JS를 사용하면 JSON을 사용해서 데이터를 교환하는게 편리함
+
+JS는 아래 메소드들을 지원함:
+- `JSON.stringify(obj)` : `obj`를 JSON으로 변환
+- `JSON.parse` : JSON을 객체로 변환
+
+#### Example
+```javascript
+let student = {
+  name: 'John',
+  age: 30,
+  isAdmin: false,
+  courses: ['html', 'css', 'js'],
+  wife: null
+};
+
+let json = JSON.stringify(student);
+
+alert(typeof json); // string
+alert(json);
+/*
+{
+  "name": "John",
+  "age": 30,
+  "isAdmin": false,
+  "courses": ["html", "css", "js"],
+  "wife": null
+}
+*/
+```
+- JSON은 `typeof`로 조사하면 `String`으로 나옴
+- JSON을 사용해서 도출된 string `json`은 *JSON-encoded/serialized/stringified/marshalled* object라고 불림
+- JSON-encoded object는 object literal과 몇 가지 차이점이 존재함:
+	- `String`은 오직 큰 따옴표로 표현됨
+	- property name도 큰 따옴표로 표현됨
+
+```javascript
+alert( JSON.stringify(1) ) // 1
+
+alert( JSON.stringify('test') ) // "test"
+
+alert( JSON.stringify(true) ); // true
+
+alert( JSON.stringify([1, 2, 3]) ); // [1,2,3]
+```
+- `JSON.stringify`는 primitive에도 적용 가능함
+- JSON은 아래와 같은 data types를 지원함:
+	- Objects `{ ... }`
+	- Arrays `[ ... ]`
+	- Primitives(strings, numbers, booleans, `null`)
+
+> ※ JSON은 data-only, language-independent하기 때문에 JS-specific한 properties는 `JSON.stringify`가 무시함  
+> e.g. methods, symbolic properties, `undefined`를 저장하고 있는 properties
+
