@@ -493,7 +493,7 @@ typeof alert // "function"
 
 ### prompt
 ```javascript
-result=promprt(title [,default]);
+result=promprt(title[, default]);
 ```
 와 같이 사용됨  
 input field, OK, Cancel 두 버튼이 있는 modal window를 띄움  
@@ -1749,7 +1749,7 @@ alert( obj[0] ); // test (same property)
 
 > 객체 배열을 선언하면 그것과는 구별을 어떻게 하나?  
 > - Integer property와 배열은 코드에서 바로 구분할 수는 없을 듯  
-	꼭 알아야 할 상황이면 `Array.isArray()`를 사용하면 됨
+>	꼭 알아야 할 상황이면 `Array.isArray()`를 사용하면 됨
 
 `__proto__`는 non-object value로 설정할 수 없음!  
 `obj.__proto__`와 같이 호출하면 아예 object가 리턴됨
@@ -1912,7 +1912,7 @@ properties를 constant로 만들기 위해선 Property flags를 사용해야 함
 
 |code|description|
 |:---|:---|
-|`Object.assign(dest [,src1, src2...]);`|object cloning(shallow copy)|
+|`Object.assign(dest[, src1, src2...]);`|object cloning(shallow copy)|
 
 - `object`는 호출될 때 항상 call by reference로 처리됨
 - deep copy는 lodash의 `_.cloneDeep(obj)` 이용
@@ -2784,6 +2784,7 @@ JS 엔진은 추가적인 객체를 생성하지 않을 만큼 최적화되어 �
 > Java와 같은 언어에서는 명시적으로 wrapper object를 생성할 수 있음(`new Number(0)`과 같이)  
 > JS에서도 가능은 하지만 크게 아래의 이유로 추천되지 않음:  
 > - primitive가 아닌 object로 인식되기 때문에 조건문에서 값에 상관없이 참을 반환함
+>
 > 반면 `new`를 사용하지 않고 `String/Number/Boolean`만 쓰는 것은 값을 원하는 type으로 변환하게 도와주기 때문에 유용함  
 > e.g. `let num = Number("123");`
 
@@ -2931,17 +2932,17 @@ alert( parseInt('a123') ); // NaN, the first symbol stops the process
 
 |code|description|
 |:---|:---|
-|num.toString(base)|`num`을 `base`진법의 문자열으로 변환|
-|Math.floor()<br>Math.ceil()<br>Math.round()<br>Math.trunc()|소수점 처리|
-|num.toFixed(n)|소수점 이하 `n`자리까지 남도록 반올림|
-|isNaN(val)|`val`이 `NaN`인지 판별|
-|isFinite(val)|`val`이 finite한 수인지 판별|
-|Object.is(v1, v2)|`v1`, `v2`가 SameValue인지 판별|
-|parseInt(str [,radix])|`str`을 `radix` 진법으로 파싱함|
-|parseFloat(str)|`str`을 소수점까지 파싱함|
-|Math.random()|`[0, 1)` 범위의 임의의 수 반환|
-|Math.max(a, b, c...)<br>Math.min(a, b, c...)|max, min 반환|
-|Math.pow(n, pow)|`n^pow` 반환|
+|`num.toString(base)`|`num`을 `base`진법의 문자열으로 변환|
+|`Math.floor()`<br>`Math.ceil()`<br>`Math.round()`<br>`Math.trunc()`|소수점 처리|
+|`num.toFixed(n)`|소수점 이하 `n`자리까지 남도록 반올림|
+|`isNaN(val)`|`val`이 `NaN`인지 판별|
+|`isFinite(val)`|`val`이 finite한 수인지 판별|
+|`Object.is(v1, v2)`|`v1`, `v2`가 SameValue인지 판별|
+|`parseInt(str[, radix])`|`str`을 `radix` 진법으로 파싱함|
+|`parseFloat(str)`|`str`을 소수점까지 파싱함|
+|`Math.random()`|`[0, 1)` 범위의 임의의 수 반환|
+|`Math.max(a, b, c...)`<br>`Math.min(a, b, c...)`|max, min 반환|
+|`Math.pow(n, pow)`|`n^pow` 반환|
 
 - SameValue는 `===`과 비슷하지만, `(NaN, NaN)`은 같고, `(0, -0)`은 다름
 
@@ -3021,7 +3022,7 @@ alert( 'Interface'[0].toLowerCase() ); // 'i'
 
 ### Searching for a substring
 #### str.indexOf
-`str.indexOf(substr [,pos])` : `substr`을 `str`의 `pos` 번째 문자부터 찾아나감  
+`str.indexOf(substr[, pos])` : `substr`을 `str`의 `pos` 번째 문자부터 찾아나감  
 일치하는 부분이 있을 경우 시작하는 위치를 리턴, 없을 경우 `-1` 리턴:  
 ```javascript
 let str = 'Widget with id';
@@ -3031,7 +3032,7 @@ alert( str.indexOf('widget') ); // -1
 alert( str.indexOf('id', 2) ) // 12
 ```
 - 대소문자 구별함
-- `str.lastIndexOf(substr [,pos])`도 있음
+- `str.lastIndexOf(substr[, pos])`도 있음
 	- `str`의 마지막부터 `substr`을 찾아나감
 
 #### The bitwise NOT trick
@@ -3043,7 +3044,7 @@ JS에서 bitwise NOT `~`는 숫자를 32-bit 정수로 변환한 다음 NOT 연�
 최신의 JS에서는 `.includes` method를 이용함
 
 #### includes, startsWith, endsWith
-`str.includes(substr [,pos])`는 `str`에 `substr`이 들어있는지 판별함  
+`str.includes(substr[, pos])`는 `str`에 `substr`이 들어있는지 판별함  
 => `true/false` 리턴
 
 `str.startsWith(substr)`, `str.endsWith(substr)`는 `str`이 `substr`로 시작하거나, 끝나는지 판별함  
@@ -3055,11 +3056,11 @@ alert( "Widget".endsWith("get") ); // true
 ```
 
 ### Getting a substring
-1. `str.slice(start [,end])`
+1. `str.slice(start[, end])`
 	- `str`의 `[start, end)` 부분문자열을 반환  
 		`end`가 없을 경우 `start`부터 끝까지 포함한 부분문자열을 반환
 	- `start`, `end`에 음수도 넣을 수 있음
-2. `str.substring(start [,end])`
+2. `str.substring(start[, end])`
 	- `str`의 `start`와 `end` 사이를 포함한 부분문자열을 반환  
 		`slice`와 비슷하지만, `start`가 `end`보다 클 수 있음:  
 		```javascript
@@ -3074,7 +3075,7 @@ alert( "Widget".endsWith("get") ); // true
 		alert( str.slice(6, 2) ); // "" (an empty string)
 		```
 	- Negative arguments가 허용되지 않음
-3. `str.substr(start [,length])`
+3. `str.substr(start[, length])`
 	- `str`의 `start`부터 시작하는, 길이가 `length`인 부분문자열을 반환
 	- `start`는 음수를 넣을 수 있음
 
@@ -3171,13 +3172,13 @@ alert( "S\u0307\u0323".normalize() == "\u1e68" ); // true
 |`str.charAt(pos)`|`str`의 `pos` 번째 문자(없으면 `''`) 리턴|
 |`for...of`|iterating할 때 사용|
 |`str.toUpperCase()`<br>`str.toLowerCase()`|`str`을 대/소문자화|
-|`str.indexOf(substr [,pos])`|`str`의 `pos` 번째 문자부터 오른쪽으로 `substr`을 찾고 첫 번째 위치(없으면 `-1`) 리턴|
-|`str.lastIndexOf(substr [,pos])`|`str`의 `pos` 번째 문자부터 왼쪽으로 `substr`을 찾고 첫 번째 위치(없으면 `-1`) 리턴|
-|`str.includes(substr [,pos])`|`str`에 `substr`이 있는지 판별<br>`true/false` 리턴|
+|`str.indexOf(substr[, pos])`|`str`의 `pos` 번째 문자부터 오른쪽으로 `substr`을 찾고 첫 번째 위치(없으면 `-1`) 리턴|
+|`str.lastIndexOf(substr[, pos])`|`str`의 `pos` 번째 문자부터 왼쪽으로 `substr`을 찾고 첫 번째 위치(없으면 `-1`) 리턴|
+|`str.includes(substr[, pos])`|`str`에 `substr`이 있는지 판별<br>`true/false` 리턴|
 |`str.startsWith(substr)`<br>`str.endsWith(substr)`|`str`이 `substr`로 시작/끝나는지 판별<br>`true/false` 리턴|
-|`str.slice(start [,end])`|`str`의 `[start, end)`(`end` 없으면 끝까지) 리턴<br>`start`, `end`는 음수가 허용됨|
-|`str.substring(start [,end])`|`start`와 `end` 사이의 부분문자열 리턴<br>`start`가 `end`보다 클 수 있지만, 음수가 허용되지 않음|
-|`str.substr(start [,length])`|`str`에서 `start`부터 시작하고 길이가 `length`인 부분문자열 리턴<br>`start`는 음수가 허용됨|
+|`str.slice(start[, end])`|`str`의 `[start, end)`(`end` 없으면 끝까지) 리턴<br>`start`, `end`는 음수가 허용됨|
+|`str.substring(start[, end])`|`start`와 `end` 사이의 부분문자열 리턴<br>`start`가 `end`보다 클 수 있지만, 음수가 허용되지 않음|
+|`str.substr(start[, length])`|`str`에서 `start`부터 시작하고 길이가 `length`인 부분문자열 리턴<br>`start`는 음수가 허용됨|
 |`str.codePointAt(pos)`|`str`의 `pos`번째 문자의 코드 리턴|
 |`String.fromCodePoint(code)`|`code`에 해당하는 문자 리턴|
 |`str.localeCompare(str2)`|`str`과 `str2`를 비교, (`<`, `>`, `==`) 각각의 경우에 (음수, 양수, 0) 리턴|
@@ -3218,13 +3219,13 @@ JS의 array는 아래 4가지 method를 사용해서 queue나 stack으로 활용
 	- `array.pop();`
 - `push`
 	- array의 마지막에 원소를 추가, 전체 길이 반환
-	- `array.push(elem [,elem2...]);`
+	- `array.push(elem[, elem2...]);`
 - `shift`
 	- array의 첫 번째 원소를 빼서 반환
 	- `array.shift();`
 - `unshift`
 	- array의 맨 처음에 원소를 추가, 전체 길이 반환
-	- `array.unshift(elem [,elem2...]);`
+	- `array.unshift(elem[, elem2...]);`
 
 ### Internals
 array도 근본적으로는 object이기 때문에, **reference로 복사됨**  
@@ -3334,8 +3335,8 @@ alert('0' == [] ); // false, (4)
 |code|description|
 |:---|:---|
 |`arr.length`|`arr`의 길이 반환|
-|`arr.push(val [,val2...])`<br>`arr.pop()`|`arr`의 뒤쪽에 원소 삽입/삭제|
-|`arr.unshift(val [,val2...])`<br>`arr.shift()`|`arr`의 앞쪽에 원소 삽입/삭제|
+|`arr.push(val[, val2...])`<br>`arr.pop()`|`arr`의 뒤쪽에 원소 삽입/삭제|
+|`arr.unshift(val[, val2...])`<br>`arr.shift()`|`arr`의 앞쪽에 원소 삽입/삭제|
 
 - `unshift`, `shift`는 `O(n)`임
 - 웬만하면 `for...of` 사용해서 탐색
@@ -3378,7 +3379,7 @@ alert( arr.length ); // 3
 
 `arr.splice`을 사용하면 됨  
 ```javascript
-arr.splice(start [,deleteCount, elem1, ..., elemN]);
+arr.splice(start[, deleteCount, elem1, ..., elemN]);
 ```
 - `arr`의 `start` 번째부터 `deleteCount`만큼 지운 다음 `elem1, ..., elemN`을 삽입하고,  
 	지운 원소들의 배열을 반환함
@@ -3399,9 +3400,9 @@ alert( removed ); // "Let's", "dance"
 
 #### slice
 ```javascript
-arr.slice([start [,end]]);
+arr.slice([start[, end]]);
 ```
-- `String`의 method함수 `str.slice(start [,end])`와 같은 기능임
+- `String`의 method함수 `str.slice(start[, end])`와 같은 기능임
 - 인자 없이 `arr.slice()`를 실행하면 `arr`을 복사할 수 있음
 - `arr`이 수정되는게 아니라 새로운 배열이 반환됨
 
@@ -3477,9 +3478,9 @@ arr.forEach(function(item, index, array) { ... });
 #### indexOf/lastIndexOf and includes
 `String`의 method들과 같음
 
-- `arr.indexOf(item [,from])`
-- `arr.lastIndexOf(item [,from])`
-- `arr.includes(item [,from])`
+- `arr.indexOf(item[, from])`
+- `arr.lastIndexOf(item[, from])`
+- `arr.includes(item[, from])`
 
 > ※ 모두 비교할 때 `===`을 사용함  
 > => `false`를 넣으면 falsy value가 아닌 `false`만 찾음
@@ -3600,7 +3601,7 @@ alert( arr ); // 5,4,3,2,1
 
 #### split and join
 ```javascript
-str.split([delim [,limit]]);
+str.split([delim[, limit]]);
 
 /*-------------example--------------*/
 
@@ -3692,25 +3693,25 @@ alert(soldiers[1].age); // 23
 
 |code|description|
 |:---|:---|
-|`arr.splice(start [,deleteCount, elem1, ..., elemN])`|`arr`의 `start` 번째부터 `deleteCount`만큼 지운 다음 `elem1, ..., elemN`을 삽입하고, 지운 원소들의 배열을 리턴<br>`arr`도 변화함|
-|`arr.slice([start [,end]])`|`arr`의 `[start, end)`를 리턴|
+|`arr.splice(start[, deleteCount, elem1, ..., elemN])`|`arr`의 `start` 번째부터 `deleteCount`만큼 지운 다음 `elem1, ..., elemN`을 삽입하고, 지운 원소들의 배열을 리턴<br>`arr`도 변화함|
+|`arr.slice([start[, end]])`|`arr`의 `[start, end)`를 리턴|
 |`arr.concat(arg1, arg2...)`|`arr`에 `arg...`을 더한 배열을 리턴|
 |`arr.forEach(function(item, index, array) { ... })`|`arr`의 원소들을 순회하면서 함수에 대입함|
-|`arr.indexOf(item [,from])`<br>`arr.lastIndexOf(item [,from])`|`arr`의 `from` 번째부터 `item`을 찾고 첫 번째 일치하는 원소의 인덱스(없으면 `-1`)을 리턴<br>`arr`의 `from`부터 왼쪽으로 `item`을 찾고 첫 번째 일치하는 원소의 인덱스(없으면 `-1`)을 리턴|
-|`arr.includes(item [,from])`|`arr`의 `from` 번째부터 `item`이 존재하는지 판별<br>`true/false` 리턴|
+|`arr.indexOf(item[, from])`<br>`arr.lastIndexOf(item[, from])`|`arr`의 `from` 번째부터 `item`을 찾고 첫 번째 일치하는 원소의 인덱스(없으면 `-1`)을 리턴<br>`arr`의 `from`부터 왼쪽으로 `item`을 찾고 첫 번째 일치하는 원소의 인덱스(없으면 `-1`)을 리턴|
+|`arr.includes(item[, from])`|`arr`의 `from` 번째부터 `item`이 존재하는지 판별<br>`true/false` 리턴|
 |`arr.find(function(item, index, array) { ... })`<br>`arr.findIndex(function(item, index, array) { ... })`|함수가 `true`를 반환하면 탐색을 멈추고 해당 원소 리턴<br>`arr.find`와 같지만, 해당 index 리턴|
 |`arr.filter(function(item, index, array) { ... })`|함수를 `true`로 만드는 원소들의 배열 리턴|
 |`arr.map(function(item, index, array) { ... })`|함수로 `arr`을 매핑하고 result array를 리턴|
 |`arr.sort([function() { ... })`|함수를 기준으로 정렬한 결과를 리턴<br>`arr`도 변화함<br>함수를 생략하면 string으로 비교해서 정렬함|
 |`arr.reverse()`|`arr`을 역순으로 정렬하고 결과 리턴<br>`arr`도 변화함|
-|`str.split([delim [,limit]])`|`str`을 `delim`으로 구분하고 `limit` 개까지만 array에 저장 후 리턴<br>아무 것도 넣지 않을 경우 나눠지지 않고, `''`을 넣을 경우 한 글자씩 나눠짐|
+|`str.split([delim[, limit]])`|`str`을 `delim`으로 구분하고 `limit` 개까지만 array에 저장 후 리턴<br>아무 것도 넣지 않을 경우 나눠지지 않고, `''`을 넣을 경우 한 글자씩 나눠짐|
 |`arr.join(glue)`|`arr`의 원소들을 `glue`를 사이에 넣어서 이은 string을 리턴|
 |`arr.reduce(function(accumulator, item, index, array) { ... }, [initial])`|`arr`의 원소들을 함수에 넣으면서 `accumulator`에 결과를 저장하고 반환<br>`initial`은 `accumulator`의 초기값|
 |`arr.reduceRight(function(accumulator, item, index, array) { ... }, [initial])`|`arr.reduce`와 같은 기능이지만 원소들을 역순으로 처리함|
 |`Array.isArray(value)`|`value`가 `Array` type인지 판별|
 |`arr.some(function(item, index, array) { ... })`<br>`arr.every(function(item, index, array) { ... })`|`arr` 안에 함수를 `true`로 만드는 원소가 있는지 판별<br>모든 원소가 함수를 `ture`로 만드는지 판별|
-|`arr.fill(value [,start [,end]])`|`arr`의 `[start, end)`를 `value`로 채우고 리턴<br>`arr`도 변화함|
-|`arr.copyWithin(target [,start [,end]])`|`arr`의 `[start, end)`를 `target` 번째부터 시작해서 붙여넣고 리턴<br>`arr`도 변화함|
+|`arr.fill(value[, start[, end]])`|`arr`의 `[start, end)`를 `value`로 채우고 리턴<br>`arr`도 변화함|
+|`arr.copyWithin(target[, start[, end]])`|`arr`의 `[start, end)`를 `target` 번째부터 시작해서 붙여넣고 리턴<br>`arr`도 변화함|
 |`arr.flat([depth])`|`arr`의 원소들을 `depth`만큼 차원을 낮춘 결과를 리턴<br>`depth`를 `Infinity`로 설정할 수 있음|
 |`arr.flatMap(function(item, index, array) { ... })`|`arr`의 원소들을 함수로 매핑 후 한 차원 낮춘 결과를 리턴|
 
@@ -3902,7 +3903,7 @@ string은 iterable이면서(`for...of`에서 작동함) array-like(numeric index
 ### Array.from
 `Array.from` method를 사용해서 iterable이나 array-like로 진짜 `Array` type으로 만들 수 있음:  
 ```javascript
-Array.from(obj [,mapFn, thisArg]);
+Array.from(obj[, mapFn, thisArg]);
 
 /*-------------example--------------*/
 
@@ -3931,9 +3932,9 @@ alert(chars.length); // 2
 
 |code|description|
 |:---|:---|
-|`range.[Symbol.iterator]()`|`range` 객체를 iterable로 만들기 위해서 정의해야 함<br>iterator 객체를 리턴해야 함|
-|`iterator.next()`|`iterator` 객체가 다음 반복으로 넘어가기 전에 호출하는 함수<br>`done`, `value` property를 가진 객체를 리턴해야 함|
-|`Array.from(obj [,mapFn, thisArg])`|iterable 또는 array-like 객체인 `obj`를 `Array` type으로 바꾸고 `mapFn`을 사용해서 매핑한 배열을 리턴|
+|`range.[Symbol.iterator]()`|객체 `range`를 iterable로 만들기 위해서 정의해야 함<br>iterator 객체를 리턴해야 함|
+|`iterator.next()`|`iterator`가 다음 반복으로 넘어가기 전에 호출하는 함수<br>`done`, `value` property를 가진 객체를 리턴해야 함|
+|`Array.from(obj[, mapFn, thisArg])`|iterable 또는 array-like 객체인 `obj`를 `Array` type으로 바꾸고 `mapFn`을 사용해서 매핑한 배열을 리턴|
 
 - `[Symbol.iterator]()` method는 `for...of`가 호출될 때 자동으로 실행됨
 - `String`, `Array` 같은 built-in iterables도 위 메소드가 구현되어 있음
@@ -4554,12 +4555,12 @@ let date = new Date(2011, 0, 1);
 > ※ UTC+1이면 UTC보다 1시간 빠름
 
 ### Setting date components
-- `date.setFullYear(year [,month [,date]])`
-- `date.setMonth(month [,date])`
+- `date.setFullYear(year[, month[, date]])`
+- `date.setMonth(month[, date])`
 - `date.setDate(date)`
-- `date.setHours(hour [,min [,sec [,ms]]])`
-- `date.setMinutes(min [,sec [,ms]])`
-- `date.setSeconds(sec [,ms])`
+- `date.setHours(hour[, min[, sec[, ms]]])`
+- `date.setMinutes(min[, sec[, ms]])`
+- `date.setSeconds(sec[, ms])`
 - `date.setMilliseconds(ms)`
 - `date.setTime(milliseconds)` : `date`의 시간을 1970.01.01 UTC 기준으로 `milliseconds` ms 만큼 지난 시간으로 설정
 
@@ -4671,7 +4672,7 @@ alert(date);
 |`date.getDay()`|`date`의 요일을 `[0, 6]`으로 리턴<br>0이 일요일|
 |`date.getTime()`|1970.01.01 UTC+0부터 현재까지 경과한 시간을 ms 단위로 리턴|
 |`date.getTimezoneOffset()`|UTC+0과 현재 timezone의 차이를 분 단위로 리턴<br>UTC+0 기준임|
-|`date.setFullYear(year [,month [,date]])`<br>`date.setMonth(month [,date])`<br>`date.setDate(date)`<br>`date.setHours(hour [,min [,sec [,ms]]])`<br>`date.setMinutes(min [,sec [,ms]])`<br>`date.setSeconds(sec [,ms])`<br>`date.setMilliseconds(ms)`|`date`의 시간 설정|
+|`date.setFullYear(year[, month[, date]])`<br>`date.setMonth(month[, date])`<br>`date.setDate(date)`<br>`date.setHours(hour[, min[, sec[, ms]]])`<br>`date.setMinutes(min[, sec[, ms]])`<br>`date.setSeconds(sec[, ms])`<br>`date.setMilliseconds(ms)`|`date`의 시간 설정|
 |`date.setTime(milliseconds)`|`date`의 시간을 1970.01.01 UTC 기준으로 `milliseconds` ms 만큼 지난 시간으로 설정|
 |`Date.now()`|`new Date().getTime()`과 같음|
 |`Date.parse(str)`|`YYYY-MM-DDTHH:mm:ss.sssZ` 포맷의 `str`을 파싱해서 timestamp 리턴<br>`str`의 포맷이 잘못된 경우 `NaN` 리턴|
@@ -4750,3 +4751,219 @@ alert( JSON.stringify([1, 2, 3]) ); // [1,2,3]
 > ※ JSON은 data-only, language-independent하기 때문에 JS-specific한 properties는 `JSON.stringify`가 무시함  
 > e.g. methods, symbolic properties, `undefined`를 저장하고 있는 properties
 
+중요한 점은 nested object를 지원한다는 것임!  
+하지만 circular reference가 있으면 에러가 남  
+```javascript
+let room = {
+  number: 23
+};
+
+let meetup = {
+  title: "Conference",
+  participants: ["john", "ann"]
+};
+
+meetup.place = room;       // meetup references room
+room.occupiedBy = meetup; // room references meetup
+
+JSON.stringify(meetup); // Error: Converting circular structure to JSON
+```
+
+### Excluding and transforming: replacer
+`JSON.stringify`의 full syntax는 아래와 같음:  
+```javascript
+let json = JSON.stringify(value[, replacer[, space]]);
+```
+- `value` : 인코딩할 값
+- `replacer` : 인코딩할 property가 저장된 배열 또는 mapping function `function(key, value)`
+	- mapping function은 인코딩하지 않을 property에 대해서 `undefined`를 리턴하면 됨
+- `space` : indent 설정
+
+#### Example
+```javascript
+let room = {
+  number: 23
+};
+
+let meetup = {
+  title: "Conference",
+  participants: [{name: "John"}, {name: "Alice"}],
+  place: room // meetup references room
+};
+
+room.occupiedBy = meetup; // room references meetup
+
+// 1
+alert( JSON.stringify(meetup, ['title', 'participants']) );
+// {"title":"Conference","participants":[{},{}]}
+
+// 2
+alert( JSON.stringify(meetup, ['title', 'participants', 'place', 'name', 'number']) );
+/*
+{
+  "title":"Conference",
+  "participants":[{"name":"John"},{"name":"Alice"}],
+  "place":{"number":23}
+}
+*/
+
+// 3
+alert( JSON.stringify(meetup, function replacer(key, value) {
+  alert(`${key}: ${value}`);
+  return (key == 'occupiedBy') ? undefined : value;
+}));
+/* key:value pairs that come to replacer:
+:             [object Object]
+title:        Conference
+participants: [object Object],[object Object]
+0:            [object Object]
+name:         John
+1:            [object Object]
+name:         Alice
+place:        [object Object]
+number:       23
+occupiedBy: [object Object]
+*/
+```
+- nested object에도 `replacer`가 적용됨  
+	=> nested object도 포함시켜야 정상적으로 인코딩됨  
+	배열로 나열하기 너무 길 경우 함수를 사용하면 됨
+- `replacer`로 사용하는 함수에서의 `this`는 현재 property를 가지는 object를 가리킴
+- 첫 번째 `alert`가 key가 없는 이유 : wrapper object이기 때문(key가 없고 value는 object 전체를 가리킴)
+
+### Formatting: space
+`JSON.stringify(value, replacer, space)`의 `space`는 인덴팅을 조절하기 위해서 사용됨  
+숫자 대신 string을 넣으면 그 string을 사용해서 indentation을 수행함  
+오직 logging 또는 출력을 예쁘게 하기 위해서 사용(전송할 때는 indent가 없어도 됨)
+
+### Custom "toJSON"
+`toString`을 구현해서 객체가 `String`으로 변환되는 것을 조절하는 것처럼,  
+`toJSON`을 구현해서 객체가 JSON으로 변환되는 것을 조절함(`toJSON`이 존재하면 `JSON.stringify`가 자동적으로 `toJSON`을 호출함)
+
+#### Example
+```javascript
+let room = {
+  number: 23,
+  toJSON() {
+    return this.number;
+  }
+};
+
+let meetup = {
+  title: "Conference",
+  date: new Date(Date.UTC(2017, 0, 1)),
+  room
+};
+
+alert( JSON.stringify(meetup) );
+/*
+  {
+    "title":"Conference",
+    "date":"2017-01-01T00:00:00.000Z",  // (1)
+    "room": 23              // (2)
+  }
+*/
+```
+- (1) `Date` 객체는 날짜를 string으로 반환하는 built-in `toJSON` 메소드가 존재함
+- (2) object `room`은 `toJSON` 메소드가 구현되어 있으므로 `meetup`이 `stringify`될 때도 property `room`의 value가 `23`으로 설정됨
+
+### JSON.parse
+JSON-string을 decode할 때 사용됨:  
+```javascript
+let value = JSON.parse(str[, reviver]);
+```
+- `str` : 파싱할 JSON-string
+- `reviver` : `(key, value)`를 parameter로 받아서 property의 value를 계산하는 함수 `function(key, value)`
+- JSON은 주석을 허용하지 않음!
+
+### Using reviver
+```javascript
+let str = '{"title":"Conference","date":"2017-11-30T12:00:00.000Z"}';
+
+// 1
+let meetup = JSON.parse(str);
+alert( meetup.date.getDate() ); // Error!
+
+// 2
+let meetup = JSON.parse(str, function(key, value) {
+  if (key == 'date') return new Date(value);
+  return value;
+});
+alert( meetup.date.getDate() ); // now works!
+```
+- `date`의 value는 `stringify`에서 이미 `String`으로 바뀜  
+	=> `// 1`과 같이 `date`를 다른 property와 같이 처리하면 `Date` type으로 들어가지 않음  
+	
+	`// 2`와 같이 reviver를 사용해서 `date` property는 `Date` 객체로 선언해야 함
+- replacer와 같이 reviver도 nested object에 대해서 잘 작동함
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`JSON.stringify(value[, replacer[, space]])`|`value`를 JSON으로 변환함<br>`replacer`로 포함할 property 선택<br>`space`로 인덴팅 설정|
+|`JSON.parse(str[, reviver])`|`str`을 object로 변환함<br>`reviver`로 `Date`와 같은 객체를 decode함|
+|`obj.toJSON()`|`obj`의 JSON으로의 변환 구현(= custom `stringify`)|
+
+- JSON은 plain objects, arrays, strings, numbers, booleans, `null`을 지원함  
+	JS-specific values(methods, `undefined`, symbolic properties)는 무시됨
+- property에 circular reference가 존재하면 에러남!
+
+### Tasks
+- transformer functions(`replacer`, `reviver`)가 호출되면 wrapper object(`('', this)`)도 argument로 들어오는 것에 주의!
+	- object가 트리 형태라고 생각하면,  
+		`replacer`는 root(object의 wrapper object)부터 argument로 들어옴(= preorder)  
+		`reviver`는 leaf부터 argument로 들어옴(= postorder)
+	
+	e.g.  
+	```javascript
+	let room = {
+	  number: 23
+	};
+
+	let meetup = {
+	  title: "Conference",
+	  occupiedBy: [{name: "John"}, {name: "Alice"}],
+	  place: room
+	};
+
+	room.occupiedBy = meetup;
+	meetup.self = meetup;
+
+	afterstringify=JSON.stringify(meetup, function replacer(key, value) {
+	  alert(`${key} and ${value}`);
+	  return (key!='' && value===meetup)?undefined:value;
+	}, 2);
+	/*
+	 and [object Object]
+	title and Conference
+	occupiedBy and [object Object],[object Object]
+	0 and [object Object]
+	name and John
+	1 and [object Object]
+	name and Alice
+	place and [object Object]
+	number and 23
+	occupiedBy and [object Object]
+	self and [object Object]
+	*/
+
+	alert(JSON.parse(afterstringify, function reviver(key, value) {
+	  alert(`${key} and ${value}`);
+	  return value;
+	}));
+	/*
+	title and Conference
+	name and John
+	0 and [object Object]
+	name and Alice
+	1 and [object Object]
+	occupiedBy and [object Object],[object Object]
+	number and 23
+	place and [object Object]
+	 and [object Object]
+	*/
+	```
+
+
+# 

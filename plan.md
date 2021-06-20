@@ -25,6 +25,7 @@ CSS layout : 2911 - 5579
 154-1144	javascript fundamentals
 1146-1650	code quality
 1653-2743	objects: the basics
+2745-4966	Data types
 
 
 ※ tags에는 md 적용안됨!!
@@ -32,13 +33,7 @@ CSS layout : 2911 - 5579
 Part > topic(#) > article(##)
 
 ## tasks
-1752 업데이트, 인덴팅 제대로 되는지
-2787 인용 안에 리스트 잘 되는지
-3077 인덴팅
-3438 인덴팅
-
-array-methods 한글 번역본
-
+array-methods 한글 번역본  
 summary 위에 thisArg 마지막 문단 후자가 더 많이 쓰이는데 오역된 듯
 
 ## 블로그 업로드하고 체크
@@ -50,8 +45,7 @@ summary 위에 thisArg 마지막 문단 후자가 더 많이 쓰이는데 오역
 // #?=> ###
 // ?? Ex=> #### Ex
 
-Data types
-6
+Advanced working with functions
 11
 2
 4
