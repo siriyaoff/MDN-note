@@ -4966,4 +4966,32 @@ alert( meetup.date.getDate() ); // now works!
 	```
 
 
-# 
+# Advanced working with functions
+## Recursion and stack
+### Two ways of thinking
+- Iterative
+- Recursive
+
+> ※ JS는 maximal recursion depth가 대부분 `100000` 미만으로 제한되어 있음  
+> tail call optimization을 사용해서 속도를 향상시킬 수 있음(safari만 지원하고 나머지는 지원하지 않음)
+
+#### Tail call optimization
+tail call을 최적화하는 것  
+tail recursion을 잘 설계해야 함!
+- `return`에서 스택에 메모리를 쓰는 연산자를 사용하면 안됨  
+	ternary operator `?`는 스택 메모리를 사용하지 않는 연산자임
+
+#### Example
+```javascript
+// 1
+let facto = (x, acc = 1) => {
+  return (x <= 1 ? acc : facto(x - 1, x * acc));
+};
+
+// 2
+let facto = x => {
+  return (x <=1 ? 1 : x * facto(x-1));
+};
+```
+- `// 1`은 `return`에 메모리를 사용하는 연산자가 존재하지 않아서 tail recursion이 실행되고, 최적화될 경우 스택이 쌓이지 않을 수도 있음  
+	`// 2`는 `*`를 사용해서 메모리를 사용하기 때문에 스택이 계속 쌓임(일반적인 재귀)

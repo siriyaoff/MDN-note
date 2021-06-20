@@ -25,7 +25,7 @@ CSS layout : 2911 - 5579
 154-1144	javascript fundamentals
 1146-1650	code quality
 1653-2743	objects: the basics
-2745-4966	Data types
+2745-4966	data types
 
 
 ※ tags에는 md 적용안됨!!
