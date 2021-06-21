@@ -4995,3 +4995,207 @@ let facto = x => {
 ```
 - `// 1`은 `return`에 메모리를 사용하는 연산자가 존재하지 않아서 tail recursion이 실행되고, 최적화될 경우 스택이 쌓이지 않을 수도 있음  
 	`// 2`는 `*`를 사용해서 메모리를 사용하기 때문에 스택이 계속 쌓임(일반적인 재귀)
+
+### The execution context and stack
+실행되고 있는 함수의 프로세스에 관한 정보는 *execution context*에 저장됨  
+Execution context
+- 함수의 실행에 관한 detail을 포함하는 내부 자료 구조임
+	- control flow가 어디 있는지, 현재 변수, `this`의 정보 등
+
+하나의 함수 호출은 하나의 execution context를 가짐  
+함수가 중첩 호출을 가지면 다음과 같이 작동함:
+1. 현재 함수가 멈춤
+2. 현재 함수와 관련된 execution context가 *execution context stack*에 저장됨
+3. 중첩된 호출이 실행됨
+4. 중첩된 호출이 끝난 후 원래 execution context가 stack에서 회수된 다음 원래 함수가 재개됨
+
+recursion depth는 stack 안의 최대 context의 개수와 같음
+
+n 번 재귀 호출이 일어나는 경우 n 개의 context가 필요하지만, 반복문 기반으로 바꾸면 한 개의 context만 필요함  
+=> 메모리가 절약됨
+
+모든 재귀는 반복문으로 옮길 수 있고, 보통 반복문을 사용하는게 더 효과적임  
+하지만 재귀가 복잡할 경우 옮겨도 효율성이 높아지지 않는 경우가 존재함
+
+재귀가 더 짧고 직관적으로 읽히기 때문에 성능이 떨어짐에도 불구하고 많이 사용됨
+
+### Recursive traversals
+재귀가 잘 사용되는 곳 중 하나가 순회임  
+자식이 있을 경우 재귀를 사용하면 됨
+
+#### Example
+```javascript
+let company = { // the same object, compressed for brevity
+  sales: [{name: 'John', salary: 1000}, {name: 'Alice', salary: 1600 }],
+  development: {
+    sites: [{name: 'Peter', salary: 2000}, {name: 'Alex', salary: 1800 }],
+    internals: [{name: 'Jack', salary: 1300}]
+  }
+};
+
+// The function to do the job
+function sumSalaries(department) {
+  if (Array.isArray(department)) { // case (1)
+    return department.reduce((prev, current) => prev + current.salary, 0); // sum the array
+  } else { // case (2)
+    let sum = 0;
+    for (let subdep of Object.values(department)) {
+      sum += sumSalaries(subdep); // recursively call for subdepartments, sum the results
+    }
+    return sum;
+  }
+}
+
+alert(sumSalaries(company)); // 7700
+```
+
+### Recursive structures
+Recursive structure(재귀 구조)는 자기 자신과 같은 구조를 부분으로 포함하는 구조임  
+⇔ 재귀의 정의
+
+#### Linked list
+`Array`는 임의의 위치에 원소 삽입, 삭제가 `O(n)`이 걸림  
+Linked list는 `O(1)` 만에 수행 가능
+
+JS에서 linked list는 아래와 같이 재귀적으로 구현함:  
+```javascript
+let list = {
+  value: 1,
+  next: {
+    value: 2,
+    next: {
+      value: 3,
+      next: {
+        value: 4,
+        next: null
+      }
+    }
+  }
+};
+```
+- 임의의 원소에 대한 접근이 `O(n)`이 걸림
+- `prev` property를 추가해서 DLL으로 개선할 수 있음  
+	`tail` object를 추가해서 끝에서의 접근을 개선할 수 있음
+
+### Summary
+Tail call recursion은 `return`문에 메모리를 사용하는 연산자를 사용하지 않는게 중요함
+
+## Rest parameters and spread syntax
+### Rest parameters `...`
+함수의 definition에 상관없이 여러 개의 arguments를 사용해서 호출 가능  
+=> 필요한 만큼만 사용되고 에러가 나지 않음!  
+`...`를 이용하면 나머지 arguments도 버리지 않고 저장 가능:  
+```javascipt
+function sumAll(...args) {
+  let sum = 0;
+
+  for (let arg of args) sum += arg;
+
+  return sum;
+}
+
+alert( sumAll(1) ); // 1
+alert( sumAll(1, 2) ); // 3
+alert( sumAll(1, 2, 3) ); // 6
+```
+- 항상 마지막에 와야 하고 `...` 뒤에 arguments가 저장될 `Array`의 이름을 적어야 함
+
+### The "arguments" variable
+`argumets`는 함수에 존재하는 array-like object임:  
+```javascript
+function showName() {
+  alert( arguments.length );
+  alert( arguments[0] );
+  alert( arguments[1] );
+}
+
+showName("Julius", "Caesar");
+// shows: 2, Julius, Caesar
+
+showName("Ilya");
+// shows: 1, Ilya, undefined (no second argument)
+```
+- 모든 arguments를 인덱스를 key로 저장함
+- `length` property 존재
+- array-like object이면서 iterable이지만, `Array`가 아님  
+	=> `Array`의 methods를 사용할 수 없기 때문에 불편함  
+	=> 현재는 rest parameter `...`가 더 많이 사용됨
+
+> ※ Arrow functions는 "arguments"가 없음!  
+> arrow function에서 `arguments` 객체를 호출하면 바깥의 일반 함수로부터 가져옴  
+> ```javascript
+> function f() {
+>   let showArg = () => alert(arguments[0]);
+>   showArg();
+> }
+>
+> f(1); // 1
+> ```
+> 즉 arrow function은 `this`와 `arguments`를 outer normal function으로부터 가져옴
+
+### Spread syntax
+`Array`의 원소들을 `...`를 지원하는 함수에 arguments로 넣기 위해선, rest parameter와 반대로 `Array`를 값 하나하나로 바꿔야 함  
+e.g.  
+```javascript
+alert( Math.max(3, 5, 1) ); // 5, works
+
+let arr = [3, 5, 1];
+alert( Math.max(arr) ); // NaN, doesn't work
+```
+- `arr[0], arr[1], ...`과 같이 인덱스를 이용하면 함수를 호출할 때 일일히 쳐야 함
+
+spread syntax `...`을 사용해서 iterable object를 나열할 수 있음:  
+```javascript
+let arr = [3, 5, 1];
+let arr2 = [8, 9, 15];
+
+let merged = [0, ...arr, 2, ...arr2];
+alert(merged); // 0,3,5,1,2,8,9,15
+alert(Math.max(10, ...arr, ...arr2)); // 15
+
+// (*)
+let str = "Hello";
+alert( [...str] ); // H,e,l,l,o
+```
+- 다른 인자들과 혼합해서 사용 가능
+- iterable만 적용 가능
+- `(*)`는 iterable을 `Array`로 바꾸는 것으로, `Array.from(obj)` 메소드를 사용할 수도 있음
+	- `Array.from(obj)`는 array-like도 지원하기 때문에 `Object`를 `Array`로 바꾸는 작업은 이 메소드를 사용하는게 좋음
+
+### Copy an array/object
+`Object.assign(dest[, src1, src2, src3...])`를 사용해서 `Array`나 `Object`를 복사할 수 있지만, spread syntax로도 할 수 있음:  
+```javascript
+let arr = [1, 2, 3];
+let arrCopy = [...arr];
+
+alert(JSON.stringify(arr) === JSON.stringify(arrCopy)); // true
+alert(arr === arrCopy); // false (not same reference)
+
+let obj = { a: 1, b: 2, c: 3, d: {name: 'another'} };
+let objCopy = { ...obj };
+objCopy.d.name='dother';
+
+alert(obj.d.name); // dother
+alert(objCopy.d.name); // dother
+alert(JSON.stringify(obj) == JSON.stringify(objCopy)); // true
+```
+- `JSON.stringify`로 객체를 비교할 수 있음!
+- `Object.assign`과 마찬가지로 shallow copy되기 때문에 조심해야 함!
+
+> ※ `Object.assign([], src...)`, `Object.assign({}, src...)` 둘 다 `src`의 properties를 `dest`로 추가하는 것임  
+> `Array`도 `Object`에 속함(build-in object 중에 하나임)!
+
+### Summary
+`...`는 rest parameter, spread syntax로 사용됨
+- L-value로 사용되면 rest parameter로 사용된 것임
+- R-value로 사용되면 spread syntax로 사용된 것임
+
+함수 안에서 `arguments`로도 인자들에 접근할 수 있지만, `Array` type이 아니기 때문에 잘 쓰이지 않음
+
+## Variable scope, closure
+JS는 function-oriented language로, 어디서든 함수를 만들고 호출할 수 있음  
+만약 함수가 생성된 다음 전역변수의 값이 바뀌면? - 호출 시의 값 이용  
+함수가 argument로 전달된 다음 실행된다면 외부 변수에 접근할 수 있나? - 호출 시의 위치 이용
+
+> ※ `let/const` 변수들을 다룸  
+> `let`

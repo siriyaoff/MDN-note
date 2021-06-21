@@ -37,7 +37,7 @@ array-methods 한글 번역본
 summary 위에 thisArg 마지막 문단 후자가 더 많이 쓰이는데 오역된 듯
 
 ## 블로그 업로드하고 체크
-
+5126 주석 안에 code block
 
 // #### Ex => ?? Ex
 // ####=> ##?
@@ -46,7 +46,7 @@ summary 위에 thisArg 마지막 문단 후자가 더 많이 쓰이는데 오역
 // ?? Ex=> #### Ex
 
 Advanced working with functions
-11
+9
 2
 4
 7
@@ -61,6 +61,7 @@ Advanced working with functions
 4
 3
 3
+---Additional---
 3
 4
 12
