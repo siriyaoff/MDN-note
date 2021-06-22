@@ -5198,4 +5198,122 @@ JS는 function-oriented language로, 어디서든 함수를 만들고 호출할 
 함수가 argument로 전달된 다음 실행된다면 외부 변수에 접근할 수 있나? - 호출 시의 위치 이용
 
 > ※ `let/const` 변수들을 다룸  
-> `let`
+> `var`은 `let/const`로 대체되었기 때문에 여기선 다루지 않음
+
+### Code blocks
+변수가 code block `{...}` 안에서 선언되었다면, 그 안에서만 사용 가능함:  
+```javascript
+{
+  // show message
+  let message = "Hello";
+  alert(message);
+}
+
+{
+  // show another message
+  let message = "Goodbye";
+  alert(message);
+}
+```
+- 같은 블록 안에서 이미 선언된 변수를 `let`으로 다시 선언하는 경우 에러가 남
+- `for(...){...}`은 `()`안의 변수도 `{}` 안에서 사용 가능
+
+### Nested functions
+JS에서 nested fucntion은 return될 수 있음  
+=> 어디서 사용되든 선언된 곳에서의 outer variable에 대해 접근 가능:  
+```javascript
+function makeCounter() {
+  let count = 0;
+  alert(count);
+  return function() {
+    return count++;
+  };
+}
+
+let counter = makeCounter(); // 0
+
+alert(counter()); // 0
+alert(counter()); // 1
+alert(counter()); // 2
+
+makeCounter(); // 0
+alert(counter()); // 3
+```
+- `counter`를 여러 개 만들면 각각 독립적인가?  
+	=> 독립적임
+
+### Lexical Environment
+#### Step 1. Variables
+JS에서 모든 실행중인 함수, code block `{...}`, script 전체는 내부에 숨겨진 object인 *Lexical Environment*를 가짐  
+Lexical Environment는 두 부분으로 나뉨:
+1. *Environment Record*(환경 레코드) : 모든 local variables를 properties로 저장하는 object
+2. A reference to the *outer Lexical Environment* : 바깥의 코드와 관련됨
+
+**Variable** : property of **Environment Record**  
+변수를 사용하거나 바꾸는 것은 환경 레코드의 property를 사용하거나 바꾸는 것을 의미함
+
+전체 script와 관련된 Lexical Environment를 *global* Lexical Environment라고 함  
+global Lexical Environment는 outer reference가 없음!
+
+script가 실행되면 문장이 실행되기 전에 Lexical Environment가 먼저 준비됨  
+이때 Environment Record에는 변수들이 미리 등록되어 있지만, 초기화되지 않은 상태임
+
+|![js-lexical-environment1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-lexical-environment1.PNG?raw=true)|
+|:---:|
+|javascript.info 참고|
+
+- 직사각형이 Environment Record, 화살표가 outer reference를 뜻함
+	- global Lexical Environment는 outer reference가 `null`로 향함
+- `let` 이전까지 변수가 초기화되지 않은 상태였다가 `let`으로 선언된 뒤에는 `undefined`가 들어감
+
+> ※ Lexical Environment는 specification object로, 이론적으로만(language specification 안에서) 존재함  
+> 따라서 이 객체에 접근하거나 수정할 수 없음  
+> JS의 엔진들은 specification을 준수하면서 고유한 방법으로 Lexical Environment를 최적화함(사용하지 않는 변수를 버려서 메모리를 절약하는 등)
+
+#### Step 2. Function Declarations
+함수도 변수와 같이 하나의 값이지만, function declaration으로 선언된 함수들은 Lexical Environment가 생성되는 동시에 초기화됨  
+=> 함수의 정의 위에서도 함수 호출이 가능함  
+cf. `let`으로 선언되는 변수들은 선언문이 실행되기 전까지 사용할 수 없음
+
+Function expression은 이에 해당하지 않음에 주의!
+
+#### Step 3. Inner and outer Lexical Environment
+함수가 호출되면 새로운 Lexical Environment가 자동으로 생성됨  
+=> 지역 변수와 파라미터를 저장하고, 함수를 호출한 Lexical Environment가 (outer) reference로 설정됨
+
+코드에서 변수에 접근할 때, **inner Lexical Environment를 먼저 살피고 점점 outer로 나가면서 조사함**  
+=> 끝에는 global Lexical Environment를 조사함
+
+만약 변수가 어디에도 없다면 strict mode에서는 에러가 발생함  
+(non-strict에서는 존재하지 않는 변수로의 대입 연산이 새로운 global variable을 생성함, 오래된 코드와의 호환을 위해)
+
+#### Step 4. Returning a function
+모든 **함수**들은 `[[Environment]]`라는 숨겨진 property가 존재함
+- 함수가 만들어진 Lexical Environment으로의 reference가 저장됨
+- 함수가 생성될 때 한 번 저장되고 변하지 않음
+
+```javascript
+function makeCounter() {
+  let count = 0;
+  
+  return function() { // (*)
+    return count++;
+  };
+}
+
+let counter = makeCounter();
+
+alert( counter() ); // 0
+alert( counter() ); // 1
+alert( counter() ); // 2
+```
+- `counter`의 `[[Environment]]`는 function declaration에 의해 생성된 `makeCounter()`의 Lexical Environment임  
+	∵ `counter`는 `(*)`에 있는 function expression을 저장함  
+	`(*)`의 `[[Environment]]`는 이미 `makeCounter()`의 function declaration에 의해 만들어진 Lexical Environment가 저장되어 있음  
+	따라서 `counter`의 `[[Environment]]`는 위와 같이 처리됨
+- `counter()`가 호출될 때마다 생기는 Lexical Environment의 outer reference는 global이 아니라 `counter.[[Environment]]`에 저장된 reference임!  
+	※ outer는 항상 `[[Environment]]`에 저장된 reference임  
+	
+	=> `counter()`가 호출될 때마다 outer가 function declaration에 의해 생성된 Lexical Environment를 참조하기 때문에 `count`를 공유함!!!
+
+#### Closure
