@@ -5271,7 +5271,7 @@ script가 실행되면 문장이 실행되기 전에 Lexical Environment가 먼�
 > JS의 엔진들은 specification을 준수하면서 고유한 방법으로 Lexical Environment를 최적화함(사용하지 않는 변수를 버려서 메모리를 절약하는 등)
 
 #### Step 2. Function Declarations
-함수도 변수와 같이 하나의 값이지만, function declaration으로 선언된 함수들은 Lexical Environment가 생성되는 동시에 초기화됨  
+함수도 변수와 같이 하나의 값이지만, function declaration으로 선언된 함수들은 Lexical Environment가 생성되는 동시에 초기화됨(`<uninitialized>`가 들어가는게 아니라 `function`이 들어감)  
 => 함수의 정의 위에서도 함수 호출이 가능함  
 cf. `let`으로 선언되는 변수들은 선언문이 실행되기 전까지 사용할 수 없음
 
@@ -5307,13 +5307,317 @@ alert( counter() ); // 0
 alert( counter() ); // 1
 alert( counter() ); // 2
 ```
-- `counter`의 `[[Environment]]`는 function declaration에 의해 생성된 `makeCounter()`의 Lexical Environment임  
-	∵ `counter`는 `(*)`에 있는 function expression을 저장함  
-	`(*)`의 `[[Environment]]`는 이미 `makeCounter()`의 function declaration에 의해 만들어진 Lexical Environment가 저장되어 있음  
-	따라서 `counter`의 `[[Environment]]`는 위와 같이 처리됨
-- `counter()`가 호출될 때마다 생기는 Lexical Environment의 outer reference는 global이 아니라 `counter.[[Environment]]`에 저장된 reference임!  
-	※ outer는 항상 `[[Environment]]`에 저장된 reference임  
+- `counter`의 `[[Environment]]`는 `let counter = makeCounter();`가 실행될 때 호출된 `makeCounter()`의 Lexical Environment으로의 reference임  
+- outer reference는 항상 `[[Environment]]`에 저장된 reference임!!  
+	=> `counter()`가 호출될 때마다 생기는 Lexical Environment의 outer reference는 global이 아니라 `counter.[[Environment]]`에 저장된 reference임!  
 	
-	=> `counter()`가 호출될 때마다 outer가 function declaration에 의해 생성된 Lexical Environment를 참조하기 때문에 `count`를 공유함!!!
+	이 예제에서는 `makeCounter()`의 Lexical Environment이기 때문에 그 안의 변수 `count`를 공유함!
 
-#### Closure
+> ※ Closure  
+> - outer variables의 위치를 기억하고 접근할 수 있는 함수를 뜻함
+> - 프로그래밍에서 전반적으로 사용되는 용어
+> - 일부 언어에서는 이 자체가 불가능하지만, JS에서는 `new Function` syntax를 제외하면 모든 함수들은 기본적으로 closure임!
+> 	- `[[Environment]]` property가 자동으로 생성되기 때문
+
+### Garbage collection
+보통 Lexical Environment는 함수 호출이 끝난 다음 모든 변수들과 함께 지워짐  
+∵ 다른 JS의 객체와 같이, reachable 할 때만 메모리에 보존되기 때문
+
+하지만, 함수의 종료 후에도 reachable한 nested function이 존재한다면 nested function의 `[[Environment]]` property에 원래 함수의 Lexical Environment로의 레퍼런스가 저장됨  
+=> 함수가 끝난 후에도 함수의 Lexical Environment가 reachable하기 때문에 살아있게 됨!
+
+#### Example
+```javascript
+function f() {
+  let value = 123;
+
+  return function() {
+    alert(value);
+  }
+}
+
+let g = f(); // (1)
+```
+- `g.[[Environment]]`는 `// (1)`에서 호출된 `f()`의 Lexical Environment의 reference가 저장됨
+- Lexical Environment도 unreachable하게 되었을 때 지워짐  
+	e.g. `g`에 `null`을 저장해서 reference를 없앴을 경우
+
+#### Real-life optimizations
+이론적으로, 함수가 살아있는 동안, 모든 외부의 변수들도 유지됨  
+실제로는 JS 엔진들이 코드를 읽어서 사용되지 않는 외부 변수들은 지워버리는 최적화를 실행함  
+=> 최적화에 의해 제거된 변수들은 디버깅 모드에서도 사용하지 못한다는 부작용이 존재함(Chrome, Edge, Opera 등의 V8 엔진에서)
+
+```javascript
+let value = "Surprise!";
+
+function f() {
+  let value = "the closest value";
+
+  function g() {
+    debugger; // in console: type alert(value); Surprise!
+  }
+
+  return g;
+}
+
+let g = f(); // (1)
+g();
+```
+- 외부 변수 `g`가 실행되면서 만들어진 `f()`의 Lexical Environment는 `// (1)`이 끝난 후에도 유지됨  
+	(∵ `g`에 들어가는 `g()`의 outer reference가 참조하고 있기 때문)  
+	하지만, `f()`의 변수 `value`는 함수 `g()`에서 사용되지 않기 때문에 최적화에 의해 삭제됨  
+	
+	따라서 마지막에 `g();`를 실행해서 나온 디버깅 모드에서 `alert(value)`를 실행하면 `f()`의 Lexical Environment에 저장된 `value`인 `"the closest value"`가 출력되지 않고 `"Surprise!"`가 출력됨!
+
+> ※ V8 엔진에서만 나타나는 현상임!
+
+### Summary
+함수, code block, script 전체는 Lexical Environment를 가짐
+- 내부에 숨겨진 object로, 두 부분으로 나뉨:
+	- Environment Record : local variables, function들을 property로 저장
+		- 변수들은 선언되어 있지만, 초기화되지 않은 상태
+		- function declaration으로 정의된 함수들은 초기화된 상태
+	- A reference to the outer Lexical Environment
+
+함수가 호출될 때 그 함수의 Lexical Environment가 생성됨(code block도 마찬가지)
+
+모든 함수들의 Lexical Environment들은 `[[Environment]]`라는 숨겨진 property를 가짐
+- 함수가 만들어진, 외부 Lexical Environment로의 reference가 저장됨
+- 함수가 생성될 때(외부 Lexical Environment의 Environment record에 등록될 때) 한 번 저장되고 변하지 않음
+- 이후 그 함수가 호출될 때마다 Lexical Environment의 outer reference는 `[[Environment]]`에 저장된 reference가 들어감
+	- JS의 대부분의(`new Function` syntax 제외) 함수들이 closure인 이유임
+
+Lexical Environment는 다른 객체들과 마찬가지로 reachable 하지 않으면 메모리에서 제거됨  
+reachable하더라도 JS 엔진의 최적화에 의해, 살아있지만 내부에서도 사용되지 않는 외부 변수가 존재한다면 지워질 수 있음(V8 엔진의 최적화 방법임)
+
+### Tasks
+```javascript
+function makeWorker() {
+  let name = "Pete";
+
+  return function() {
+    alert(name);
+  };
+}
+
+let name = "John";
+
+// create a function
+let work = makeWorker();
+
+// call it
+work(); // what will it show?
+```
+- `work`의 outer reference는 `makeWorker()`의 Lexical Environment로의 reference기 때문에 `"Pete"`를 참조함
+
+```javascript
+let x = 1;
+
+function func() {
+  alert(x); // (1)
+  let x = 2;
+}
+
+func();
+```
+- "uninitialized"와 "non-existing"의 차이임!
+	- `(1)`을 실행하는 시점에서 `func()`의 Lexical Environment에 `x`가 `<uninitialized>` 상태로 존재하기 때문에 사용하려 하면 에러가 발생함!
+	- 뒤의 `let x=2;`를 지우면 `func()`의 Lexical Environment에는 `x`가 존재하지 않기 때문에 outer reference인 global으로 가서 `x`(= `1`)을 참조함
+
+"ready to use" filters 만들기:  
+```javascript
+function inBetween(a, b) {
+  return function(v) {
+    if(a<=v && v<= b) return true;
+    else return false;
+  };
+}
+
+function inArray(arr) {
+  return function(v) {
+    return arr.includes(v);
+  };
+}
+
+let arr = [1, 2, 3, 4, 5, 6, 7];
+
+alert( arr.filter(inBetween(3, 6)) ); // 3,4,5,6
+
+alert( arr.filter(inArray([1, 2, 10])) ); // 1,2
+```
+
+Army of functions:  
+```javascript
+function makeArmy() {
+  let shooters = [];
+
+  let i = 0;
+  while (i < 10) {
+    let shooter = function() { // create a shooter function,
+      alert( i ); // that should show its number
+    };
+    shooters.push(shooter); // and add it to the array
+    i++;
+  }
+
+  // ...and return the array of shooters
+  return shooters;
+}
+
+let army = makeArmy();
+
+// all shooters show 10 instead of their numbers 0, 1, 2, 3...
+army[0](); // 10 from the shooter number 0
+army[1](); // 10 from the shooter number 1
+army[2](); // 10 ...and so on.
+```
+- `army`의 원소들은 모두 `makeArmy()`의 Lexical Environment를 outer reference로 가지기 때문에 실행이 끝나 `i`에 `10`이 들어간 상태로 `i`를 출력해서 같은 숫자가 나옴
+- `while` 안에서 local variable `j`를 추가해서 해결 가능
+- 반복문을 `for`로 바꾸기만 해도 해결됨:  
+	```javascript
+	function makeArmy() {
+	  let shooters = [];
+
+	  for(let i=0;i<10;i++) {
+		let shooter = function() {
+		  alert( i );
+		};
+		shooters.push(shooter);
+	  }
+
+	  return shooters;
+	}
+	```
+	- `while`의 loop control variable인 `i`는 `makeArmy()`의 Lexical Environment에 속해있지만, `for`의 loop control variable은 `for` 안에 들어가기 때문에 `for`의 code block의 Lexical Environment 안에 `i`가 저장됨!!
+
+## The old "var"
+`var` declaration은 `let`과 비슷함  
+대부분의 경우 `var`, `let`을 서로 바꿔서 사용 가능
+
+하지만 `var`은 내부적으로 매우 다르게 동작함
+
+### "var" has no block scope
+```javascript
+if (true) {
+  var test = true; // use "var" instead of "let"
+}
+
+alert(test); // true, the variable lives after if
+```
+
+function-level로만 scope가 존재함:  
+```javascript
+function sayHi() {
+  if (true) {
+    var phrase = "Hello";
+  }
+
+  alert(phrase); // works
+}
+
+sayHi();
+alert(phrase); // ReferenceError: phrase is not defined
+```
+- 오래 전에는 code block이 Lexical Environment를 생성하지 않았기 때문  
+	`var` 자체가 이런 환경에서 사용되었기 때문에 code block은 상관없이 선언됨
+
+### "var" tolerates redeclarations
+`var`로 정의된 변수는 `var`로 재정의해도 에러가 나지 않음:  
+```javascript
+var user = "Pete";
+var user = "John";
+
+alert(user); // John
+```
+- 값은 정상적으로 대입됨
+
+### "var" variables can be declared below their use
+`var`을 사용하는 정의는 함수(global일 경우 script가) 시작될 때 처리됨  
+=> `var`은 definition의 위치에 상관없이 호출할 수 있음:  
+```javascript
+function sayHi() {
+  phrase = "Hello";
+
+  alert(phrase);
+
+  var phrase;
+}
+sayHi();
+
+/*------------------------------*/
+
+function sayHi() {
+  phrase = "Hello"; // (*)
+
+  if (false) {
+    var phrase;
+  }
+
+  alert(phrase);
+}
+sayHi();
+```
+- 두 번째 예제도 정상적으로 실행됨  
+	∵ code block은 무시되고 함수가 호출될 때 `phrase`의 선언이 이루어지기 때문
+- *Hoisting*이라고도 함
+	declaration은 호이스팅이 되지만, assignment는 그렇지 않음!  
+	```javascript
+	function sayHi() {
+	  alert(phrase);
+	  var phrase = "Hello";
+	}
+	
+	sayHi();
+	```
+	- 선언은 되었지만, 값이 없는 상태이기 때문에 `undefined`가 출력됨
+
+> ※ definition == declaration + assignment라고 생각하면 됨
+
+### IIFE
+Immediately-invoked function expressions : block-level visibility가 지원되지 않던 옛날에 이를 구현하기 위해서 만듦:  
+```javascript
+(function() {
+  alert("Parentheses around the function");
+})();
+
+(function() {
+  alert("Parentheses around the whole thing");
+}());
+
+!function() {
+  alert("Bitwise NOT operator starts the expression");
+}();
+
++function() {
+  alert("Unary plus starts the expression");
+}();
+```
+- 함수 레벨의 scope는 존재했기 때문에 `{...}` 대신 사용한 것임
+	- JS는 function이라는 코드를 읽으면 function declaration의 시작이라고 인식하기 때문에 앞에 `(`나 `!`, `+` 등을 붙여서 function expression이라고 인식시킴  
+		∵ function declaration으로 정의할 경우 function name이 반드시 필요하고, 정의하면서 바로 호출할 수 없기 때문
+- 현재는 사용하지 않는 legacy code임!!
+
+### Summary
+`var`의 특징:
+1. block scope가 존재하지 않고, 함수, global scope만 존재
+2. `var`의 declaration은 함수나 script가 시작할 때 처리됨
+
+block scope가 존재하지 않아서 현재는 잘 사용하지 않음
+
+## Global object
+global object를 사용하면 어디서든 사용 가능한 변수와 함수를 만들 수 있음  
+global object는 보통 언어에 내장되어 있음  
+브라우저에서는 `window`, Node.js에서는 `global` 등으로 명명됨  
+최근에는 `globalThis`가 global object의 표준화된 이름으로 추가됨(대부분의 browser에서 지원됨)  
+이 article에서는 `window`를 사용함
+
+```javascript
+alert("Hello");
+// is the same as
+window.alert("Hello");
+
+var gVar = 5;
+alert(window.gVar); // 5
+```
+- browser 환경에서, `var`을 사용해서 정의된 전역 함수와 변수들은 global object의 property가 됨
+	- function declaration으로 global scope에서 정의된 함수도 동일하게 global object의 property가 됨
