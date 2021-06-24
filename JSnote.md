@@ -5621,3 +5621,177 @@ alert(window.gVar); // 5
 ```
 - browser 환경에서, `var`을 사용해서 정의된 전역 함수와 변수들은 global object의 property가 됨
 	- function declaration으로 global scope에서 정의된 함수도 동일하게 global object의 property가 됨
+	- 모듈을 사용하는 최신의 JS에서는 일어나지 않고, 호환성을 위해서 존재하는 기능임
+
+global available하게 만드려면 아래와 같이 global object의 property가 되도록 추가하면 됨:  
+```javascript
+window.currentUser = {
+  name: "John"
+};
+
+alert(currentUser.name);  // John
+alert(window.currentUser.name); // John
+```
+- 되도록 사용하지 않는게 좋음!
+- 사용하게 될 경우 `window`를 붙여서 global object의 property임을 확실히 명시하는게 좋음
+
+### Using for polyfills
+최신 기능을 지원하는지 테스트하기 위해 global object를 사용할 수 있음:  
+```javascript
+if (!window.Promise) {
+  window.Promise = ... 
+}
+```
+- 지원하지 않을 경우 직접 polyfills를 추가할 수 있음
+
+## Function object, NFE
+JS에서 함수는 `Object` 타입으로 취급됨
+- 호출, property 추가/제거, 레퍼런스로 만들어 전달 등이 가능함
+- built-in properties가 존재함
+
+### The "name" property
+`name` property는 함수의 이름을 저장함:  
+```javascript
+let sayHi = function() {
+  alert("Hi");
+};
+
+alert(sayHi.name); // sayHi
+
+/*--------------------------------------*/
+
+function f(sayHi = function() {}) {
+  alert(sayHi.name); // sayHi
+}
+
+f();
+
+/*--------------------------------------*/
+
+let arr = [function() {}];
+
+alert( arr[0].name ); // <empty string>
+```
+- `name` property는 specification에서 "contextual name"이라고 불림
+	- 함수의 이름이 직접 제공되지 않아도, context에서 이름을 가져옴
+	- 맨 마지막 예시처럼 이름을 추론할 수 없는 상황도 존재하지만, 대부분의 경우 함수는 이름을 가짐
+
+### The "length" property
+`length` property는 함수의 parameter의 개수를 리턴함:  
+```javascript
+function f1(a) {}
+function f2(a, b) {}
+function many(a, b, ...more) {}
+
+alert(f1.length); // 1
+alert(f2.length); // 2
+alert(many.length); // 2
+```
+- rest parameter는 `length`의 개수에 포함되지 않음
+
+아래 예제와 같이 호출할 함수의 파라미터 개수에 따라서 알맞는 함수를 호출할 때(= type introspection) 사용 가능함:  
+```javascript
+function ask(question, ...handlers) {
+  let isYes = confirm(question);
+
+  for(let handler of handlers) {
+    if (handler.length == 0) {
+      if (isYes) handler();
+    } else {
+      handler(isYes);
+    }
+  }
+
+}
+
+// for positive answer, both handlers are called
+// for negative answer, only the second one
+ask("Question?", () => alert('You said yes'), result => alert(result));
+```
+- polymorphism의 예시임
+	- arguments를 그들의 type(이 예시의 경우, `length`)에 따라서 다르게 처리하는 것
+
+### Custom properties
+custom property도 추가 가능:  
+```javascript
+function sayHi() {
+  alert("Hi");
+
+  sayHi.counter++;
+}
+sayHi.counter = 0;
+
+sayHi();
+sayHi();
+alert( `Called ${sayHi.counter} times` ); // Called 2 times
+sayHi.counter = 10;
+alert( `Called ${sayHi.counter} times` ); // Called 10 times
+```
+- function property와 variable은 연관이 없음
+	- `sayHi.counter = 0`은 local variable이 아님
+- function property `counter`는 함수 바깥에 저장됨  
+	안에 저장하면 호출될 때마다 초기화되기 때문
+- closure는 function property로 대체 가능함
+
+Closure을 이용한 버전:  
+```javascript
+function makeCounter() {
+  function counter() {
+    return counter.count++;
+  };
+
+  counter.count = 0;
+
+  return counter;
+}
+
+let counter = makeCounter();
+alert( counter() ); // 0
+alert( counter() ); // 1
+counter.count = 10;
+alert( counter() ); // 10
+```
+- `makeCounter()`의 Lexical Environment가 변수 `counter`에 의해 유지되면서 `count` property가 증가함
+- `count`가 완전히 외부가 아닌 중간의 `makeCounter()`의 Lexical Environment에 저장됨  
+	이 예시는 function property를 완전히 closure로 대체한 예시가 아님
+
+Closure로 대체한 버전:  
+```javascript
+function makeCounter() {
+
+  function counter() {
+    return count++;
+  };
+
+  count = 0;
+
+  return counter;
+}
+
+let counter = makeCounter();
+
+alert( counter() ); // 0
+alert( counter() ); // 1
+alert( counter() ); // 2
+```
+- 외부에서는 `count`에 접근할 수 없음  
+	오직 `counter()`으로만 접근 가능  
+	cf. function property를 이용하면 외부에서도 접근 가능  
+	
+	=> 목적에 따라 구현 방법을 선택하면 됨
+
+### Named Function Expression
+```javascript
+let sayHi = function func(who) {
+  alert(`Hello, ${who}`);
+};
+
+sayHi("John"); // Hello, John
+```
+- function expression에 이름을 추가한 것임
+	- 이름을 추가한다고 function declaration이 되진 않음
+	- 정상적으로 호출 가능함
+- NFE의 기능:
+	- 함수가 내부에서 자신을 호출 가능하게 만듦
+	- 함수 바깥에서는 호출할 수 없음
+
