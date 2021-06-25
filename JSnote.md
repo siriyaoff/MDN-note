@@ -5314,7 +5314,7 @@ alert( counter() ); // 2
 	이 예제에서는 `makeCounter()`의 Lexical Environment이기 때문에 그 안의 변수 `count`를 공유함!
 
 > ※ Closure  
-> - outer variables의 위치를 기억하고 접근할 수 있는 함수를 뜻함
+> - outer Lexical Environment의 위치를 기억하고 접근할 수 있는 함수를 뜻함
 > - 프로그래밍에서 전반적으로 사용되는 용어
 > - 일부 언어에서는 이 자체가 불가능하지만, JS에서는 `new Function` syntax를 제외하면 모든 함수들은 기본적으로 closure임!
 > 	- `[[Environment]]` property가 자동으로 생성되기 때문
@@ -5753,9 +5753,9 @@ alert( counter() ); // 10
 ```
 - `makeCounter()`의 Lexical Environment가 변수 `counter`에 의해 유지되면서 `count` property가 증가함
 - `count`가 완전히 외부가 아닌 중간의 `makeCounter()`의 Lexical Environment에 저장됨  
-	이 예시는 function property를 완전히 closure로 대체한 예시가 아님
+	=> 외부에서 `counter.count`를 접근하지 못하지만, 이 경우에는 `makeCounter()`가 `counter()`를 반환하기 때문에 외부의 변수 `counter`에 `counter()`가 저장되고 이 변수로 `counter()`의 property를 접근 가능!
 
-Closure로 대체한 버전:  
+`count`에 대한 외부의 접근을 제한한 버전:  
 ```javascript
 function makeCounter() {
 
@@ -5776,17 +5776,23 @@ alert( counter() ); // 2
 ```
 - 외부에서는 `count`에 접근할 수 없음  
 	오직 `counter()`으로만 접근 가능  
-	cf. function property를 이용하면 외부에서도 접근 가능  
+	cf. function property를 이용하면 외부에서도 함수에 대한 reference만 있으면 접근 가능  
 	
 	=> 목적에 따라 구현 방법을 선택하면 됨
 
 ### Named Function Expression
 ```javascript
 let sayHi = function func(who) {
-  alert(`Hello, ${who}`);
+  if (who) {
+    alert(`Hello, ${who}`);
+  } else {
+    func("Guest"); // use func to re-call itself
+  }
 };
 
-sayHi("John"); // Hello, John
+sayHi(); // Hello, Guest
+
+func(); // Error, func is not defined (not visible outside of the function)
 ```
 - function expression에 이름을 추가한 것임
 	- 이름을 추가한다고 function declaration이 되진 않음
@@ -5794,4 +5800,215 @@ sayHi("John"); // Hello, John
 - NFE의 기능:
 	- 함수가 내부에서 자신을 호출 가능하게 만듦
 	- 함수 바깥에서는 호출할 수 없음
+- 함수의 이름으로 호출하는 경우:  
+	```javascript
+	let sayHi = function(who) {
+	  if (who) {
+		alert(`Hello, ${who}`);
+	  } else {
+		sayHi("Guest"); // Error: sayHi is not a function
+	  }
+	};
 
+	let welcome = sayHi;
+	welcome(); // Hello, Guest
+	
+	sayHi = null;
+	welcome(); // Error, the nested sayHi call doesn't work any more!
+	```
+	- 외부에서 sayHi가 수정될 경우 에러가 발생할 수 있음!  
+		=> NFE를 사용해서 해결
+
+> ※ function declaration에서 함수 이름을 사용하는건 recursion  
+> NFE 같이 internal name이 필요하지 않음(확실한 함수 이름이 존재함)
+
+### Summary
+- 함수는 `name`, `length`(parameter의 개수) 등의 built-in property를 가짐
+- custom property를 추가할 수도 있음
+	- closure으로 대체 가능  
+		closure으로 구현하는 경우 외부에서의 접근 불가
+- function expression에 이름을 추가할 수 있음(NFE)  
+	=> function expression으로 선언되는 함수의 property 호출, 재귀 등을 지원 가능  
+	
+	lodash library에서는 `_` 함수 안에 helper function들을 선언해서 global space의 낭비를 줄이고 이름 충돌의 가능성을 줄임
+
+### Tasks
+`sum` 함수를 아래 예시와 같이 구현하기:  
+```
+alert( sum(1)(2) ); // 3
+alert( sum(5)(-1)(2) ); // 6
+alert( sum(6)(-1)(-2)(-3) ); // 0
+alert( sum(0)(1)(2)(3)(4)(5) ); // 15
+
+// (1) using closure + function property
+function sum(val) {
+  function f(cur) {
+    f.cursum+=cur;
+    return f;
+  }
+  
+  f.cursum=val;
+  f.toString = function(){
+    return f.cursum;
+  };
+  return f;
+}
+
+// (2) using closure
+function sum(val) {
+  let cursum = val;
+  function f(cur) {
+    cursum+=cur;
+    return f;
+  }
+  
+  f.toString = function(){
+    return cursum;
+  };
+  
+  return f;
+}
+```
+- function property는 항상 함수 안이나 함수가 선언된 영역, 두 곳 모두에서 선언 가능
+	- closure로 사용된 함수도 function property를 선언해서 사용 가능함
+		- closure 안에서 선언하면 호출될 때마다 새로 선언됨  
+			outer Lexical Environment에서 선언되면 초기화되지 않음
+		- 아예 밖에서는 closure의 property 호출 불가
+- `f`를 재귀로 만들기 위해선 parameter `acc`를 넣어야 하기 때문에 예시와 맞지 않음
+- `f`가 더 이상 호출되지 않을 때 출력을 위해 `f`의 `toString` method를 정의해야 함!
+- `(1)`의 `f.cursum`은 `f`의 reference가 있으면 외부에서도 수정할 수 있지만, `(2)`의 `cursum`은 외부에서 접근 불가능
+
+> ※ closure에서 자신을 리턴하는 것은 재귀가 아님!!  
+> 위의 코드에서 `f()` 안에서 `return f`는 재귀가 아님  
+> cf. `return f()`였으면 재귀지만, 호출하지 않았으므로 그냥 함수를 반환하는 것 뿐임!
+
+## The "new Function" syntax
+`new Function`으로도 함수를 생성할 수 있음  
+잘 쓰이지 않지만, 이 방법으로만 해결할 수 있는 상황이 존재함
+
+### Syntax
+```javascript
+let func = new Function ([arg1, arg2, ...argN], functionBody);
+
+new Function('a', 'b', 'return a + b'); // basic syntax
+new Function('a,b', 'return a + b'); // comma-separated
+new Function('a , b', 'return a + b'); // comma-separated with spaces
+
+/*-------------example--------------*/
+
+let sum = new Function('a', 'b', 'return a + b');
+alert( sum(1, 2) ); // 3
+
+let sayHi = new Function('alert("Hello")');
+sayHi(); // Hello
+```
+- `functionBody`에 있는 string 그대로 함수를 구현함  
+	=> run time에 함수를 정의할 수 있음  
+	e.g. 서버로부터 함수 코드를 받는 등의 상황에서 사용
+
+### Closure
+`new Function`으로 생성된 함수들은 `[[Environment]]`가 global Lexical Environment로 설정됨  
+=> closure으로 사용되어도 outer Lexical Environment에 존재하는 properties를 사용할 수 없음:  
+```javascript
+function getFunc() {
+  let value = "test";
+  let func = new Function('alert(value)');
+
+  return func;
+}
+
+getFunc()(); // error: value is not defined
+```
+- 구조적으로 더 안전함  
+	∵ `new Function`으로 생성되는 함수들은 프로그램이 실행 중에 정의되는데, 이 때는 이미 minifier에 의해 변수들 이름이 내부적으로 단축된 이후이기 때문에 변수명을 알 수 없음  
+	
+	=> `new Function`은 외부 변수에 접근하면 안됨  
+	`[arg1, arg2, ...argN]`과만 상호작용 해야 함
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`let func = new Function ([arg1, arg2, ...argN], functionBody);`|`new Function`을 이용한 함수 정의|
+
+- `new Function`들은 `[[Environment]]`가 global Lexical Environment로 설정됨  
+	=> 외부 변수들을 건드릴 수 없음  
+	
+	global variables는 사용 가능함
+
+## Scheduling: setTimeout and setInterval
+함수를 일정 시간 이후에 실행하는 것을 "scheduling a call"이라고 함  
+두 가지 method로 구현할 수 있음:
+- `setTimeout` : 일정 시간 후에 함수를 실행시킬 수 있음
+- `setInterval` : `setTimeout`을 반복하는 것과 같음(일정 시간 후에 함수 실행을 반복)
+
+JS specification에 명시되어 있지 않지만, 대부분의 browser와 Node.js 등의 환경에서 지원됨
+
+### setTimeout
+```javascript
+let timerId = setTimeout(func|code[, delay[, arg1, arg2, ...]]);
+
+/*-------------example--------------*/
+
+function sayHi(phrase, who) {
+  alert( phrase + ', ' + who );
+}
+setTimeout(sayHi, 1000, "Hello", "John"); // Hello, John
+
+setTimeout(() => alert('Hello'), 1000);
+```
+- `func|code` : 실행시킬 함수나 코드
+	- 코드도 허용은 되지만 보안상 사용하지 않는게 좋음
+- `delay` : 실행시키기 전에 delay, `ms` 단위
+	- default : 0ms
+- `arg1`, `arg2`... : 함수에 필요한 arguments
+- 타이머를 식별하기 위해 만들어진 ID(숫자)가 반환됨  
+	=> `clearTimeout` method로 실행을 취소시킬 수 있음:  
+	```javascript
+	let timerId = setTimeout(...);
+	clearTimeout(timerId);
+	```
+	
+	cf. Node.js에서는 `timeId`가 timer object를 반환함
+
+### setInterval
+```javascript
+let timerId = seInterval(func|code[, delay[, arg1, arg2, ...]]);
+
+/*-------------example--------------*/
+
+let timerId = setInterval(() => alert('tick'), 2000);
+
+setTimeout(() => { clearInterval(timerId); alert('stop'); }, 5000);
+```
+- `setTimeout`과 문법, 사용 방법이 같음
+- `setTimeout`은 한 번만 실행하지만, `setInterval`은 interval을 계속 반복함
+- `clearInterval(timerID)`로 취소시킬 수 있음
+- 위 예시에서는 2초마다 `alert`를 반복하지만, 5초가 지나면 중지하도록 구현됨  
+	Scheduling과 관련된 method들은 function declaration처럼 미리 초기화되고 한꺼번에 실행되는 듯
+
+> ※ `alert`가 실행되고 있을 때도 timer의 시간은 계속 계산됨  
+> => `setInterval(() => alert('tick'), 2000);`을 실행하면 사용자가 확인을 누르는 시간도 `2000ms`에 포함되기 때문에 사용자가 느끼는 `alert`가 반복되는 시간은 더 짧음!
+
+### Nested setTimeout
+반복적으로 무언가를 실행하는 것은 두 가지 방법으로 구현 가능함  
+`setInterval`을 사용하거나 `setTimeout`을 중첩하는 것임:  
+```javascript
+let timerId = setInterval(() => alert('tick'), 1000);
+
+let timerId = setTimeout(function tick() {
+  alert('tick');
+  timerId = setTimeout(tick, 1000);
+}, 1000);
+```
+- `setTimeout`을 중첩해서 사용하는 것이 더 유용한 코드를 만들 수 있음  
+	- interval을 늘려야 할 경우 안에서 수정 가능함  
+	- 정확하게 `delay` 만큼 지연되는게 보장됨
+		- 이유는 잘 모르겠음
+
+> ※ `setInterval`, `setTimeout`의 Garbage collection  
+> `clearInterval`, `clearTimeout`이 호출되기 전까지 `func`의 reference도 유지되기 때문에 garbage collect되지 않음  
+> outer Lexical Environment를 참조하는 함수가 존재하면 `setInterval`이 실행되는 동안에는 그 Lexical Environment도 garbage collect되지 않기 때문에 주의해야 함  
+> 사용이 끝나면 `setInterval`으로 취소하는게 메모리 부하를 막음
+
+### Zero delay setTimeout
