@@ -36,6 +36,9 @@ Part > topic(#) > article(##)
 array-methods 한글 번역본  
 summary 위에 thisArg 마지막 문단 후자가 더 많이 쓰이는데 오역된 듯
 
+call-apply-decorators 한글 번역본
+메서드 빌리기 바로 위 문장 오역(구분할 수 없음)
+
 ## 블로그 업로드하고 체크
 5126 주석 안에 code block
 5261 표 안에 그림하고 캡션
@@ -47,7 +50,7 @@ summary 위에 thisArg 마지막 문단 후자가 더 많이 쓰이는데 오역
 // ?? Ex=> #### Ex
 
 Advanced working with functions
-9
+2
 2
 4
 7
@@ -71,6 +74,6 @@ Advanced working with functions
 7
 17
 
-82(+49)
-41
+67(+49)
+31
 2(+1)개씩

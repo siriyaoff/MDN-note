@@ -6004,7 +6004,8 @@ let timerId = setTimeout(function tick() {
 - `setTimeout`을 중첩해서 사용하는 것이 더 유용한 코드를 만들 수 있음  
 	- interval을 늘려야 할 경우 안에서 수정 가능함  
 	- 정확하게 `delay` 만큼 지연되는게 보장됨
-		- 이유는 잘 모르겠음
+		- `setInterval`은 함수를 실행시킨 시점부터 시간을 재지만, nested `setTimeout`은 함수가 끝난 시점부터 시간을 재기 때문  
+			(확실하지 않음)
 
 > ※ `setInterval`, `setTimeout`의 Garbage collection  
 > `clearInterval`, `clearTimeout`이 호출되기 전까지 `func`의 reference도 유지되기 때문에 garbage collect되지 않음  
@@ -6012,3 +6013,394 @@ let timerId = setTimeout(function tick() {
 > 사용이 끝나면 `setInterval`으로 취소하는게 메모리 부하를 막음
 
 ### Zero delay setTimeout
+`setTimeout(func,0)`이나 `setTimeout(func)`로 `delay` 없이 사용하면 현재 script가 끝난 직후 `func`을 실행하게 됨  
+browser에서는 zero-delay timeout을 활용해서 event loop를 설정 가능
+
+#### Example
+```javascript
+setTimeout(() => alert("World"));
+alert("Hello");
+alert("Hello");
+```
+- `"Hello"`가 두 번 출력된 다음 `"World"`가 출력됨
+
+> ※ zero delay가 실제로 지연 시간이 없지는 않음  
+> HTML5의 경우, timer가 5번 이상 중첩될 경우, 반복되는 구간은 최소 4ms 이상으로 조정됨  
+> `setTimeout` 뿐만 아니라 `setInterval`에도 적용됨  
+> 지연 없이 구현해놓아도 처음에만 지연 없이 실행되다가 나중에는 지연시간이 생김  
+> e.g. `0, 0, 0, 0, 8, 6, 5 ms`  
+> 예전에 생긴 specification에 명시되어 있는데, legacy code 중에서 이 조항을 고려해서 구현된게 많음  
+> 서버에서는 이런 제한이 없고, 즉각적인 비동기 작업을 구현하는 다른 방법들이 존재함  
+> 즉, 이 제한은 browser에 한정됨
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`setTimeout(func|code[, delay[, arg1, arg2, ...]])`|`delay` ms 만큼 기다린 후에 `func`를 실행시킴<br>현재 timerId를 반환함(숫자)|
+|`clearTimeout(timerId)`|`timerId`에 해당하는 타이머를 취소시킴|
+|`seInterval(func|code[, delay[, arg1, arg2, ...]])`|`delay` ms 만큼 기다린 후에 `func`를 실행시키는 작업을 반복<br>현재 timerId를 반환함(숫자)|
+|`clearInterval(timerId)`|`timerId`에 해당하는 타이머를 취소시킴|
+
+- scheduling method들은 현재 script가 끝난 다음 한꺼번에 실행됨!  
+	e.g. 2초마다 출력, 5초에 2초 타이머 취소가 있으면, 출력이 2번 되고 1초 후에 2초의 타이머가 취소됨  
+	cf. `Date`의 method(`Date.now()` 등)들은 다른 statements와 같이 순서대로 실행됨(`alert`가 앞에 있으면 확인이 눌러진 다음 실행됨)
+- nested `setTimeout`이 `delay` 만큼 지연되는 것이 보장되고 더 유연한 구현이 가능함  
+	cf. `setInterval`은 `func`을 실행하는데 소요되는 시간도 timer에 포함됨
+- zero-delay scheduling은 browser 환경에서 5번의 호출 이후 지연 시간이 최소 4ms 이상으로 조절됨
+- timer의 최소 지연 시간은 300ms ~ 1000ms까지 늘어남(browser나 OS의 설정에 따라 다름)
+
+### Tasks
+1초마다 증가하는 숫자 출력:  
+```javascript
+function printNumbers(from, to) {
+  let current = from;
+  setTimeout(function go(){
+    alert(current);
+    if(current<to) setTimeout(go, 1000);
+    current++;
+  }, 1000);
+}
+
+function printNumbers2(from, to) {
+  let current = from, tid=setInterval(function() {
+    alert(current);
+    if(current == to) clearInterval(tid);
+    current++;
+  }, 1000);
+  
+}
+```
+- `clearInterval`도 `function()`의 다른 script가 끝난 다음 비교되기 때문에 이렇게 구현 가능
+
+## Decorators and forwarding, call/apply
+JS는 함수를 다루는데 유연함  
+함수를 인자로 넘기거나 객체로 사용할 수 있고, *forwarding*, *decorating*도 가능함
+
+### Transparent caching
+CPU를 많이 사용하지만, 결과가 stable한(항상 일정한 결과가 나옴) 함수 `slow(x)`가 있다고 가정하자  
+이 함수가 자주 호출된다면, 결과를 캐싱하는게 나음  
+하지만 `slow()` 안에 캐시를 추가하는 것보다, wrapper function을 추가하는게 더 좋음
+
+#### Example
+```javascript
+function slow(x) {
+  // there can be a heavy CPU-intensive job here
+  alert(`Called with ${x}`);
+  return x;
+}
+
+function cachingDecorator(func) {
+  let cache = new Map();
+
+  return function(x) {
+    if (cache.has(x)) {    // if there's such key in cache
+      return cache.get(x); // read the result from it
+    }
+
+    let result = func(x);  // otherwise call func
+
+    cache.set(x, result);  // and cache (remember) the result
+    return result;
+  };
+}
+
+slow = cachingDecorator(slow);
+
+alert( slow(1) ); // slow(1) is cached and the result returned
+alert( "Again: " + slow(1) ); // slow(1) result returned from cache
+
+alert( slow(2) ); // slow(2) is cached and the result returned
+alert( "Again: " + slow(2) ); // slow(2) result returned from cache
+```
+- `Map`을 이용해서 caching 가능
+- `slow(x)`를 호출하면, `slow()`가 호출되는 대신, `cachingDecorator`에 의해 반환된 caching wrapper가 호출됨  
+	=> `cachingDecorator`가 *decorator*임!
+	- 다른 함수를 가져와서 그것의 작동을 바꿈(이 예시에서는 caching을 추가)  
+		decorator 안에 cache를 만들어서 함수의 code도 더 간단해짐
+	- `cachingDecorator(func)` 안의 closure `function(x)`는 `func(x)`의 wrapper라고도 함
+	- `slow()`의 기능은 동일하고, caching만 추가됨
+- caching decorator를 사용하면 아래와 같은 장점이 있음:
+	- `cachingDecorator`는 reusable함 => 어느 함수에든 적용 가능
+	- caching logic이 분리되어 `slow()` 자체의 복잡성이 증가하지 않음
+	- 필요하면 여러 개의 decorator를 조합할 수 있음
+
+### Using "func.call" for the context
+object method는 decorator를 사용하기에 적합하지 않음  
+(∵ method 안에서 `this`를 호출하는 부분이 존재하면, decorator로 옮겨졌을 때 `this`가 `undefined`를 반환하기 때문)
+
+#### Example
+```javascript
+let worker = {
+  someMethod() {
+    return 1;
+  },
+
+  slow(x) {
+    // scary CPU-heavy task here
+    alert("Called with " + x);
+    return x * this.someMethod(); // (*)
+  }
+};
+
+function cachingDecorator(func) {
+  let cache = new Map();
+  return function(x) {
+    if (cache.has(x)) {
+      return cache.get(x);
+    }
+    let result = func(x); // (**)
+    cache.set(x, result);
+    return result;
+  };
+}
+
+alert( worker.slow(1) ); // the original method works
+
+worker.slow = cachingDecorator(worker.slow); // now make it caching
+
+alert( worker.slow(2) ); // Whoops! Error: Cannot read property 'someMethod' of undefined
+```
+- `(**)`에서 원래 method인 `slow()`를 호출  
+	=> `slow()`가 실행되고 `(*)`에서 `this`를 호출  
+	=> `undefined`가 반환되어 `undefined.someMethod()`를 호출하기 때문에 에러가 남
+- caching decorator가 아닌 다른 wrapper로 옮겨서 호출해도 같은 결과가 나옴:  
+	```javascript
+	let func = worker.slow;
+	func(2);
+	```
+	∵ `this`는 함수가 실행될 때 값이 계산됨
+
+`Array`의 method들은 `thisArg`를 사용해서 해결 가능하지만, 일반적인 method들은 `thisArg`가 parameter에 없는 경우가 많음  
+=> 내장 method인 `func.call([context[, ...args]])`를 사용해서 해결 가능
+- `context` : `thisArg`와 같은 역할로, 함수 내 `this`가 가리키는 것을 지정함
+
+#### Example
+```javascript
+function sayHi() {
+  alert(this.name);
+}
+
+let user = { name: "John" };
+
+sayHi.call( user ); // John
+```
+- argument 없이 실행할 수도 있음
+
+위의 decoration에 `func.call(thisArg)`를 사용:  
+```javascript
+function cachingDecorator(func) {
+  let cache = new Map();
+  return function(x) {
+    if (cache.has(x)) {
+      return cache.get(x);
+    }
+    let result = func.call(this, x); // "this" is passed correctly now
+    cache.set(x, result);
+    return result;
+  };
+}
+```
+- `worker.slow = cachingDecorator(worker.slow);`가 실행될 때 method `worker.slow`가 `func`로 들어감  
+	=> `func` 자체가 `worker.slow`라는 method이기 때문에 `func.call(this, x)`를 호출하면 `this`가 점 앞의 객체인 `worker`가 됨
+
+즉, decorator를 사용할 때 decorate할 `func`가 `this`를 사용한다면, `wrapper` 안에서 `func`를 호출할 때 `func.call(this, ...args)`로 호출하면 됨!
+
+### Going multi-argument
+argument가 여러 개인 함수도 caching을 시킬 수 있을까?  
+argument가 하나일 때는 `(x, res)`를 `Map`에 넣어서 caching을 구현했지만, `Map`이 key로 하나의 값만 저장 가능하기 때문에 인자가 여러 개일 경우 이 방법이 불가능함
+
+가능한 방법들:
+1. multi-key가 허용되는 map-like 자료 구조를 구현
+2. nested map을 사용  
+	e.g. `cache.get(arg1).get(arg2)`
+3. hashing 등으로 두 개의 값을 하나로 만듦
+
+세 번째 방법이 주로 사용됨
+
+`func.call()`에 여러 인자를 넣기 위해서 모든 함수에 존재하는 array-like object `arguments`와 spread syntax `...` 이용:  
+```javascript
+let worker = {
+  slow(min, max) {
+    alert(`Called with ${min},${max}`);
+    return min + max;
+  }
+};
+
+function cachingDecorator(func, hash) {
+  let cache = new Map();
+  return function() {
+    let key = hash(arguments); // (*)
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+
+    let result = func.call(this, ...arguments); // (**)
+
+    cache.set(key, result);
+    return result;
+  };
+}
+
+function hash(args) {
+  return args[0] + ',' + args[1];
+}
+
+worker.slow = cachingDecorator(worker.slow, hash);
+
+alert( worker.slow(3, 5) ); // works
+alert( "Again " + worker.slow(3, 5) ); // same (cached)
+```
+- 이제 `worker.slow`는 임의의 개수의 인자를 넣어도 작동함(`hash`는 수정해야 함)
+- `(*)`에서 `hash()`를 사용해서 `key`를 만듦  
+	`(**)`에서 `this`와 `...arguments`를 사용해서 `result`를 만들고 cache에 넣음
+
+### func.apply
+`func.call([this[, ...arguments]])` 대신 `func.apply(this[, arguments])`를 사용 가능
+`func.call`과의 차이점:  
+- `func.apply`에서는 array-like `args`만 허용됨  
+	cf. `func.call`에서는 argument로 iterable `args`가 `...`로 인해 나열되어서 들어감
+
+=> `Array` 같이 array-like이면서 iterable인 객체의 경우 `apply`와 `func` 두 곳 모두에 들어갈 수 있지만, array-like가 더 최적화가 잘 되어있기 때문에 `apply`에 넣는게 실행 속도가 더 빠름
+
+context(`this`)와 모든 arguments를 같이 다른 함수로 넘기는 것을 *call forwarding*이라고 함:  
+```javascript
+let wrapper = function() {
+  return func.apply(this, arguments);
+};
+```
+- decorator는 closure 안에서 call forwarding을 사용함
+	주로 closure와 함께 사용될 듯(single responsibility principle + 보안)
+- `wrapper`를 호출해서 `func`를 실행하는 것과 `func`를 호출하는 것은 구분할 수 없음
+
+### Borrowing a method
+위의 hashing function은 두 개의 arguments에 대해서만 작동함  
+*method borrowing*을 이용해서 이것을 개선할 수 있음:  
+```javascript
+function hash() {
+  alert( [].join.call(arguments) ); // 1,2
+}
+```
+- `arguments`는 iterable이면서 array-like이지만, `Array`가 아니기 때문에 `Array`의 method인 `arr.join()`을 사용할 수 없음  
+	=> `func.call()`을 사용해서 method `join`을 빌릴 수 있음!
+- `call()`의 `this`에 `arguments`를 넣은 것임  
+	`join()`이 `this[0...n]`을 추가하도록 구현되어있기 때문에 가능함
+- 이 경우에는 `Array.from()`을 사용해도 될 듯
+
+### Decorators and function properties
+original function이 function property를 가지고 있을 경우 decorator로 함수를 바꾸면 function property는 지원되지 않음  
+function property를 유지하는 decorator를 만들기 위해선 `Proxy` object를 사용해야 함!
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`func.call([context[, ...args]])`|`this`를 `context`로 설정하고 `...args`를 argument로 받는 `func` 실행|
+|`func.apply(context[, arguments])`|`this`를 `context`로 설정하고 array-like `arguments`를 argument의 리스트로 받는 `func` 실행|
+|`tempobj.method.call(arguments)`|method borrowing|
+
+- argument가 많을 경우 `call` 보다는 `apply`가 더 빠름  
+	∵ array-like가 최적화가 더 잘 되어있기 때문
+- call forwarding : context와 arguments를 다른 함수로 넘기는 것  
+	call forwarding의 기본적인 구조:  
+	```javascript
+	let wrapper = function() {
+	  return original.apply(this, arguments);
+	};
+	```
+- method borrowing : method를 사용하기 위해 빈 객체를 임시로 만들고 method를 사용하는 것
+- decorator는 어떤 함수를 argument로 받아서 그 함수의 동작을 바꾸는 wrapper임
+	- 함수 자체(주 기능과 복잡성, 코드)는 그대로 유지되어야 함
+	
+	caching decorator의 기본적인 구조:
+	```javascript
+	function cachingDecorator(func, hash) {
+	  let cache = new Map();
+	  return function() { // (1)
+		let key = hash(arguments); // (2)
+		if (cache.has(key)) {
+		  return cache.get(key);
+		}
+
+		let result = func.apply(this, arguments); // (3)
+
+		cache.set(key, result);
+		return result;
+	  };
+	}
+
+	function hash(args) {
+	  return [].join.call(args); // (4)
+	}
+	```
+	- `(1)`에서 closure 사용  
+		cache storage를 구현하기 위함
+	- `(2)`에서 object `arguments` 사용  
+		`func`의 arguments가 많을 때 key의 생성을 위함
+	- `(3)`에서 call forwarding  
+		`func`가 `this`를 사용하고 arguments가 많은 method일 경우 대비
+	- `(4)`에서 method borrowing  
+		array-like `arguments`는 `join()` method를 호출할 수 없기 때문
+- array-like `arguments`를 다룰 때 method borrowing을 많이 사용함  
+	`Array`인 rest parameter를 대안으로 사용 가능
+
+### Tasks
+#### Spy decorator
+```javascript
+function spy(func) {
+  function wrapper(...args) {
+    wrapper.calls.push(args);
+    return func.apply(this, args);
+  }
+
+  wrapper.calls = [];
+
+  return wrapper;
+}
+
+work = spy(work);
+
+work(1, 2); // 3
+work(4, 5); // 9
+
+for (let args of work.calls) {
+  alert( 'call:' + args.join() ); // "call:1,2", "call:4,5"
+}
+```
+- function expression에는 function property를 추가할 수 없음
+
+#### Delaying decorator
+```javascript
+function delay(f, ms) {
+  return function() {
+	// return setTimeout(f.apply(this, arguments), ms); // (1)
+	return setTimeout(() => f.apply(this, arguments), ms); // (2)
+  };
+}
+
+let f1000 = delay(f, 1000);
+let f1500 = delay(f, 1500);
+
+f1000("test"); // shows "test" after 1000ms
+f1500("test"); // shows "test" after 1500ms
+```
+- `setTimeout`에는 실행시킬 함수가 들어가야 함  
+	expression이 들어갈 경우 계산된 결과가 `setTimeout`의 argument로 들어감
+	- `(1)`은 `f.apply`를 실행한 반환값을 호출하는 것이기 때문에 의도한대로 작동하지 않음  
+		`(2)`는 arrow function이 하나의 함수이기 때문에 `ms` ms가 지난 후 `f.apply`가 호출됨  
+		(+ arrow function에서 `this`를 사용하면 outer function의 `this`가 사용되기 때문에 function expression의 `this`가 제대로 들어감)  
+		=> `f`가 method여도 정상적으로 실행됨
+	
+	아래와 같이 구현해도 됨:  
+	```javascript
+	function delay(f, ms) {
+	  return function(...args) {
+		let savedThis = this;
+		setTimeout(function() {
+		  f.apply(savedThis, args);
+		}, ms);
+	  };
+	}
+	```
+
+#### Debounce decorator
