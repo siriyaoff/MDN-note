@@ -6404,3 +6404,65 @@ f1500("test"); // shows "test" after 1500ms
 	```
 
 #### Debounce decorator
+`f`가 호출되면, 가장 마지막 호출 기준으로 `ms` ms 이후에 그 호출만 실행되게 만듦:  
+```javascript
+let f = debounce(alert, 1000);
+
+f("a");
+setTimeout( () => f("b"), 200);
+setTimeout( () => f("c"), 500);
+
+function debounce(func, ms) {
+  let timeout;
+  return function() {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, arguments), ms);
+  };
+}
+```
+- 이 예제에서는 `f()`를 on time, 200ms, 500ms에 호출하기 때문에, 1500ms 이후에 `f("c")`를 호출해야 함  
+	=> `f`가 호출될 때마다 이전의 `setTimeout`을 취소하고 시간을 바꿔서 새로 호출함
+- `f("a")`가 `alert`를 직접 호출하는게 아님에 주의!!  
+	이것도 바로 실행하지 않고 `ms` ms 이후에 실행되도록 예약됨
+
+#### Throttle decorator
+`f`가 호출되면, `ms` ms 이내에 최대 한 번만 호출되게 만듦:  
+```javascript
+function f(a) {
+  alert(a);
+}
+
+let f1000 = throttle(f, 1000);
+
+f1000(1); // shows 1
+f1000(2); // (throttling, 1000ms not out yet)
+f1000(3); // (throttling, 1000ms not out yet)
+// when 1000 ms time out...
+// ...outputs 3, intermediate value 2 was ignored
+
+function throttle(func, ms) {
+  let isthrottled=false, cargs, cthis;
+  function wrapper() {
+    if(isthrottled) {
+      cargs=arguments;
+      cthis=this;
+      return;
+    }
+    isthrottled=true;
+    
+    func.apply(this, arguments);
+    setTimeout(function() {
+      isthrottled=false;
+      if(cargs) {
+        wrapper.apply(cthis, cargs);
+        cargs=cthis=null;
+      }
+    }, ms);
+  }
+  return wrapper;
+}
+```
+- `isthrottled`가 `true`이면 현재 throttling되고 있음(`ms` ms 이내의 시간이므로 무시되는 중)  
+	
+	`false`라면 첫 실행이거나 다시 timer를 작동시켜야 함  
+	
