@@ -6464,5 +6464,178 @@ function throttle(func, ms) {
 ```
 - `isthrottled`가 `true`이면 현재 throttling되고 있음(`ms` ms 이내의 시간이므로 무시되는 중)  
 	
-	`false`라면 첫 실행이거나 다시 timer를 작동시켜야 함  
+	`false`라면 첫 실행이거나 다시 작동시켜야 하는 상황이기 때문에 `true`로 바꾸고 `func` 실행  
+	이후 `isthrottled`를 `false`로 바꾸고 `wrapper`를 다시 호출하는 함수를 `ms` ms 이후에 호출  
+	이 때 `cargs`가 `null`이 아니면 중간에 무시된 호출이 있다는 뜻이기 때문에 가장 마지막 인자들로 `wrapper`를 호출함(`func`를 호출하지 않고 `wrapper`를 호출하는 이유는 이 호출도 `ms` 안에 최대 한 번 실행되어야 하는 제한이 적용되어야 하기 때문)
+
+> #### ※ debounce와 throttle의 차이
+> debounce는 모든 호출을 무시한 뒤 마지막 호출을 `ms` 뒤에 실행되게 만듦
+> throttle은 `ms` 이내에 최대 한 번 실행되게 만듦
+
+## Function binding
+method를 callback으로 보낼 경우, 실행될 때 `this`를 제대로 찾지 못한다는 문제가 있음
+
+### Losing "this"
+```javascript
+let user = {
+  firstName: "John",
+  sayHi() {
+    alert(`Hello, ${this.firstName}!`);
+  }
+};
+
+setTimeout(user.sayHi, 1000); // Hello, undefined!
+```
+- `user.sayHi`가 object와 떨어져서 호출되어 `this.firstName`을 찾지 못했기 때문에 `undefined`가 출력됨
+- 브라우저에 구현된 `setTimeout`는 `this`를 `window`로 설정함(Node.js는 `this`가 timer object가 됨)  
+	=> `this.firstName`이 `undefined`가 됨  
+	cf. `setTimeout` 이외의 다른 경우에는 `this` 자체가 아예 `undefined`가 되어버림
+- wrapper나 binding을 사용해서 context에 맞게 함수를 호출할 수 있음
+
+### Solution 1: a wrapper
+```javascript
+setTimeout(function() {
+  user.sayHi(); // Hello, John!
+}, 1000);
+```
+- `user.sayHi`를 `setTimeout`의 argument로 넘기면 이 함수의 코드만 넘어가지만, wrapper를 이용하면 `user`의 method `sayHi()`가 실행됨  
+	```javascript
+	setTimeout(() => user.sayHi(), 1000); // Hello, John!
+	```
+	도 같은 이유로 정상적으로 실행됨
 	
+	`setTimeout`이 실행되기 전에 `user`의 정보가 바뀐다면 예상과 다른 결과가 나올 수 있음!  
+	=> bind로 해결 가능
+
+### Solution 2: bind
+```javascript
+let boundFunc = func.bind(context);
+
+/*-------------example--------------*/
+
+let user = {
+  firstName: "John",
+  say(phrase) {
+    alert(`${phrase}, ${this.firstName}!`);
+  }
+};
+
+let say = user.say.bind(user); // (*)
+
+say("Hello"); // Hello, John
+
+setTimeout(() => say("Hello"), 1000); // Hello, John!
+
+user = {
+  say() { alert("Another user in setTimeout!"); }
+};
+```
+- `(*)`에서 `user.say()`를 `user`에 bind함  
+	=> `say`가 bound function가 됨  
+	=> 어디서 호출되든, `user`의 정보가 바뀌든 context가 bind될 당시의 `user`로 고정됨
+- `user.say()`가 바뀌더라도 bind될 당시의 `user.say()`가 실행됨  
+	`setTimeout`안의 arrow function은 `say()`에 argument를 넣기 위한 것임(wrapper를 이용한 것이 아님)
+
+> Binding all methods  
+> 한 객체의 모든 method를 bind해야 할 때 아래와 같이 구현 가능:  
+> ```javascript
+> for (let key in user) {
+>   if (typeof user[key] == 'function') {
+>     user[key] = user[key].bind(user);
+>   }
+> }
+> ```
+> 
+> lodash의 `_.bindAll(obj, methodNames)`와 같이 함수를 제공하기도 함
+
+### Partial functions
+The full syntax of bind:  
+```javascript
+let bound = func.bind(context, [arg1], [arg2], ...);
+
+/*-------------example--------------*/
+
+function mul(a, b) {
+  return a * b;
+}
+
+let double = mul.bind(null, 2);
+
+alert( double(3) ); // = mul(2, 3) = 6
+alert( double(4) ); // = mul(2, 4) = 8
+alert( double(5) ); // = mul(2, 5) = 10
+```
+- `mul`의 parameter `a`를 `2`로 bind함  
+	`context`가 필수기 때문에 사용하지 않는 경우 `null`을 넣어줌
+- 이렇게 기존의 함수의 parameter를 조절해서 새로운 함수를 만드는 것을 *partial function application*이라고 함
+	- 함수의 이름을 다시 지을 수 있음  
+	- bind한 parameter는 호출할 때마다 넣어주지 않아도 됨  
+		=> generic한 함수를 고쳐서 편의성을 높일 수 있음  
+		
+		e.g. `send(from, to, text)`를 이용해서 `sendTo(to, text)`를 만들 수 있음
+
+### Going partial without context
+`bind`를 사용하면 context도 반드시 넣어야 하므로 `partial` 함수를 따로 구현해놓는 것도 좋음:  
+```javascript
+function partial(func, ...argsBound) {
+  return function(...args) {
+    return func.call(this, ...argsBound, ...args);
+  }
+}
+
+/*-------------example--------------*/
+
+let user = {
+  firstName: "John",
+  say(time, phrase) {
+    alert(`[${time}] ${this.firstName}: ${phrase}!`);
+  }
+};
+
+user.sayNow = partial(user.say, new Date().getHours() + ':' + new Date().getMinutes());
+
+user.sayNow("Hello"); // [10:00] John: Hello!
+```
+- `bind`를 사용하지 않고 wrapper로 구현
+- lodash에는 `_.partial` 함수가 따로 존재
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`let bound = func.bind(context, [arg1], [arg2], ...);`|`func`의 context와 arguments를 `context`, `arg1...`로 bind한 새로운 함수 반환|
+
+- context와 arguments 일부를 bind한 함수를 bound function이라고 부름
+	- 주로 method를 callback으로 전달하기 위해 사용
+- context 말고 arguments만 bind한 함수를 partial function이라고 부름
+	- 따로 wrapper로 구현해야 함
+- 둘 다 lodash에 `_.bindAll(obj, methodNames)`, `_.partial`로 존재함
+
+### Tasks
+```javascript
+function f() {
+  alert(this.name);
+}
+
+f = f.bind( {name: "John"} ).bind( {name: "Ann" } );
+
+f(); // John
+```
+- 한 번 bound된 함수는 다시 bound될 수 없음!!  
+	처음 bound된 context로 고정됨
+
+```javascript
+function sayHi() {
+  alert( this.name );
+}
+sayHi.test = 5;
+
+let bound = sayHi.bind({
+  name: "John"
+});
+
+alert( bound.test ); // undefined
+```
+- `bind`는 아예 새로운 함수를 반환하기 때문에 function property가 공유되지 않음
+- strict mode가 아닐 때 `this`가 정의되지 않으면 `globalThis`를 가리키는 듯
+
