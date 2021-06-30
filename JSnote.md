@@ -5085,7 +5085,7 @@ Tail call recursion은 `return`문에 메모리를 사용하는 연산자를 사
 함수의 definition에 상관없이 여러 개의 arguments를 사용해서 호출 가능  
 => 필요한 만큼만 사용되고 에러가 나지 않음!  
 `...`를 이용하면 나머지 arguments도 버리지 않고 저장 가능:  
-```javascipt
+```javascript
 function sumAll(...args) {
   let sum = 0;
 
@@ -6468,8 +6468,8 @@ function throttle(func, ms) {
 	이후 `isthrottled`를 `false`로 바꾸고 `wrapper`를 다시 호출하는 함수를 `ms` ms 이후에 호출  
 	이 때 `cargs`가 `null`이 아니면 중간에 무시된 호출이 있다는 뜻이기 때문에 가장 마지막 인자들로 `wrapper`를 호출함(`func`를 호출하지 않고 `wrapper`를 호출하는 이유는 이 호출도 `ms` 안에 최대 한 번 실행되어야 하는 제한이 적용되어야 하기 때문)
 
-> #### ※ debounce와 throttle의 차이
-> debounce는 모든 호출을 무시한 뒤 마지막 호출을 `ms` 뒤에 실행되게 만듦
+> #### debounce와 throttle의 차이
+> debounce는 모든 호출을 무시한 뒤 마지막 호출을 `ms` 뒤에 실행되게 만듦  
 > throttle은 `ms` 이내에 최대 한 번 실행되게 만듦
 
 ## Function binding
@@ -6639,3 +6639,175 @@ alert( bound.test ); // undefined
 - `bind`는 아예 새로운 함수를 반환하기 때문에 function property가 공유되지 않음
 - strict mode가 아닐 때 `this`가 정의되지 않으면 `globalThis`를 가리키는 듯
 
+## Arrow functions revisited
+arrow function은 단지 shorthand가 아니라 유용한 기능을 가지고 있음  
+JS는 `arr.forEach(func)`와 같이 함수가 인자로 들어가서, 정의된 환경과 다른 곳에서 실행되는 경우가 많음  
+이런 경우에 `func`의 context를 그대로 두고 싶은 경우가 많은데, arrow function이 이것을 도와줌
+
+### Arrow functions have no "this"
+arrow function은 `this`가 없고, 외부에서 가져옴  
+e.g. object method 내에서 반복을 위해 arrow function을 사용 가능:  
+```javascript
+let group = {
+  title: "Our Group",
+  students: ["John", "Pete", "Alice"],
+
+  showList() {
+    this.students.forEach(
+      student => alert(this.title + ': ' + student) // (*)
+    );
+  }
+};
+
+group.showList();
+```
+- `(*)`에서 `forEach`안에서 사용된 arrow function은 `forEach`의 outer method인 `showList()`의 `this`를 사용하기 때문에 `group.title`이 들어감
+- `(*)`을 `alert(this.title + ': ' + student);`로 바꾸면 에러남  
+	`forEach`는 `this`가 `undefined`이기 때문  
+	cf. arrow function은 `this` 자체가 없기 때문에 outer `this`를 사용해서 에러가 나지 않음
+
+> ※ Arrow functions은 `new`와 같이 실행할 수 없음  
+> ∵ `this`가 없기 때문  
+> 따라서 arrow function은 생성자로 사용될 수도 없음(`super`도 가질 수 없음)
+
+> ※ Arrow functions VS bind  
+> - `.bind(this)`는 bound function을 생성함  
+> - `=>`는 binding을 생성하지 않고 변수를 찾는 것과 같이 outer lexical environment의 `this`를 사용하는 것임
+
+### Arrows have no "arguments"
+arrow function은 `arguments`도 존재하지 않음  
+=> decorator와 같이 call forwarding을 해야 할 때 `this`와 `arguments`를 편하게 사용할 수 있음  
+e.g. `defer(f, ms)`는 `func`를 `ms` ms만큼 지연시킴:  
+```javascript
+function defer(f, ms) {
+  return function() {
+    setTimeout(() => f.apply(this, arguments), ms);
+  };
+}
+
+function sayHi(who) {
+  alert('Hello, ' + who);
+}
+
+let sayHiDeferred = defer(sayHi, 2000);
+sayHiDeferred("John"); // Hello, John after 2 seconds
+```
+- arrow function의 `this`와 `arguments`는 wrapper의 것을 가져옴
+
+`defer`는 아래와 같이 구현할 수도 있음
+
+```javascript
+function defer(f, ms) {
+  return function(...args) {
+    let ctx = this;
+    setTimeout(function() {
+      return f.apply(ctx, args);
+    }, ms);
+  };
+}
+```
+- context를 일일히 저장해야 하고, arguments도 rest parameter를 써서 가져와야 함
+
+
+# Object properties configuration
+## Property flags and descriptors
+property는 "key-value" pair 이상의 가치를 가짐  
+additional configuration options, getter, setter function이 존재함
+
+### Property flags
+object property는 `value` 이외에도 3개의 attribute를 가짐(flag라고 함)
+- `writable` : `true`일 경우 값이 바뀔 수 있음
+- `enumerable` : `true`일 경우 반복문으로 property를 순회할 때 나열될 수 있음
+- `configurable` : `true`일 경우 property가 삭제되거나 attributes가 수정될 수 있음
+
+property를 일반적인 방식으로 선언하면 모든 flag가 `true`로 설정됨  
+`Object.getOwnPropertyDescriptor`를 사용하면 모든 flag를 설정 가능:  
+```javascript
+let descriptor = Object.getOwnPropertyDescriptor(obj, propertyName);
+
+/*-------------example--------------*/
+
+let user = {
+  name: "John"
+};
+
+let descriptor = Object.getOwnPropertyDescriptor(user, 'name');
+
+alert( JSON.stringify(descriptor, null, 2 ) );
+/* property descriptor:
+{
+  "value": "John",
+  "writable": true,
+  "enumerable": true,
+  "configurable": true
+}
+*/
+```
+- parameters
+	- `obj` : property를 소유한 객체
+	- `propertyName` : property의 이름
+- "property descriptor"라는 `Object`를 반환함  
+	value, flags를 property로 가짐
+
+`Object.defineProperty`로 flag를 수정 가능:  
+```javascript
+Object.defineProperty(obj, propertyName, descriptor)
+
+/*-------------example--------------*/
+
+let user = {};
+
+Object.defineProperty(user, "name", {
+  value: "John"
+});
+
+let descriptor = Object.getOwnPropertyDescriptor(user, 'name');
+
+alert( JSON.stringify(descriptor, null, 2 ) );
+/*
+{
+  "value": "John",
+  "writable": false,
+  "enumerable": false,
+  "configurable": false
+}
+*/
+```
+- parameters
+	- `obj`, `propertyName` : 정의하거나 바꾸고 싶은 property의 정보
+	- `descriptor` : 적용할 property descriptor
+- property가 존재한다면 `descriptor`에 명시된 flag를 갱신함  
+	존재하지 않는다면 property를 새로 만듦  
+	(이때 flag를 생략하면 `false`로 초기화됨)
+
+### Non-writable
+`writable` flag가 `false`일 경우:  
+```javascript
+let user = {
+  name: "John"
+};
+Object.defineProperty(user, "name", {
+  writable: false
+});
+
+user.name = "Pete"; // Error: Cannot assign to read only property 'name'
+```
+- `user.name`이 `"Pete"`로 바뀌지 않음  
+	∵ non-writable하기 때문
+
+> #### non-writable한 property를 수정할 때 에러는 strict mode에서만 발생함  
+> non-strict mode에서 flag에 위반하는 코드는 그냥 무시되고 에러를 발생시키진 않음
+
+### Non-enumerable
+객체 안에 이미 선언된 `toString()`은 non-enumerable이지만, 직접 추가하면 다른 method와 같이 `for...in`에 나열됨:  
+```javascript
+let user = {
+  name: "John",
+  toString() {
+    return this.name;
+  }
+};
+
+// By default, both our properties are listed:
+for (let key in user) alert(key); // name, toString
+```

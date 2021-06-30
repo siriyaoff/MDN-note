@@ -26,11 +26,13 @@ CSS layout : 2911 - 5579
 1146-1650	code quality
 1653-2743	objects: the basics
 2745-4966	data types
+4969-6709	advanced working with functions
 
 
 ※ tags에는 md 적용안됨!!
 
 Part > topic(#) > article(##)
+주석 안과 example의 헤더는 ####로 고정
 
 ## tasks
 array-methods 한글 번역본  
@@ -40,19 +42,15 @@ call-apply-decorators 한글 번역본
 메서드 빌리기 바로 위 문장 오역(구분할 수 없음)
 
 ## 블로그 업로드하고 체크
-5126 주석 안에 code block
-5261 표 안에 그림하고 캡션
-6471 주석 안에 헤더
-6541 주석 안에 code block
 
-// #### Ex => ?? Ex
-// ####=> ##?
-// ##=> #
-// #?=> ###
-// ?? Ex=> #### Ex
+// #### Ex	=> ?? Ex
+// ####		=> ##?
+// ##		=> #
+// #?		=> ###
+// ?? Ex	=> #### Ex
+// > ###	=> > ####
 
-Advanced working with functions
-2
+Object properties configuration
 2
 4
 7
