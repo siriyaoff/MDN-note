@@ -27,7 +27,7 @@ CSS layout : 2911 - 5579
 1653-2743	objects: the basics
 2745-4966	data types
 4969-6709	advanced working with functions
-
+6712-7049	object properties configuration
 
 ※ tags에는 md 적용안됨!!
 
@@ -50,8 +50,7 @@ call-apply-decorators 한글 번역본
 // ?? Ex	=> #### Ex
 // > ###	=> > ####
 
-Object properties configuration
-2
+Prototypes, inheritance
 4
 7
 2
@@ -59,6 +58,7 @@ Object properties configuration
 2
 3
 5
+---Browser: Document, Events, Interfaces---
 11
 5
 6
@@ -74,6 +74,6 @@ Object properties configuration
 7
 17
 
-67(+49)
-31
-2(+1)개씩
+31(+32+49)
+26
+1.2(+3.1)개씩
