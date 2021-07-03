@@ -7091,5 +7091,282 @@ prototypal inheritance의 제한 사항:
 	prototype chain이 길어질 수는 있음
 
 > #### `__proto__`는 `[[Prototype]]`을 위한 getter/setter임
-> `__proto__`는 `[[Prototype]]`과 같지 않음  
+> `__proto__`는 `[[Prototype]]`와 동일한게 아니라, `[[Prototype]]`의 getter/setter 역할을 함   
+> `__proto__`는 현재 잘 사용되지 않고, 호환성을 위해서 존재함  
+> 최신의 JS에서는 `Object.getPrototypeOf`/`Object.setPrototypeOf`를 사용하길 권장함  
 > 
+> `__proto__`는 specification에 의하면 browser에서만 지원되어야 하지만, 실제로는 서버를 포함해서 모든 환경에서 지원됨  
+> `__proto__`가 더 직관적이기 때문에 이 article에서는 이것을 사용함
+
+### Writing doesn't use prototype
+prototype은 property를 읽을 때만 사용됨  
+property를 수정하거나 삭제하는 것은 직접 object를 사용해야 함:  
+```javascript
+let animal = {
+  eats: true,
+  walk() {
+    /* this method won't be used by rabbit */
+  }
+};
+
+let rabbit = {
+  __proto__: animal
+};
+
+rabbit.walk = function() {
+  alert("Rabbit! Bounce-bounce!");
+};
+
+rabbit.walk(); // Rabbit! Bounce-bounce!
+```
+- `rabbit`의 prototype인 `animal`에 `walk()` method가 있지만, `rabbit.walk`에 함수를 넣으면 `rabbit`에 `walk()` method가 추가됨  
+	=> `rabbit.walk()`를 호출하면 prototype 대신 `rabbit`에 있는 메소드가 호출됨
+
+Accessor property는 getter/setter 안에 들어가는 property의 존재 여부에 따라서 다른 결과가 나옴:  
+```javascript
+let user = {
+  name: "John",
+  surname: "Smith",
+
+  set fullName(value) {
+    [this.name, this.surname] = value.split(" ");
+  },
+
+  get fullName() {
+    return `${this.name} ${this.surname}`;
+  }
+};
+
+let admin = {
+  __proto__: user,
+  isAdmin: true
+};
+
+alert(admin.fullName); // John Smith (*)
+
+// setter triggers!
+admin.fullName = "Alice Cooper"; // (**)
+
+alert(admin.fullName); // Alice Cooper, state of admin modified
+alert(user.fullName); // John Smith, state of user protected
+```
+- `(*)`에서는 `admin`에 `name/surname`이 없기 때문에 prototype의 그것이 호출됨
+- `(**)`에서 setter에 의해 `admin`에 `name/surname`이 추가됨  
+	=> 마지막에는 `this`의 값이 다르기 때문에 서로 다른 property가 호출됨!
+
+### The value of "this"
+`this`는 prototype에 영향을 받지 않음  
+method가 object에 선언되든지 prototype에 선언되든지 상관없이, `this`는 항상 점 이전의 객체를 가리킴!  
+=> `admin.fullName`에서는 `this`가 `admin`을 가리킴
+
+상속 관계가 복잡해도 이로 인해 편리하게 inherited method 실행 가능  
+즉, 상속하면 method는 공유되지만 object state는 공유되지 않음(method 내에서 property를 수정하면 `this`에 해당하는 객체의 상태가 변화함)
+
+#### Example
+```javascript
+let animal = {
+  walk() {
+    if (!this.isSleeping) {
+      alert(`I walk`);
+    }
+  },
+  sleep() {
+    this.isSleeping = true;
+  }
+};
+
+let rabbit = {
+  name: "White Rabbit",
+  __proto__: animal
+};
+
+rabbit.sleep();
+
+alert(rabbit.isSleeping); // true
+alert(animal.isSleeping); // undefined (no such property in the prototype)
+```
+- prototype에 정의된 메소드 `sleep()`을 `rabbit`에서 호출했으므로 `this`가 `rabbit`을 가리켜 `rabbit`에 `isSleeping`이라는 property가 생김
+
+|위 예시의 object state|
+|:---:|
+|![js-object-state1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-object-state1.PNG?raw=true)|
+|javascript.info 참고|
+
+### `for...in` loop
+`for...in`은 상속받은 property도 순회함  
+`obj.hasOwnProperty(key)`로 `obj`가 소유한 key인지 판별할 수 있음:  
+```javascript
+let animal = {
+  eats: true
+};
+
+let rabbit = {
+  jumps: true,
+  __proto__: animal
+};
+
+alert(Object.keys(rabbit)); // jumps
+
+for(let prop in rabbit) alert(prop); // jumps, then eats
+
+for(let prop in rabbit) {
+  let isOwn = rabbit.hasOwnProperty(prop);
+
+  if (isOwn) {
+    alert(`Our: ${prop}`); // Our: jumps
+  } else {
+    alert(`Inherited: ${prop}`); // Inherited: eats
+  }
+}
+```
+- `Object.keys(obj)`는 `obj`의 key만 리턴(key는 method도 포함됨!!)
+- `for...in`은 inherited key도 리턴
+- 모든 literal object들은 `Object.prototype`을 상속받음  
+	`Object.prototype`은 `[[Prototype]]`이 `null`임
+- `Object.prototype`의 모든 property들은 `enumerable: false`이기 때문에 `for...in`에 나열되지 않음
+
+> #### key나 value를 가져오는 거의 모든 method들은 상속받는 property를 제외함  
+> `Object.keys/values`와 같은 method들은 inherited property를 무시함  
+> 즉, 호출된 객체 안의 key에 대해서만 동작하고, prototype의 key들은 가져오지 않음
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`obj.hasOwnProperty(prop)`|`obj`가 `prop`라는 key를 가지는지 판별|
+
+- hidden property `[[Prototype]]`에 prototype의 reference가 저장됨
+	- `__proto__`를 사용해서 설정 가능
+- 상속받은 property들은 수정할 수 없음(대입 연산을 하면 현재 객체에 새 property가 생김)
+- 상속받은 method에서도 `this`는 항상 점 이전의 객체를 가리킴
+- 모든 literal object들은 `Object.prototype`을 상속받음
+- `Object.prototype`의 property, method들은 모두 `enumerable: false`임
+- key나 value를 가져오는 거의 모든 method들은 상속받는 property를 제외함
+
+### Tasks
+- 최신의 엔진에서 property를 호출할 때 object에서 가져오나 prototype에서 가져오나 성능 차이가 없음  
+	∵ 첫 번째 가져올 때 탐색하고 위치를 저장해놓기 때문에 다음 요청때는 바로 가져올 수 있음
+
+## F.prototype
+constructor function을 이용해서 `new F()`와 같이 객체를 생성할 수 있음  
+만약 `F.prototype`이 객체라면, `new` operator로 생성되는 새 객체의 `[[Prototype]]`에 `F.prototype`의 reference를 저장함  
+`F.prototype`은 단순히 `F`의 property `prototype`을 의미하는 것이지, 다른 뜻은 없음!!!
+
+#### Example
+```javascript
+let animal = {
+  eats: true
+};
+
+function Rabbit(name) {
+  this.name = name;
+}
+
+Rabbit.prototype = animal;
+
+let rabbit = new Rabbit("White Rabbit"); //  rabbit.__proto__ == animal
+
+alert( rabbit.eats ); // true
+```
+- `Rabbit.prototype = animal`은 `new Rabbit`이 생성될 때 그것의 `[[Prototype]]`에 `animal`을 대입해라는 의미임  
+	|![js-f-prototype1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-f-prototype1.PNG?raw=true)|
+	|:---:|
+	|javascript.info 참고|
+	
+	가로 화살표는 평범한 property를 뜻하고 세로 화살표는 inheritance를 뜻함
+
+> #### `F.prototype`은 `new F`로 호출될 때만 사용됨
+> `new F`로 객체가 하나 생성된 다음 `F.prototype`이 바뀐다해도 생성된 객체의 `[[Prototype]]`은 기존의 것으로 유지됨  
+> reference를 복사하는 것이기 때문
+
+### Default F.prototype, constructor property
+모든 함수들은 우리가 선언해주지 않아도 `prototype` property를 가짐  
+default `prototype` property는 `{ constructor: F }`와 같은 객체임(`F`는 함수 자기 자신):  
+```javascript
+function Rabbit() {}
+
+/* default prototype
+Rabbit.prototype = { constructor: Rabbit };
+*/
+
+alert( Rabbit.prototype.constructor == Rabbit ); // true
+```
+
+따라서 `new F`로 생성된 객체들은 `[[Prototype]]` property를 통해서 `F.constructor`에 접근 가능함:  
+```javascript
+function Rabbit() {}
+let rabbit = new Rabbit(); // inherits from {constructor: Rabbit}
+
+alert(rabbit.constructor == Rabbit); // true (from prototype)
+```
+
+|![js-f-prototype2](https://github.com/siriyaoff/MDN-note/blob/master/images/js-f-prototype2.PNG?raw=true)|
+|:---:|
+|javascript.info 참고|
+
+아래와 같이 기존의 객체의 constructor를 생성자로 사용할 수도 있음:  
+```javascript
+function Rabbit(name) {
+  this.name = name;
+  alert(name);
+}
+
+let rabbit = new Rabbit("White Rabbit");
+
+let rabbit2 = new rabbit.constructor("Black Rabbit");
+```
+- 객체의 생성자를 모르는데(e.g. 써드파티의 객체) 같은 종류의 객체를 생성하고 싶을 때 유용함
+
+`F.prototype`이 `constructor` property를 가지는 객체이긴 하지만, 우리가 수정할 수 있기 때문에 없어질 수도 있음:  
+```javascript
+function Rabbit() {}
+Rabbit.prototype = {
+  jumps: true
+};
+
+let rabbit = new Rabbit();
+alert(rabbit.constructor === Rabbit); // false
+```
+
+`constructor`를 유지하면서 `F.prototype`을 수정하는 방법:  
+```javascript
+// (1)
+
+function Rabbit() {}
+Rabbit.prototype.jumps = true
+
+// (2)
+
+Rabbit.prototype = {
+  jumps: true,
+  constructor: Rabbit
+};
+```
+1. `F.prototype` 전체를 덮어쓰지 않고 property를 하나씩 추가
+2. 덮어쓰는 대신 `constructor: Rabbits`를 넣어줘야 함
+
+### Summary
+- `F.prototype`은 `new F()`로 생성된 객체들의 `[[Prototype]]`을 자신이 저장하고 있는 레퍼런스로 설정함
+- `F.prototype`의 값은 객체이거나 `null`이어야 함(`[[Prototype]]`과 마찬가지)
+- `prototype` property는 생성자 함수의 property이고, 생성자 함수로 객체가 생성될 때만 위와 같은 기능을 함  
+	cf. 보통의 객체에서는 아무런 영향이 없음
+- 생성자 함수를 포함한 *모든 함수*들은 `F.prototype = { constructor: F }`를 가짐  
+	=> 객체가 있다면 해당 객체의 생성자에도 접근할 수 있음
+	- property를 추가할 때 덮어쓰지 않도록 주의해야 함!
+
+### Tasks
+```javascript
+function Rabbit() {}
+Rabbit.prototype = {
+  eats: true
+};
+
+let rabbit = new Rabbit();
+
+Rabbit.prototype = {};
+
+alert( rabbit.eats ); // ?
+```
+- `true`  
+	기존의 `Rabbit.prototype` 객체는 reference가 있기 때문에 garbage collected되지 않고, `Rabbit.prototype`은 `{}`의 reference로 바뀜
+
