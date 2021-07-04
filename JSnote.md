@@ -7349,7 +7349,7 @@ Rabbit.prototype = {
 - `F.prototype`은 `new F()`로 생성된 객체들의 `[[Prototype]]`을 자신이 저장하고 있는 레퍼런스로 설정함
 - `F.prototype`의 값은 객체이거나 `null`이어야 함(`[[Prototype]]`과 마찬가지)
 - `prototype` property는 생성자 함수의 property이고, 생성자 함수로 객체가 생성될 때만 위와 같은 기능을 함  
-	cf. 보통의 객체에서는 아무런 영향이 없음
+	cf. 보통의 객체에서는 기본적으로 생성되지도 않으며, 아무런 영향이 없음
 - 생성자 함수를 포함한 *모든 함수*들은 `F.prototype = { constructor: F }`를 가짐  
 	=> 객체가 있다면 해당 객체의 생성자에도 접근할 수 있음
 	- property를 추가할 때 덮어쓰지 않도록 주의해야 함!
@@ -7368,5 +7368,197 @@ Rabbit.prototype = {};
 alert( rabbit.eats ); // ?
 ```
 - `true`  
-	기존의 `Rabbit.prototype` 객체는 reference가 있기 때문에 garbage collected되지 않고, `Rabbit.prototype`은 `{}`의 reference로 바뀜
+	기존의 `Rabbit.prototype` 객체는 `rabbit`에서 reference를 사용하기 때문에 `Rabbit.prototype`에서 참조하지 않아도 garbage collected되지 않음  
+	`Rabbit.prototype`은 `{}`의 reference로 바뀜  
+	=> 이후에 `new Rabbit`으로 만들어지는 객체들은 `{}`의 reference를 `[[Prototype]]`에 저장함
+- inherited property는 읽기만 가능, 수정, 삭제는 inherited property의 key를 호출하더라도 점 앞의 객체의 property로 간주함(e.g. `delete rabbit.eats;`를 하더라도 `prototype`의 property가 지워지지 않음, 대입도 마찬가지로, `rabbit.eats`가 만들어지고 거기에 값이 대입됨)
+- `rabbit.prototype`는 존재하지 않음!!  
+	∵ `F.prototype`만 위와 같이 사용되기 때문!  
+	
+	따라서, `Rabbit.prototype.eats`를 상속받은 객체 `rabbit`에서 접근하기 위해선 `rabbit.__proto__.eats`와 같이 접근해야 함!!
+- `Rabbit.prototype={};`를 실행해서 지운 다음 `rabbit.constructor()`를 호출하면 `Rabbit`의 prototype인 `Object.prototype`의 constructor가 실행됨!  
+	이 constructor는 `new Object(...)`와 같이 사용하지 않음!!  
+	`new Object()`로 empty object를 생성하기는 함
 
+## Native prototypes
+모든 내장된 생성자 함수들은 `prototype` property를 사용함
+
+### Object.prototype
+```javascript
+let obj = {};
+alert( obj ); // "[object Object]"
+```
+- `obj`는 empty object인데 `"[object Object]"`로 바꿔주는 `toString` method이 어디서 나온 걸까?  
+	`obj = {}`은 `obj = new Object()`의 shorthand이기 때문에 `Object.prototype`에 선언된 `toString`을 사용한 것임  
+	즉, `obj.toString`과 `obj.__proto__.toString`과 `Object.prototype.toString`은 모두 같은 레퍼런스임  
+	![js-object-prototype1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-object-prototype1.PNG?raw=true)
+
+`Object.prototype`의 `[[Prototype]]`은 `null`임!
+
+### Other built-in prototypes
+`Array`, `Date`, `Function` 등의 다른 내장 객체들도 prototype에 method를 저장함  
+예를 들어, `[1, 2, 3]`으로 생성한 array도 `new Array()`를 사용하는데, constructor function과 다른 method들은 `Array.prototype`에 정의되어 있음  
+=> 모든 객체에 각각 method가 정의되어 있는 것보다 메모리를 절약할 수 있음
+
+specification에 의하면, 모든 내장 prototype들은 `Object.prototype`을 상속받음  
+![js-built-in-prototypes1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-built-in-prototypes1.PNG?raw=true)
+
+```javascript
+let arr = [1, 2, 3];
+
+alert( arr.__proto__ === Array.prototype ); // true
+
+alert( arr.__proto__.__proto__ === Object.prototype ); // true
+
+alert( arr.__proto__.__proto__.__proto__ ); // null
+
+alert(arr.toString === Array.prototype.toString); // true
+
+alert(arr.toString === Object.prototype.toString); // false
+```
+- `Array.prototype`, `Object.prototype` 둘 다 `toString` method를 가지고 있지만, `arr`에서는 더 가까운 `Array.prototype.toString`을 사용함
+
+`console.dir(obj)`를 이용하면 `obj`의 prototype chain을 알 수 있음:  
+![js-console-dir](https://javascript.info/article/native-prototypes/console_dir_array.png)
+
+`Function`도 마찬가지로, `call`, `apply` 같은 method들은 `Function.prototype`에 정의되어 있음
+
+### Primitives
+`String`, `Number`, `Boolean`은 객체가 아니라 primitive지만, property에 접근할 때 임시적으로 wrapper object가 생성됨(`String`, `Number`, `Boolean`의 생성자 사용해서)  
+=> 그 wrapper object가 method를 제공한 다음 사라짐
+
+위의 과정이 specification에 명시되어 있는 내용이고, 실제로 wrapper object들은 우리가 볼 수 없고, 대부분의 엔진들이 최적화함  
+이 wrapper object들의 method들도 prototype(`String.prototype`, `Number.prototype`, `Boolean.prototype`)에 정의되어 있음
+
+> #### `null`, `undefined`는 wrapper object가 없음
+> 따라서 사용할 수 있는 method나 property, prototype도 존재하지 않음
+
+### Chainging native prototypes
+Native prototype을 수정할 수 있음  
+예를 들어, `String.prototype`에 method를 추가하면, 그 method는 모든 `String`에서 사용 가능:  
+```javascript
+String.prototype.show = function() {
+  alert(this);
+};
+
+"BOOM!".show(); // BOOM!
+```
+- 수정할 수는 있지만, 좋은 생각이 아님!
+
+> #### 주의해야 할 점
+> prototype은 global하기 때문에 충돌이 일어나기 쉬움  
+> 예를 들어 두 라이브러리가 `String.prototype.show`라는 method를 정의하면, 둘 중 하나는 덮어씌워짐  
+> 따라서, 일반적으로 native prototype을 수정하는 것은 좋지 않음
+
+최근에는 polyfill을 목적으로 하는 native prototype 수정은 권장됨  
+(Remind: polyfill은 JS specification에는 명시되어 있지만, 특정한 엔진에서 지원되지 않는 내용을 위한 대체제를 만드는 것임)
+
+#### Example
+```javascript
+if (!String.prototype.repeat) {
+  String.prototype.repeat = function(n) {
+    // repeat the string n times
+    return new Array(n + 1).join(this);
+  };
+}
+
+alert( "La".repeat(3) ); // LaLaLa
+```
+- method가 지원되지 않으면 polyfill을 넣음
+
+### Borrowing from prototypes
+native prototype의 method를 주로 빌림:  
+```javascript
+let obj = {
+  0: "Hello",
+  1: "world!",
+  length: 2,
+};
+
+obj.join = Array.prototype.join;
+
+alert( obj.join(',') ); // Hello,world!
+```
+- 이전 article에서는 empty array를 이용해서 `[].join`과 같이 method를 빌렸지만, native prototype을 이용해서 method를 빌릴 수도 있음
+	- `join`이 index, `length`만 사용하기 때문에 array-like object에도 사용할 수 있음  
+		이렇게 data type이 맞지 않아도 사용할 수 있는 경우가 많음
+- `obj.__proto__`를 `Array.prototype`으로 설정해서 `obj.join`으로 바로 사용해도 됨  
+	이 방법은 이미 `obj`가 다른 객체를 상속하고 있을 경우 사용할 수 없음  
+	∵ 한 객체는 동시에 하나의 객체로부터만 상속받을 수 있기 때문!
+
+### Summary
+- 모든 내장 객체들은 같은 패턴을 따름
+	- method들은 모두 prototype에 저장됨
+	- 객체 자체는 값(array item, date 등)이나 property만 저장함
+- primitive도 method를 wrapper object의 prototype에 저장함  
+	cf. `null`, `undefined`는 wrapper object가 없음
+- built-in prototype도 변경할 수 있지만, polyfill을 할 때만 권장됨
+
+### Tasks
+#### Decorator 역할을 하는 method를 prototype에 선언
+```javascript
+function f() {
+  alert("Hello!");
+}
+
+Function.prototype.defer = function(n) {
+  setTimeout(this, n);
+};
+
+f.defer(1000); // shows "Hello!" after 1 second
+```
+- `Function`에서 `this`가 함수 자체이기 때문에 가능함
+
+#### decorating defer를 prototype에 선언
+```javascript
+// (1)
+Function.prototype.defer = function(ms) {
+  let cthis=this;
+  return function() {
+    setTimeout(() => cthis.apply(cthis, arguments), ms);
+  };
+};
+
+// (2)
+Function.prototype.defer = function(ms) {
+  return (function() {
+    setTimeout(() => this.apply(this, arguments), ms);
+  }).bind(this);
+};
+
+// (3)
+Function.prototype.defer = function(ms) {
+  return (...args) => setTimeout(() => this.apply(this, args), ms);
+};
+
+function f(a, b) {
+  alert( a + b );
+}
+
+f.defer(1000)(1, 2); // shows 3 after 1 second
+```
+- `(1)`은 정석대로 wrapper를 function expression으로 정의하고, `cthis`로 context를 넘겨줌
+- `(2)`는 context를 bind해서 따로 넘겨주지 않아도 됨
+- `(3)`은 wrapper를 rest parameter를 받는 arrow function으로 구현함  
+	arrow function들은 outer context를 사용하기 때문에 nested arrow function은 모두 같은 context를 사용하는 것을 알 수 있음
+
+## Prototype methods, objects without __proto__
+`__proto__` 대신에 아래와 같은 최신 method들을 사용해야 함:
+- `Object.create(proto[, descriptors])` : `proto`를 `[[Prototype]]`로 하고 `descriptor`를 적용한 객체 생성
+- `Object.getPrototypeOf(obj)` : `obj`의 `[[Prototype]]` 리턴
+- `Object.setPrototypeOf(obj, proto)` : `obj`의 `[[Prototype]]`을 `proto`로 설정
+
+#### Example
+```javascript
+let animal = {
+  eats: true
+};
+
+let rabbit = Object.create(animal);
+
+alert(rabbit.eats); // true
+
+alert(Object.getPrototypeOf(rabbit) === animal); // true
+
+Object.setPrototypeOf(rabbit, {}); // change the prototype of rabbit to {}
+```
