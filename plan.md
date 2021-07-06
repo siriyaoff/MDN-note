@@ -28,6 +28,8 @@ CSS layout : 2911 - 5579
 2745-4966	data types
 4969-6709	advanced working with functions
 6712-7049	object properties configuration
+7052-7682	prototypes, inheritance
+7685-
 
 ※ tags에는 md 적용안됨!!
 
@@ -41,11 +43,7 @@ summary 위에 thisArg 마지막 문단 후자가 더 많이 쓰이는데 오역
 call-apply-decorators 한글 번역본
 메서드 빌리기 바로 위 문장 오역(구분할 수 없음)
 
-2793 proeprty
-7044 proeprty
-
 ## 블로그 업로드하고 체크
-7272 list안에 표
 
 // #### Ex	=> ?? Ex
 // ####		=> ##?
@@ -54,8 +52,7 @@ call-apply-decorators 한글 번역본
 // ?? Ex	=> #### Ex
 // > ###	=> > ####
 
-Prototypes, inheritance
-2
+Classes
 7
 2
 8

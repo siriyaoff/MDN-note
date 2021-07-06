@@ -2790,7 +2790,7 @@ JS 엔진은 추가적인 객체를 생성하지 않을 만큼 최적화되어 �
 
 > ※ `null/undefined`는 method가 없음  
 > 위 type들은 wrapper object가 없음  
-> `alert(null.test);`와 같이 proeprty에 접근하려 하면 에러가 발생함
+> `alert(null.test);`와 같이 property에 접근하려 하면 에러가 발생함
 
 ### Summary
 - primitive를 다룰 때 유용한 기능들이 각각의 primitive 안에 있음
@@ -7041,7 +7041,7 @@ alert( john.birthday ); // birthday is available
 alert( john.age );      // ...as well as the age
 ```
 - `age`를 accessor property로 만들어서 getter를 이용해 `birthday`를 계산해서 출력할 수 있음  
-	=> 이전의 `age` proeprty를 사용하는 코드에서 사용할 수 있도록 `user`를 구현 가능
+	=> 이전의 `age` property를 사용하는 코드에서 사용할 수 있도록 `user`를 구현 가능
 
 ### Summary
 - getter `get`와 setter `set`를 사용해서 accessor property를 만들 수 있음  
@@ -7187,10 +7187,9 @@ alert(animal.isSleeping); // undefined (no such property in the prototype)
 ```
 - prototype에 정의된 메소드 `sleep()`을 `rabbit`에서 호출했으므로 `this`가 `rabbit`을 가리켜 `rabbit`에 `isSleeping`이라는 property가 생김
 
-|위 예시의 object state|
-|:---:|
 |![js-object-state1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-object-state1.PNG?raw=true)|
-|javascript.info 참고|
+|:---:|
+|위 예시의 object state<br>javascript.info 참고|
 
 ### `for...in` loop
 `for...in`은 상속받은 property도 순회함  
@@ -7269,6 +7268,7 @@ let rabbit = new Rabbit("White Rabbit"); //  rabbit.__proto__ == animal
 alert( rabbit.eats ); // true
 ```
 - `Rabbit.prototype = animal`은 `new Rabbit`이 생성될 때 그것의 `[[Prototype]]`에 `animal`을 대입해라는 의미임  
+
 	|![js-f-prototype1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-f-prototype1.PNG?raw=true)|
 	|:---:|
 	|javascript.info 참고|
@@ -7391,7 +7391,10 @@ alert( obj ); // "[object Object]"
 - `obj`는 empty object인데 `"[object Object]"`로 바꿔주는 `toString` method이 어디서 나온 걸까?  
 	`obj = {}`은 `obj = new Object()`의 shorthand이기 때문에 `Object.prototype`에 선언된 `toString`을 사용한 것임  
 	즉, `obj.toString`과 `obj.__proto__.toString`과 `Object.prototype.toString`은 모두 같은 레퍼런스임  
-	![js-object-prototype1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-object-prototype1.PNG?raw=true)
+	
+	|![js-object-prototype1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-object-prototype1.PNG?raw=true)|
+	|:---:|
+	|javascript.info 참고|
 
 `Object.prototype`의 `[[Prototype]]`은 `null`임!
 
@@ -7400,8 +7403,11 @@ alert( obj ); // "[object Object]"
 예를 들어, `[1, 2, 3]`으로 생성한 array도 `new Array()`를 사용하는데, constructor function과 다른 method들은 `Array.prototype`에 정의되어 있음  
 => 모든 객체에 각각 method가 정의되어 있는 것보다 메모리를 절약할 수 있음
 
-specification에 의하면, 모든 내장 prototype들은 `Object.prototype`을 상속받음  
-![js-built-in-prototypes1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-built-in-prototypes1.PNG?raw=true)
+specification에 의하면, 모든 내장 prototype들은 `Object.prototype`을 상속받음
+
+|![js-built-in-prototypes1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-built-in-prototypes1.PNG?raw=true)|
+|:---:|
+|javascript.info 참고|
 
 ```javascript
 let arr = [1, 2, 3];
@@ -7418,8 +7424,11 @@ alert(arr.toString === Object.prototype.toString); // false
 ```
 - `Array.prototype`, `Object.prototype` 둘 다 `toString` method를 가지고 있지만, `arr`에서는 더 가까운 `Array.prototype.toString`을 사용함
 
-`console.dir(obj)`를 이용하면 `obj`의 prototype chain을 알 수 있음:  
-![js-console-dir](https://javascript.info/article/native-prototypes/console_dir_array.png)
+`console.dir(obj)`를 이용하면 `obj`의 prototype chain을 알 수 있음:
+
+|![js-console-dir](https://javascript.info/article/native-prototypes/console_dir_array.png)|
+|:---:|
+|javascript.info 참고|
 
 `Function`도 마찬가지로, `call`, `apply` 같은 method들은 `Function.prototype`에 정의되어 있음
 
@@ -7544,7 +7553,7 @@ f.defer(1000)(1, 2); // shows 3 after 1 second
 
 ## Prototype methods, objects without __proto__
 `__proto__` 대신에 아래와 같은 최신 method들을 사용해야 함:
-- `Object.create(proto[, descriptors])` : `proto`를 `[[Prototype]]`로 하고 `descriptor`를 적용한 객체 생성
+- `Object.create(proto[, descriptors])` : `proto`를 `[[Prototype]]`으로 하고 `descriptor`를 적용한 객체 생성
 - `Object.getPrototypeOf(obj)` : `obj`의 `[[Prototype]]` 리턴
 - `Object.setPrototypeOf(obj, proto)` : `obj`의 `[[Prototype]]`을 `proto`로 설정
 
@@ -7555,10 +7564,166 @@ let animal = {
 };
 
 let rabbit = Object.create(animal);
+/*
+let rabbit = Object.create(animal, {
+  jumps: {
+    value: true
+  }
+});
+*/
 
 alert(rabbit.eats); // true
 
 alert(Object.getPrototypeOf(rabbit) === animal); // true
 
 Object.setPrototypeOf(rabbit, {}); // change the prototype of rabbit to {}
+```
+- 주석과 같이 `Object.create`에 descriptor를 넣어서 적용 가능함
+
+아래와 같이 `for...in`으로 property를 복사하는 것보다 더 효과적인 복사를 수행할 수 있음:  
+```javascript
+let clone = Object.create(Object.getPrototypeOf(obj), Object.getOwnPropertyDescriptors(obj));
+```
+- shallow copy지만, `[[Prototype]]`, setter/getter, property flag까지 복사함
+
+### Brief history
+역사적인 이유로, `[[Prototype]]`에 접근하는 방법은 많음:
+- 생성자 함수의 `F.prototype`은 오래 전부터 사용되어 왔음
+- 2012년에 `Object.create`가 표준으로 정의되어 prototype을 사용해서 객체를 생성할 수 있게 됨  
+	하지만 prototype에 접근하거나 설정할 수 있는 기능을 제공하지 않음  
+	=> browser들이 비표준인 `__proto__`를 구현함
+- 2015년에 `Object.setPrototypeOf`, `Object.getPrototypeOf`가 표준에 추가됨  
+	`__proto__`와 같은 역할이지만, 이미 `__proto__`가 사실표준으로 굳어진 상태라 `__proto__`도 표준의 부록에 추가됨
+
+> #### 현재 생성된 객체의 `[[Prototype]]`은 변경하지 않는게 좋음
+> `[[Prototype]]`을 언제든지 get/set할 수 있지만, 보통 객체가 생성될 때 한 번만 설정한 후 건드리지 않음  
+> 
+> JS 엔진들은 이렇게 한 번만 설정하는 것에 최적화되어 있음  
+> `Object.setPrototypeOf`나 `obj.__proto__`를 사용해서 prototype을 바꾸는 것은 최적화되지 않아서 매우 느림  
+> 따라서 속도가 중요할 때는 prototype을 변경하지 않는게 좋음!
+
+### "Very plain" objects
+computed property는 `[]`를 사용해서 호출할 수 있음  
+하지만 이 방법은 `"__proto__"`를 제외한 나머지 property에 대해 적용 가능함:  
+```javascript
+let obj = {};
+
+let key = prompt("What's the key?", "__proto__");
+obj[key] = "some value";
+
+alert(obj[key]); // [object Object], not "some value"!
+```
+- `obj["__proto__"]`는 대입 연산이 무시됨
+	- `__proto__` property는 `null`이나 객체를 참조해야 하기 때문
+	
+	원래 의도는 `__proto__`라는 property에 `"some value"`를 저장하는 것이지만, JS가 이미 `__proto__`를 사용하고 있기 때문에 의도한대로 실행되지 않은 것임 + 객체가 대입된다면 대입 연산이 적용되어 오류가 발생함  
+	현재는 이미 `__proto__`가 property가 아닌 `Object.prototype`에 관한 accessor property로 구현되어 있으므로 객체를 대입해도 잘못된 대입을 피할 수 있음
+	
+	
+	`toString`과 같은 내장 method도 위와 같이 잘못된 대입이 일어날 수 있음  
+	=> 그냥 객체 대신에 `Map`을 사용하면 해결됨  
+
+또는 아래 코드와 같이 `[[Prototype]]`을 `Object.prototype`이 아닌 `null`로 명시해서 위 문제를 해결할 수 있음:  
+```javascript
+let obj = Object.create(null);
+
+let key = prompt("What's the key?", "__proto__");
+obj[key] = "some value";
+
+alert(obj[key]); // "some value"
+```
+- `obj`는 `[[Prototype]]`에 `null`이 들어간 상태임  
+	=> `__proto__` getter, setter가 상속되지 않았으므로 `__proto__`도 평범한 property로 사용됨
+- 이런 객체를 very plain object 또는 pure dictionary object라고 부름
+- 상속받은 것이 없기 때문에 `toString`같은 다른 내장 method도 사용할 수 없음  
+	=> `alert(obj)`가 에러를 반환함
+- very plain object를 associative array로 사용할 때는 문제가 되지 않음
+- `Object.f()`와 같은 method들은 prototype안에 선언된게 아니기 때문에 very plain object에도 사용할 수 있음!
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`Object.create(proto[, descriptors])`|`proto`를 `[[Prototype]]`으로 하고 `descriptor`를 적용한 객체 생성|
+|`Object.getPrototypeOf(obj)`|`obj`의 `[[Prototype]]` 리턴|
+|`Object.setPrototypeOf(obj, proto)`|`obj`의 `[[Prototype]]`을 `proto`로 설정|
+
+- 사용자의 입력을 key로 사용하는 경우 `__proto__`가 호출될 수도 있기 때문에 위험함  
+	=> 이런 경우 very plain object를 사용하거나 `Map`을 사용하는게 좋음
+- `__proto__`는 `[[Prototype]]`의 getter/setter이고, `Object.prototype`에 선언되어 있음
+
+다른 method들:
+- `Object.keys/values/entries(obj)` : 각각의 enumerable의 array 리턴
+- `Object.getOwnPropertySymbols(obj)` : symbolic key의 array 리턴
+- `Object.getOwnPropertyNames(obj)` : string key의 array 리턴
+- `Reflect.ownKeys(obj)` : 모든 key의 array 리턴
+- `obj.hasOwnProperty(key)` : `key`라는 `obj` 소유의 property가 있는지 판별
+
+object property를 리턴하는 메소드들은 자신 소유의 property만 탐색함  
+상속받은 property까지 보려면 `for...in`을 사용하는게 좋음
+
+### Tasks
+- descriptor를 사용해서 property를 생성할 때 생략된 flag들은 모두 `false`로 초기화됨!
+
+```javascript
+function Rabbit(name) {
+  this.name = name;
+}
+Rabbit.prototype.sayHi = function() {
+  alert( this.name );
+}
+
+let rabbit = new Rabbit("Rabbit");
+
+rabbit.sayHi();                        // Rabbit
+Rabbit.prototype.sayHi();              // undefined
+Object.getPrototypeOf(rabbit).sayHi(); // undefined
+rabbit.__proto__.sayHi();              // undefined
+```
+
+
+# Classes
+## Class basic syntax
+`new`와 constructor function을 이용해서 비슷한 종류의 객체를 여러 개 만들 수 있지만, class를 이용하면 OOP와 관련된 다양한 기능을 사용할 수 있음
+
+### The "class" syntax
+```javascript
+class MyClass {
+  constructor() { ... }
+  method1() { ... }
+  method2() { ... }
+  ...
+}
+
+/*-------------example--------------*/
+
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+
+  sayHi() {
+    alert(this.name);
+  }
+}
+
+let user = new User("John");
+user.sayHi();
+```
+- `constructor()` method는 `new`에 의해 자동으로 호출됨  
+	`new User("John")`이 호출되었을 때
+	1. 새로운 객체가 생성됨
+	2. `constructor`가 실행됨
+
+> #### class는 method 사이에 `,`가 없음
+
+### What is a class?
+JS에서 class는 함수로 취급됨:  
+```javascript
+class User {
+  constructor(name) { this.name = name; }
+  sayHi() { alert(this.name); }
+}
+
+alert(typeof User); // function
 ```
