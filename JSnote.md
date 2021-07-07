@@ -7718,7 +7718,7 @@ user.sayHi();
 > #### class는 method 사이에 `,`가 없음
 
 ### What is a class?
-JS에서 class는 함수로 취급됨:  
+JS에서 class는 Function으로 취급됨:  
 ```javascript
 class User {
   constructor(name) { this.name = name; }
@@ -7726,4 +7726,435 @@ class User {
 }
 
 alert(typeof User); // function
+
+alert(User === User.prototype.constructor); // true
+
+alert(User.prototype.sayHi); // the code of the sayHi method
+
+alert(Object.getOwnPropertyNames(User.prototype)); // constructor, sayHi
 ```
+- `class User {...}`이 실행하는 것:
+	1. `User`라는 함수를 만듦.  
+		함수 코드는 `contructor` 메소드에서 가져옴!
+	2. 클래스 메소드를 `User.prototype`에 저장함
+- `new User` 객체가 생성된 뒤, 메소드를 호출하면 메소드는 prototype에서부터 가져옴
+
+### Not just a syntactic sugar
+사실 class는 `class`라는 기능을 사용하지 않고 함수와 `F.prototype`으로만 구현할 수 있기 때문에 syntactic sugar라고도 불리기도 함:  
+```javascript
+function User(name) {
+  this.name = name;
+}
+
+User.prototype.sayHi = function() {
+  alert(this.name);
+};
+
+let user = new User("John");
+user.sayHi();
+```
+- 위의 `class`를 사용한 코드와 거의 같음
+- function prototype은 기본으로 constructor가 있기 때문에 다시 생성할 필요가 없음
+
+하지만, 몇 가지 차이점이 있음:
+1. `class`로 생성된 함수는 내부 property `[[IsClassConstructor]]: true`를 가짐  
+	다양한 곳에서 이 property를 확인함  
+	e.g. 보통 함수와는 다르게, 무조건 `new`와 함께 호출되어야 함  
+	또한, class constructor를 출력하면 "class로 시작함":  
+	```javascript]
+	class User {
+	  constructor() {}
+	}
+
+	alert(User); // class User { ... }
+	```
+2. class method들은 non-enumerable함  
+	클래스 정의는 `"prototype"`안의 method들의 `enumerable` flag를 `false`로 설정함  
+	객체에 대해서 `for...in`를 실행할 때 보통 class method까지 필요없기 때문
+3. class는 항상 `use strict`가 적용됨  
+	즉, class construct 안의 코드들은 자동으로 strict mode임
+
+### Class Expression
+function expression과 같이, 클래스도 expression으로 정의할 수 있음:  
+```javascript
+let User = class {
+  sayHi() {
+    alert("Hello");
+  }
+};
+```
+
+NFE와 같이, 이름을 지정할 수도 있음:  
+```javascript
+let User = class MyClass {
+  sayHi() {
+    alert(MyClass); // MyClass name is visible only inside the class
+  }
+};
+
+new User().sayHi(); // works, shows MyClass definition
+
+alert(MyClass); // error
+```
+- "Named Class Expression"이라 생각하면 됨
+- `MyClass`는 class expression 안에서만 사용한 이름이기 때문에 `alert(MyClass)`와 같이 밖에서는 사용할 수 없음!
+
+아래와 같이 class의 generator를 만들 수도 있음:  
+```javascript
+function makeClass(phrase) {
+  return class {
+    sayHi() {
+      alert(phrase);
+    }
+  };
+}
+
+let User = makeClass("Hello");
+
+new User().sayHi(); // Hello
+```
+- `makeClass("Hello")`의 lexical environment에 저장된 `phrase`를 `User`에서 이용함
+
+### Getters/setters
+getter, setter도 literal object와 비슷하게 사용할 수 있음:  
+```javascript
+class User {
+
+  constructor(name) {
+    this.name = name;
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  set name(value) {
+    if (value.length < 4) {
+      alert("Name is too short.");
+      return;
+    }
+    this._name = value;
+  }
+
+}
+
+let user = new User("John");
+alert(user.name); // John
+
+user = new User(""); // Name is too short.
+```
+- getter, setter가 `User.prototype`에 저장됨
+
+### Computed names [...]
+```javascript
+class User {
+  ['say' + 'Hi']() {
+    alert("Hello");
+  }
+}
+
+new User().sayHi();
+```
+
+### Class fields
+class field가 property 역할을 함:  
+```javascript
+class User {
+  name = "John";
+
+  sayHi() {
+    alert(`Hello, ${this.name}!`);
+  }
+}
+
+new User().sayHi(); // Hello, John!
+```
+- property와는 다르게 `=`을 사용함
+- field는 `User.prototype`에 저장되지 않고 각각의 object에 저장됨!
+
+#### Making bound methods with class fields
+class에서도 "losing `this`" 문제가 발생함:  
+```javascript
+class Button {
+  constructor(value) {
+    this.value = value;
+  }
+
+  click() {
+    alert(this.value);
+  }
+}
+
+let button = new Button("hello");
+
+setTimeout(button.click, 1000); // undefined
+```
+- wrapper function을 인자로 전달하거나 context를 bind해서 해결할 수 있었음
+- class field는 대입 연산자를 사용하기 때문에 더 간단하게 해결 가능:  
+	```javascript
+	class Button {
+	  constructor(value) {
+		this.value = value;
+	  }
+	  click = () => {
+		alert(this.value);
+	  }
+	}
+
+	let button = new Button("hello");
+
+	setTimeout(button.click, 1000); // hello
+	```
+	- `click`은 class field이기 때문에 object마다 생성됨  
+		=> 안의 `this`는 객체에 bind됨, 아무 곳에나 `button.click`을 전달해도 context가 올바로 들어감
+		
+		browser 환경에서 event linstner을 구현할 때 유용함
+
+### Summary
+- `class`는 기술적으로는 함수에 속함
+- 클래스의 이름이 constructor처럼 사용되고, 안에 선언된 실제 constructor의 코드를 가져옴
+- method, getter, setter들은 prototype에 저장되고, class field는 각각의 object에 저장됨
+
+### Tasks
+#### 아래의 `Clock`을 class로 바꾸기
+```javascript
+function Clock({ template }) {
+  let timer;
+
+  function render() {
+    let date = new Date();
+
+    let hours = date.getHours();
+    if (hours < 10) hours = '0' + hours;
+
+    let mins = date.getMinutes();
+    if (mins < 10) mins = '0' + mins;
+
+    let secs = date.getSeconds();
+    if (secs < 10) secs = '0' + secs;
+
+    let output = template
+	  .replace('h', hours)
+	  .replace('m', mins)
+	  .replace('s', secs);
+
+    console.log(output);
+  }
+
+  this.stop = function() {
+    clearInterval(timer);
+  };
+
+  this.start = function() {
+    render();
+    timer = setInterval(render, 1000);
+  };
+}
+
+let clock = new Clock({template: 'h:m:s'});
+clock.start();
+```
+
+바꾼 코드:  
+```javascript
+class Clock{
+  constructor(template) {
+    this.template=template;
+  }
+  
+  render() {
+    let date = new Date();
+  
+    let hours = date.getHours();
+    if (hours < 10) hours = '0' + hours;
+
+    let mins = date.getMinutes();
+    if (mins < 10) mins = '0' + mins;
+
+    let secs = date.getSeconds();
+    if (secs < 10) secs = '0' + secs;
+
+    let output = this.template
+    .replace('h', hours)
+    .replace('m', mins)
+    .replace('s', secs);
+
+    console.log(output);
+  }
+  
+  stop() {
+  	clearInterval(this.timer);
+  }
+  
+  start() {
+    this.render();
+    this.timer = setInterval(() => this.render(), 1000); // (*)
+  }
+}
+
+let clock = new Clock('h:m:s');
+clock.start();
+```
+- 객체 `{template: 'h:m:s'}`를 인자로 받는 것은 그냥 string을 받는 것으로 바꿔도 정상적으로 작동함
+- `(*)`의 함수를 `setInterval(this.render, 1000);`으로 바꾸면 `render`의 reference를 argument로 넘기는데 `this`를 지정해주지 않았기 때문에 `this`는 window scope(`globalThis`)를 가리키게 됨  
+	cf. arrow function으로 넘기면 아예 저 method를 실행하는 wrapper를 넘기는 것이기 때문에 자동으로 context까지 지정됨
+
+> #### `this`와 lexical environment는 서로 다른 개념임!
+> lexical environment는 JS engine 내부에서 쓰이는 객체고, `this`는 우리가 직접 사용하는 context를 나타냄  
+> lexical environment는 코드에서 변수를 찾아주는 역할을 함(변수의 영역 같은 개념)  
+> `this`는 method나 property를 가져올 **객체**를 지정  
+> arrow function에서 `this`는 outer normal function에서 가져온다고 써져있는게 outer normal function의 lexical environment를 가리키는게 아니라, outer normal function의 `this`를 가져오는 것임!!!
+>
+> nested function expresson에서 `this`를 마음대로 쓰면 안되는 이유도 그 함수 코드 안에서 `this`를 명시해주지 않았기 때문이지, outer function의 lexical environment가 nested function의 `this`로 지정되었기 때문이 아님!!!
+
+## Class inheritance
+클래스 상속을 이용해서 클래스를 확장할 수 있음  
+=> 새 기능을 얹을 수 있음
+
+### The "extends" keyword
+`Animal` class에 관한 코드:  
+```javascript
+class Animal {
+  constructor(name) {
+    this.speed = 0;
+    this.name = name;
+  }
+  run(speed) {
+    this.speed = speed;
+    alert(`${this.name} runs with speed ${this.speed}.`);
+  }
+  stop() {
+    this.speed = 0;
+    alert(`${this.name} stands still.`);
+  }
+}
+
+let animal = new Animal("My animal");
+```
+
+`Rabbit` 클래스를 아래와 같이 추가함:  
+```javascript
+class Rabbit extends Animal {
+  hide() {
+    alert(`${this.name} hides!`);
+  }
+}
+
+let rabbit = new Rabbit("White Rabbit");
+
+rabbit.run(5); // White Rabbit runs with speed 5.
+rabbit.hide(); // White Rabbit hides!
+```
+- `rabbit`은 `Rabbit`의 method, `Animal`의 method 모두에 접근할 수 있음
+- 위 코드에서 `extends` 키워드는 `Rabbit.prototype.[[Prototype]]`을 `Animal.prototype`으로 설정함  
+	
+	|![js-class-inheritance1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-class-inheritance1.PNG?raw=true)|
+	|:---:|
+	|javascript.info 참고|
+	
+	=> `rabbit`, `Rabbit.prototype`, `Animal.prototype` 순으로 메소드를 찾음
+
+> #### `extends` 뒤에는 모든 expression이 허용됨
+> 예를 들어, 클래스를 생성하는 함수를 `extends` 뒤에 호출해도 됨:  
+> ```javascript
+> function f(phrase) {
+>   return class {
+>     sayHi() { alert(phrase); }
+>   };
+> }
+> 
+> class User extends f("Hello") {}
+> 
+> new User().sayHi(); // Hello
+> ```
+> - `User` 클래스는 `f("Hello")`가 반환한 클래스를 상속받음  
+
+### Overriding a method
+`Rabbit` 클래스에 명시되어있지 않은 method들은 `Animal` 클래스로부터 그대로 가져옴  
+하지만 `Rabbit`에 method를 명시하면 `Animal`에도 같은 이름의 method가 있어도 `Rabbit`에 있는 것을 사용함
+
+보통 parent method를 완전히 바꾸지 않고 확장하기 때문에 `super`를 이용해서 parent method의 호출을 지원함
+- `super.method(...)` : parent method 호출
+- `super(...)` : parent constructor 호출(현재 constructor 안에서만 적용됨)
+
+#### Example
+```javascript
+class Animal {
+  constructor(name) {
+    this.speed = 0;
+    this.name = name;
+  }
+
+  run(speed) {
+    this.speed = speed;
+    alert(`${this.name} runs with speed ${this.speed}.`);
+  }
+
+  stop() {
+    this.speed = 0;
+    alert(`${this.name} stands still.`);
+  }
+}
+
+class Rabbit extends Animal {
+  hide() {
+    alert(`${this.name} hides!`);
+  }
+
+  stop() {
+    super.stop(); // call parent stop
+    this.hide(); // and then hide
+  }
+}
+
+let rabbit = new Rabbit("White Rabbit");
+
+rabbit.run(5); // White Rabbit runs with speed 5.
+rabbit.stop(); // White Rabbit stands still. White Rabbit hides!
+```
+
+> #### arrow function은 `super`가 없음
+> `super`도 outer function에서부터 가져옴:  
+> ```javascript
+> class Rabbit extends Animal {
+>   stop() {
+>     setTimeout(() => super.stop(), 1000); // call parent stop after 1sec
+>   }
+> }
+> ```
+> - `setTimeout(function() { super.stop() }, 1000);`으로 바꾸면 에러남  
+> 	`function()`안에서 `super`가 명시되지 않았기 때문
+
+### Overriding constructor
+specification에 따르면, 다른 클래스를 확장하는 클래스가 `constructor`를 가지지 않으면, 아래와 같은 empty `constructor`가 생성됨:  
+```javascript
+class Rabbit extends Animal {
+  constructor(...args) {
+    super(...args);
+  }
+}
+```
+
+아래의 코드에서는 `Rabbit`에 직접 constructor를 추가함:  
+```javascript
+class Animal {
+  constructor(name) {
+    this.speed = 0;
+    this.name = name;
+  }
+  // ...
+}
+
+class Rabbit extends Animal {
+
+  constructor(name, earLength) {
+    this.speed = 0;
+    this.name = name;
+    this.earLength = earLength;
+  }
+  // ...
+}
+
+let rabbit = new Rabbit("White Rabbit", 10); // Error: this is not defined.
+```
+- 
