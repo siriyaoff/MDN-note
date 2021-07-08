@@ -8157,4 +8157,200 @@ class Rabbit extends Animal {
 
 let rabbit = new Rabbit("White Rabbit", 10); // Error: this is not defined.
 ```
-- 
+- `Rabbit`에 직접 추가한 `constructor`는 에러남  
+	상속받는 클래스의 생성자는 무조건 `super(...)`를 `this`를 쓰기 이전에 호출해야 함!!  
+
+> #### 상속받는 클래스의 생성자가 위와 같은 조건이 있는 이유
+> JS에서 상속받는 클래스의 constructor function(= "derived constructor")은 내부 property `[[ConstructorKind]]:"derived"`를 가짐  
+> 이 property로 인해 `new`와 함께 쓰일 때 아래와 같은 제한 사항이 생김:  
+> 보통의 함수가 `new`와 함께 실행될 때 empty object를 생성하고 그것을 `this`에 넣지만, derived constructor은 parent constructor가 이 작업을 해줄 것이라 가정함  
+> 따라서 derived constructor는 `super()`로 empty object를 생성하지 않으면 에러가 남
+
+위의 derived constructor는 아래와 같이 구현해야 함:  
+```javascript
+constructor(name, earLength) {
+  super(name);
+  this.earLength = earLength;
+}
+```
+
+#### Overriding class fields: a tricky note
+method뿐만 아니라 field도 override 할 수 있음:  
+```javascript
+class Animal {
+  name = 'animal';
+
+  constructor() {
+    alert(this.name);
+  }
+}
+
+class Rabbit extends Animal {
+  name = 'rabbit';
+}
+
+new Animal(); // animal
+new Rabbit(); // animal
+```
+- `Rabbit`은 `Animal`을 extend하고 `name`을 override함
+- `Rabbit`은 생성자가 없기 때문에 parent constructor가 자동으로 호출되는데, 이 때 parent constructor는 derived class에서 사용되어도 항상 parent field를 사용함!
+
+cf. method를 override할 경우:  
+```javascript
+class Animal {
+  showName() {  // instead of this.name = 'animal'
+    alert('animal');
+  }
+
+  constructor() {
+    this.showName(); // instead of alert(this.name);
+  }
+}
+
+class Rabbit extends Animal {
+  showName() {
+    alert('rabbit');
+  }
+}
+
+new Animal(); // animal
+new Rabbit(); // rabbit
+```
+- `Rabbit`에서 parent constructor가 호출되어도 `this.showName()`가 `Rabbit.showName()`을 호출해서 `rabbit`이 출력됨
+- derived class에서 호출되면 derived class의 method를 쓰기 때문에 field를 override 할 때보다 자연스러운 결과가 나옴
+
+field와 method를 사용할 때 다르게 처리되는 이유:  
+field의 초기화 순서 때문임
+1. 아무것도 상속받지 않은 base class에서는 생성자 이전에 초기화됨
+2. derived class의 경우 `super()` 뒤에 초기화됨
+
+따라서 위 예시의 경우 method는 이미 초기화된 상태지만, parent constructor가 호출되는 시점에서 `Rabbit`의 field는 초기화되지 않았기 때문에 `Animal`의 field를 사용할 수 밖에 없음
+
+field와 method의 초기화 순서 차이는 JS에서만 다름  
+그리고 overriden field가 parent constructor에서 사용되는 특정한 상황에서만 이 차이점이 영향을 미침  
+문제가 될 경우 field 대신 method나 getter/setter를 사용해서 해결할 수도 있음
+
+### Super: internals, [[HomeObject]]
+`super.method()`는 `this.__proto__.method()`로 호출할 수 있을 것 같지만, 아래 예제에서 볼 수 있듯이, 상속이 여러 번 일어나는 구조에서는 제대로 작동하지 않음  
+편의를 위해 아래 예제는 class가 아닌 plain object를 사용함:  
+```javascript
+let animal = {
+  name: "Animal",
+  eat() {
+    alert(`${this.name} eats.`);
+  }
+};
+
+let rabbit = {
+  __proto__: animal,
+  name: "Rabbit",
+  eat() {
+    this.__proto__.eat.call(this); // (*)
+  }
+};
+
+let longEar = {
+  __proto__: rabbit,
+  name: "Long ear",
+  eat() {
+    this.__proto__.eat.call(this); // (**)
+  }
+};
+
+rabbit.eat(); // Rabbit eats.
+longEar.eat(); // Error: Maximum call stack size exceeded
+```
+- class에서는 `new Rabbit`이 `Rabbit.prototype`을 상속받고, `Rabbit.prototype`이 `Animal.prototype`을 extend하지만, 이 예제는 plain object이기 때문에 `longEar` -> `rabbit` -> `animal`으로 chain이 형성됨
+- `rabbit.eat()`의 실행 과정:  
+	`this.__proto__`을 이용해서 `animal`에 접근할 수 있지만, `animal.eat()`가 실행될 때 context가   `this.__proto__`인 `animal`이 되기 때문에 `call(this)`를 사용해서 `animal.eat()`을 실행할 때 context를 `rabbit`으로 설정함
+	=> 의도한 대로 실행됨
+- `longEar.eat()`의 실행 과정:  
+	`this.__proto__`를 이용해서 `rabbit`에 접근하지만, 위와 마찬가지의 이유로 `call(this)`로 context를 바꾼 상태임
+	`rabbit.eat()`에서도 `this.__proto__.eat.call(this)`를 호출하는데, 이 때 `this`가 `longEar`이므로 `longEar.__proto__.eat.call(longEar)`를 호출하는 것과 마찬가지임  
+	따라서 `rabbit.eat()`에서 계속 재귀호출이 일어나게 됨!
+
+#### `[[HomeObject]]`
+이런 문제를 해결하기 위해 `[[HomeObject]]`가 존재함
+class나 object의 method는 자신이 명시된 객체를 저장하는 `[[HomeObject]]` property를 가짐  
+`super`는 `[[HomeObject]]`를 사용해서 parent prototype과 method를 찾음
+
+#### Example
+```javascript
+let animal = {
+  name: "Animal",
+  eat() {         // animal.eat.[[HomeObject]] == animal
+    alert(`${this.name} eats.`);
+  }
+};
+
+let rabbit = {
+  __proto__: animal,
+  name: "Rabbit",
+  eat() {         // rabbit.eat.[[HomeObject]] == rabbit
+    super.eat();
+  }
+};
+
+let longEar = {
+  __proto__: rabbit,
+  name: "Long Ear",
+  eat() {         // longEar.eat.[[HomeObject]] == longEar
+    super.eat();
+  }
+};
+
+longEar.eat();  // Long Ear eats.
+```
+- `this`를 사용하지 않고 prototype으로부터 parent method를 가져올 수 있음
+
+#### Methods are not "free"
+JS에서 function은 객체에 bind 되지 않기 때문에 객체 간에 method를 복사하고 다른 `this`로 함수를 호출할 수 있음
+
+`[[HomeObject]]`는 이러한 특성을 위반함  
+∵ method가 자신이 선언된 객체를 기억하고, `[[HomeObject]]`는 바뀌지 않고 계속 지속되기 때문
+
+하지만 `[[HomeObject]]`가 사용되는 곳은 오직 `super` 뿐임  
+=> `super`를 사용하지 않으면 method의 자유도가 보장됨
+
+즉, `super`를 사용하는 method는 복사할 때 주의해야 함:  
+```javascript
+let animal = {
+  sayHi() {
+    alert(`I'm an animal`);
+  }
+};
+
+let rabbit = {
+  __proto__: animal,
+  sayHi() {
+    super.sayHi();
+  }
+};
+
+let plant = {
+  sayHi() {
+    alert("I'm a plant");
+  }
+};
+
+let tree = {
+  __proto__: plant,
+  sayHi: rabbit.sayHi // (*)
+};
+
+tree.sayHi();  // I'm an animal (?!?)
+```
+- `rabbit` -> `animal`, `tree` -> `plant`
+- `(*)`에서 `tree.sayHi`는 `rabbit.sayHi`를 복사함  
+	`rabbit.sayHi`의 `[[HomeObject]]`는 `rabbit`이므로 `tree.sayHi()`를 호출해도 `super.sayHi()`가 `animal.sayHi()`를 호출함  
+	
+	|![js-home-object1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-home-object1.PNG?raw=true)|
+	|:---:|
+	|javascript.info 참고|
+
+#### Methods, not function properties
+`[[HomeObject]]`는 class method와 object method에서 정의될 수 있지만, object method에서 제대로 작동하게 하려면 반드시 method syntax(`method(){...}`)의 형태로 정의해야 함  
+non-method syntax(`method: function(){...}`)로 정의하면 안됨!  
+∵ `[[HomeObject]]` property가 설정되지 않음!!
+
+### Summary
