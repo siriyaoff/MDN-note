@@ -8354,3 +8354,84 @@ non-method syntax(`method: function(){...}`)로 정의하면 안됨!
 ∵ `[[HomeObject]]` property가 설정되지 않음!!
 
 ### Summary
+- `extends`를 사용해서 클래스를 상속할 수 있음
+	- `derived.prototype.[[Prototype]]`을 `parent.prototype`으로 설정함
+- constructor를 overriding 할 때, `super()`가 `this`를 사용하기 전에 호출되어야 함!
+	- parent의 constructor에서 empty object를 만들어줘야 하기 때문
+- method를 overriding할 때, `super.method()`로 parent의 method를 호출할 수 있음
+	- method들은 `[[HomeObject]]`로 자신이 선언된 객체를 기억함  
+		=> `this.__proto__`대신 `super`를 사용해서 inheritance chain을 거슬러 올라갈 수 있음
+	- `super`가 사용되는 method를 복사할 때 주의해야 함!
+- arrow function은 `this`, `arguments`, `super`가 없기 때문에 outer context의 그것을 사용함
+
+### Tasks
+#### Extended clock
+```javascript
+class Clock {
+  constructor({ template }) {
+    this.template = template;
+  }
+
+  render() {
+    let date = new Date();
+
+    let hours = date.getHours();
+    if (hours < 10) hours = '0' + hours;
+
+    let mins = date.getMinutes();
+    if (mins < 10) mins = '0' + mins;
+
+    let secs = date.getSeconds();
+    if (secs < 10) secs = '0' + secs;
+
+    let output = this.template
+      .replace('h', hours)
+      .replace('m', mins)
+      .replace('s', secs);
+
+    console.log(output);
+  }
+
+  stop() {
+    clearInterval(this.timer);
+  }
+
+  start() {
+    this.render();
+    this.timer = setInterval(() => this.render(), 1000);
+  }
+}
+
+class ExtendedClock extends Clock {
+  constructor({template, precision=1000}) {
+    super({template});
+    this.precision = precision;
+  }
+  
+  start() {
+    this.render();
+    this.timer=setInterval(() => this.render, this.precision); // (*)
+  }
+}
+
+let lowResolutionClock = new ExtendedClock({
+  template: 'h:m:s',
+  precision: 10000
+});
+
+lowResolutionClock.start();
+```
+- 그냥 객체에서는 context 없이 property를 호출해도 알아서 찾아가지만, class는 field를 호출할 때 무조건 context가 있어야 함!
+- `super`의 constructor에서 생성한 empty object가 derived class로 사용되는 것임!  
+	따라서 `super()`에서 선언하는 field들도 모두 derived class의 field로 설정됨
+- `(*)`에서 `this.render`를 사용하는데 derived class에 선언되지 않았기 때문에 parent에서 찾고, `this.render`로 호출했으므로 context는 derived class임
+- constructor을 solution에서는 아래와 같이 썼는데, 다시 객체를 선언하고 집어넣는 이유는 모르겠음:  
+	```javascript
+	constructor(options) {
+      super(options);
+      let { precision = 1000 } = options;
+      this.precision = precision;
+  	}
+	```
+
+## Static properties and methods
