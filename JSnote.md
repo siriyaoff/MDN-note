@@ -8435,3 +8435,521 @@ lowResolutionClock.start();
 	```
 
 ## Static properties and methods
+class method는 class.prototype에 저장되지만, `static`으로 선언하면 class 자체에 저장됨:  
+```javascript
+class User {
+  static staticMethod() {
+    alert(this === User);
+  }
+}
+
+// same as
+
+class User { }
+
+User.staticMethod = function() {
+  alert(this === User);
+};
+```
+- class의 instance에 저장되는게 아니라, class에 저장되지만 class.prototype처럼 모든 instance들이 static method를 사용할 수 있음
+- `ClassName.method=func;`와 같이 클래스 외부에서도 선언 가능
+
+#### Example
+```javascript
+class Article {
+  constructor(title, date) {
+    this.title = title;
+    this.date = date;
+  }
+
+  static compare(articleA, articleB) {
+    return articleA.date - articleB.date;
+  }
+}
+
+let articles = [
+  new Article("HTML", new Date(2019, 1, 1)),
+  new Article("CSS", new Date(2019, 0, 1)),
+  new Article("JavaScript", new Date(2019, 11, 1))
+];
+
+articles.sort(Article.compare);
+alert( articles[0].title ); // CSS
+```
+- `Article` objects을 비교하는 `Article.compare`라는 함수를 만들어야 할 때 static method로 구현
+- `Article.compare`은 article instance의 method가 아닌, `Article` 클래스의 메소드임
+
+"factory" method도 static method를 사용하는 예시임:  
+```javascript
+class Article {
+  constructor(title, date) {
+    this.title = title;
+    this.date = date;
+  }
+
+  static createTodays() {
+    return new this("Today's digest", new Date()); // (*)
+  }
+}
+
+let article = Article.createTodays();
+alert( article.title ); // Today's digest
+```
+- `(*)`에서 `this`는 `Article`임!!
+
+static method는 database에서 검색, 수정 등을 위해서도 사용될 수 있음:  
+```javascript
+Article.remove({id: 12345});
+```
+- `Article`은 article들을 다루는 class임
+- `remove`와 같은 동작을 static method로 구현할 수 있음
+
+### Static properties
+static property도 사용 가능함:  
+```javascript
+class Article {
+  static publisher = "Ilya Kantor";
+}
+
+alert( Article.publisher ); // Ilya Kantor
+```
+- static method와 마찬가지로 `Article` class 자체에 저장되어있는 property임
+
+### Inheritance of static properties and methods
+static property와 method도 상속됨:  
+```javascript
+class Animal {
+  static planet = "Earth";
+
+  constructor(name, speed) {
+    this.speed = speed;
+    this.name = name;
+  }
+
+  run(speed = 0) {
+    this.speed += speed;
+    alert(`${this.name} runs with speed ${this.speed}.`);
+  }
+
+  static compare(animalA, animalB) {
+    return animalA.speed - animalB.speed;
+  }
+
+}
+
+class Rabbit extends Animal {
+  hide() {
+    alert(`${this.name} hides!`);
+  }
+}
+
+let rabbits = [
+  new Rabbit("White Rabbit", 10),
+  new Rabbit("Black Rabbit", 5)
+];
+
+rabbits.sort(Rabbit.compare);
+rabbits[0].run(); // Black Rabbit runs with speed 5.
+alert(Rabbit.planet); // Earth
+```
+- `Rabbit`이 `Animal`을 extend하면 `Rabbit`의 `[[Prototype]]`이 `Animal`이 되기 때문에 static method도 상속됨  
+
+	|![js-static-inheritance1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-static-inheritance1.PNG?raw=true)|
+	|:---:|
+	|javascript.info 참고|
+	
+	따라서, `Rabbit extends Animal`은 두 개의 `[[Prototype]]` reference를 만들어냄
+	1. `Rabbit` 함수가 `Animal` 함수를 상속받음
+	2. `Rabbit.prototype`이 `Animal.prototype`을 상속받음
+	
+	```javascript
+	class Animal {}
+	class Rabbit extends Animal {}
+
+	// for statics
+	alert(Rabbit.__proto__ === Animal); // true
+
+	// for regular methods
+	alert(Rabbit.prototype.__proto__ === Animal.prototype); // true
+	```
+	=> 기존의 method와 static method 모두 상속됨
+
+### Summary
+- `static` keyword를 붙여서 static method/property 선언 가능
+	- class-level data를 다룰 때 사용됨
+- static method와 property는 인스턴스가 아닌 클래스 자체에 소속됨  
+	e.g. compare 함수, factory 함수
+- static method/property도 상속됨
+
+### Tasks
+```javascript
+class Rabbit extends Object {
+  constructor(name) {
+    this.name = name;
+  }
+}
+
+let rabbit = new Rabbit("Rab");
+alert( rabbit.hasOwnProperty('name') ); // Error
+```
+- 생성자에서 `super()`를 호출해야 함!
+- 모든 객체들은 `Object.prototype`을 상속받지만, 이 예제에서는 `Object`를 상속받음  
+	`class Rabbit`와 `class Rabbit extends Object`도 차이가 있음:  
+	
+	|![js-static-inheritance2](https://github.com/siriyaoff/MDN-note/blob/master/images/js-static-inheritance2.PNG?raw=true)|
+	|:---:|
+	|javascript.info 참고|
+	
+	e.g. `obj.getOwnPropertyNames`는 `Object.prototype`에 정의되어 있음  
+	=> `class Rabbit`에서는 `Rabbit.getOwnPropertyNames()`로 호출할 수 없지만, `class Rabbit extends Object`에서는 `Rabbit.getOwnPropertyNames()`로 호출 가능
+
+> #### Recap
+> - 클래스의 instance들은 모두 class.prototype을 `[[Prototype]]`으로 가져 상속받음
+> - class들은 모두 class.prototype을 가짐
+> - class method
+> 	- class.prototype에 저장됨  
+>		모든 instance가 같은 reference
+> - class field
+>	- instance에 저장됨  
+>		모든 instance가 다른 reference(object-specific함)
+> - static method/property
+> 	- class 함수에 저장됨!  
+> 		class.prototype이 아님!!
+
+## Private and protected properties and methods
+OOP에서는 encapsulation이 중요함
+
+### Internal and external interface
+OOP에서, property와 method는 두 개의 그룹으로 나뉨:
+- *Internal interface* : 클래스 내부의 다른 method로부터 접근 가능한 method, property
+- *External interface* : 클래스 내부와 외부에서 접근 가능한 method, property
+
+external interface를 통해서 internal interface의 기능을 사용할 수 있음
+
+JS에는 두 가지의 object field가 존재함
+- public : 어디서든 접근 가능, external interface를 구성함
+- private : 클래스 안에서만 접근 가능, internal interface를 구성함
+
+다른 언어들에는 보통 "protected"도 존재함(클래스 내부와 상속받는 클래스들에서 접근 가능)  
+=> private보다 넓게 사용됨
+
+JS에는 protected가 구현되어있지 않기 때문에 직접 만들어서 사용함  
+커피머신 클래스를 통해 간단하게 구현해보자
+
+### Protecting "waterAmount"
+```javascript
+class CoffeeMachine {
+  waterAmount = 0; // the amount of water inside
+
+  constructor(power) {
+    this.power = power;
+    alert( `Created a coffee-machine, power: ${power}` );
+  }
+
+}
+
+let coffeeMachine = new CoffeeMachine(100);
+
+coffeeMachine.waterAmount = 200;
+```
+- 현재는 `waterAmount`, `power`가 public임
+
+protected property는 보통 `_`가 prefix로 붙음:  
+```javascript
+class CoffeeMachine {
+  _waterAmount = 0;
+
+  set waterAmount(value) {
+    if (value < 0) {
+      value = 0;
+    }
+    this._waterAmount = value;
+  }
+
+  get waterAmount() {
+    return this._waterAmount;
+  }
+
+  constructor(power) {
+    this._power = power;
+  }
+}
+
+let coffeeMachine = new CoffeeMachine(100);
+coffeeMachine.waterAmount = -10; // _waterAmount will become 0, not -10
+```
+- accessor property를 사용해서 protected에 접근함  
+	이를 통해서 protected가 음수가 되지 않도록 조절함
+- `_`를 붙이는 건 관례일 뿐, 별다른 기능은 없음
+
+### Read-only "power"
+`power` property를 처음 값이 설정되고 절대 수정할 수 없게 만들 수도 있음  
+getter만 만들고 setter를 정의하지 않으면 됨:  
+```javascript
+class CoffeeMachine {
+  // ...
+  constructor(power) {
+    this._power = power;
+  }
+
+  get power() {
+    return this._power;
+  }
+}
+
+let coffeeMachine = new CoffeeMachine(100);
+alert(`Power is: ${coffeeMachine.power}W`); // Power is: 100W
+
+coffeeMachine.power = 25; // Error (no setter)
+```
+
+> #### Getter/setter functins
+> 위 예시처럼 getter/setter syntax를 사용해도 되지만,  
+> 대부분의 경우 `get.../set...`으로 함수의 이름을 선언해서 사용함:  
+> ```javascript
+> class CoffeeMachine {
+>   _waterAmount = 0;
+> 
+>   setWaterAmount(value) {
+>     if (value < 0) value = 0;
+>     this._waterAmount = value;
+>   }
+> 
+>   getWaterAmount() {
+>     return this._waterAmount;
+>   }
+> }
+> 
+> new CoffeeMachine().setWaterAmount(100);
+> ```
+> 
+> 함수로 정의하면 더 많은 argument를 받을 수 있지만, 코드가 길어짐
+
+> #### Protected fields are inherited
+> `class MegaMachine extends CoffeeMachine`과 같이 상속한다면  
+> `this._waterAmount`나 `this._power`과 같이 상속받은 클래스에서 protected field에 접근 가능함
+
+### Private "#waterLimit"
+private property, method는 JS에서 지원하는 문법임  
+private은 `#`으로 시작해야 하고, 클래스 내부에서만 접근 가능함
+
+#### Example
+```javascript
+class CoffeeMachine {
+  #waterLimit = 200;
+
+  #fixWaterAmount(value) {
+    if (value < 0) return 0;
+    if (value > this.#waterLimit) return this.#waterLimit;
+  }
+
+  setWaterAmount(value) {
+    this.#waterLimit = this.#fixWaterAmount(value);
+  }
+}
+
+let coffeeMachine = new CoffeeMachine();
+coffeeMachine.#fixWaterAmount(123); // Error
+coffeeMachine.#waterLimit = 1000; // Error
+```
+- private field는 public field와 충돌하지 않음  
+	=> `#waterAmount`와 `waterAmount` 두 property를 동시에 선언 가능함  
+	e.g.  
+	```javascript
+	get waterAmount() {
+	  return this.#waterAmount;
+	}
+	```
+
+상속받은 클래스에서 아래와 같이 부모 클래스의 private field를 접근할 수는 없음:  
+```javascript
+class MegaCoffeeMachine extends CoffeeMachine {
+  method() {
+    alert( this.#waterAmount ); // Error: can only access from CoffeeMachine
+  }
+}
+```
+- `this`가 `MegaCoffeeMachine`이기 때문에 `CoffeeMachine`의 private field에는 접근할 수 없음
+- private는 접근이 너무 제한되기 때문에 `CoffeeMachine`과 같이 protected가 더 적절한 경우가 많음
+
+> #### Private fields are not available at this[name]
+> 보통 `this['name']`과 같이 field를 호출할 수 있지만, private field에 대해서는 `this['#name']`을 사용할 수 없음  
+> ∵ 보안을 위해서 문법이 제한됨
+
+### Summary
+internal, external interface의 경계를 정하는 것을 **encapsulation**이라고 함
+encapsulation은 아래와 같은 이점이 있음:
+- 사용자들이 에러를 스스로 발생시키지 않도록 보호함  
+	사용자들이 프로그램 내부를 조작하는 것을 방지함
+- 지원 가능  
+	internal을 엄격하게 구분해놓으면, 외부에 영향을 끼치지 않고 internal interfaces를 수정할 수 있음
+- 복잡성 은닉  
+	세부 구현은 숨겨져 있고 심플한 외부 doc만 있는 것이 유지 개발에도 좋음
+	
+	internal interface를 은닉하기 위해서는 protected나 private property를 사용하는게 좋음
+	- protected field는 `_`로 시작함  
+		JS에서 protected를 지원하는 것은 아니고, 관례임  
+		`get.../set...`을 만들어서 수정하게 만듦
+	- private field는 `#`으로 시작함  
+		JS에서 private를 지원함  
+		현재는 완전히 지원되지 않고, polyfill해야 함
+
+## Extending built-in classes
+`Array`, `Map`과 같은 내장 클래스들도 확장할 수 있음:  
+```javascript
+class PowerArray extends Array {
+  isEmpty() {
+    return this.length === 0;
+  }
+}
+
+let arr = new PowerArray(1, 2, 5, 10, 50);
+alert(arr.isEmpty()); // false
+
+let filteredArr = arr.filter(item => item >= 10);
+alert(filteredArr); // 10, 50
+alert(filteredArr.isEmpty()); // false
+```
+- `filter`, `map`과 같은 내장 메소드들은 상속받은 클래스인 `PowerArray` 객체를 리턴함  
+	이를 위해서 객체의 `constructor` property를 사용함  
+	e.g. `arr.constructor === PowerArray`임
+- `arr.filter()`가 호출되면, `Array`가 아닌, `arr.constructor`가 사용되어 새로운 배열이 생성됨  
+	=> `PowerArray`의 method를 계속 사용할 수 있음
+
+static getter `Symbol.species`를 이용해서 이 동작을 임의로 수정할 수도 있음  
+`Symbol.species`는 `map`, `filter`과 같은 내장 method에서 반환할 객체의 생성자를 반환해야 함:  
+```javascript
+class PowerArray extends Array {
+  isEmpty() {
+    return this.length === 0;
+  }
+
+  static get [Symbol.species]() {
+    return Array;
+  }
+}
+
+let arr = new PowerArray(1, 2, 5, 10, 50);
+alert(arr.isEmpty()); // false
+
+let filteredArr = arr.filter(item => item >= 10);
+alert(filteredArr.isEmpty()); // Error: filteredArr.isEmpty is not a function
+```
+- 위 예시에서는 `PowerArray` 대신 `Array`를 반환하기 위해 `Symbol.species`가 `Array`를 반환함  
+	=> `filteredArr`은 `Array`이기 때문에 `PowerArray`의 method인 `isEmpty()`를 사용할 수 없음
+
+> #### 다른 collection들도 비슷하게 작동함
+> `Map`, `Set`과 같은 collection들도 `Symbol.species`를 사용함
+
+### No static inheritance in built-ins
+내장 객체들도 static method를 가짐  
+e.g. `Object.keys`, `Array.isArray`
+
+native class는 서로 확장함  
+e.g. `Array` extends `Object`
+
+보통 한 클래스가 다른 하나를 확장하면, static, non-static method 모두 상속됨  
+하지만, 내장 클래스는 예외임!  
+static method는 상속되지 않음
+
+e.g. `Array`와 `Date`는 `Object`를 상속받기 때문에, 이 클래스들의 instance들은 `Object.prototype`의 method들을 상속받음  
+하지만 `Array.[[Prototype]]`은 `Object`를 가리키기 않음!!  
+=> `Array.keys()`같이 `Object` 안에 있는 static method를 사용할 수 없음!
+
+|![js-static-inheritance3](https://github.com/siriyaoff/MDN-note/blob/master/images/js-static-inheritance3.PNG?raw=true)|
+|:---:|
+|javascript.info 참고|
+
+- `Date.prototype`만 `Object.prototype`을 확장함!  
+	`extends`를 사용했을 때와 객체로 상속할 때의 가장 큰 차이점임!
+
+> #### class는 object를 만들기 위한 template임
+> class를 이용해서 만든 인스턴스가 객체임
+
+## Class checking: "instanceof"
+`instanceof` operator를 사용해서 object가 특정 class에 속하는지 알 수 있음  
+상속받고 있는지도 확인해줌
+
+### The instanceof operator
+```javascript
+obj instanceof Class
+
+/*-------------example--------------*/
+// (1)
+class Rabbit {}
+let rabbit = new Rabbit();
+
+alert( rabbit instanceof Rabbit ); // true
+
+// (2)
+function Rabbit() {}
+
+alert( new Rabbit() instanceof Rabbit ); // true
+
+// (3)
+let arr = [1, 2, 3];
+alert( arr instanceof Array ); // true
+alert( arr instanceof Object ); // true
+```
+- `// (3)`에서 `arr`->`Array`->`Object`로 확장함
+
+`instanceof`는 prototype chain을 확인해서 객체가 특정 클래스에 속하는지 확인하지만, static method인 `Symbol.hasInstance`를 사용해서 판단 기준을 바꿀 수도 있음  
+`obj instanceof Class`는 아래와 같이 동작함:
+1. `Symbol.hasInstance`가 존재하면 `Class[Symbol.hasInstance](obj)`를 호출함  
+	이 메소드는 `true/false`를 리턴해야 함
+	
+	e.g.  
+	```javascript
+	class Animal {
+	  static [Symbol.hasInstance](obj) {
+		if (obj.canEat) return true;
+	  }
+	}
+
+	let obj = { canEat: true };
+
+	alert(obj instanceof Animal); // true: Animal[Symbol.hasInstance](obj) is called
+	```
+2. `Symbol.hasInstance`가 없는 경우 `Class.prototype`이 `obj`의 prototype chain 중에 존재하는지 확인  
+	```javascript
+	obj.__proto__ === Class.prototype?
+	obj.__proto__.__proto__ === Class.prototype?
+	obj.__proto__.__proto__.__proto__ === Class.prototype?
+	...
+	```
+	위 조건들 중 하나라도 참이면 `true`를 반환
+	
+	e.g.  
+	```javascript
+	class Animal {}
+	class Rabbit extends Animal {}
+
+	let rabbit = new Rabbit();
+	alert(rabbit instanceof Animal); // true
+
+	// rabbit.__proto__ === Rabbit.prototype
+	// rabbit.__proto__.__proto__ === Animal.prototype (match!)
+	```
+	
+	|![js-instanceof](https://github.com/siriyaoff/MDN-note/blob/master/images/js-instanceof.PNG?raw=true)|
+	|:---:|
+	|javascript.info 참고|
+
+`objA.isPrototypeOf(objB)` method도 존재함  
+`objA`가 `objB`의 prototype chain의 어딘가에 존재하면 `true`를 반환함  
+=> `obj instanceof Class`는 `Class.prototype.isPrototypeOf(obj)`와 같음  
+하지만 `Class.prototype.isPrototypeOf(obj)`는 `Class`의 생성자는 제외하고 포함 여부를 확인하는 것에 주의!  
+prototype chain과 `Class.prototype`만 확인함
+
+따라서 아래와 같이 `prototype`이 바뀌었을 때 예상치 못한 결과가 나올 수 있음:  
+```javascript
+function Rabbit() {}
+let rabbit = new Rabbit();
+
+Rabbit.prototype = {};
+
+// ...not a rabbit any more!
+alert( rabbit instanceof Rabbit ); // false
+```
+
+### Bonus: Object.prototype.toString for the type
