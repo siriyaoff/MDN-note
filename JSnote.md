@@ -803,7 +803,7 @@ result = value1 && value2 && value3;
 - 위의 코드에서 `&&`는 위의 `||`와 반대로 작동함
 	- 왼쪽에서 오른쪽 순서로 operand를 계산
 	- 순서대로 계산하면서 결과가 `false`이면 그 operand의 원래 값을 반환
-	- 만약 모든 operand가 계산되면(모든 결과가 `ture`면), 마지막 operand를 반환
+	- 만약 모든 operand가 계산되면(모든 결과가 `true`면), 마지막 operand를 반환
 - 마찬가지로 논리연산자로 사용 가능(애초에 falsy가 반환되면 조건문 실행이 안됨)
 
 #### Example
@@ -1046,7 +1046,7 @@ let func = sayHi;    // (2) copy
 func(); // Hello     // (3) run the copy (it works)!
 sayHi(); // Hello    //     this still works too (why wouldn't it)
 ```
-- `func==sayHi`는 `ture`임
+- `func==sayHi`는 `true`임
 	(∵ sayHi의 코드를 다 복사하기 때문에 같음)
 
 ### Callback functions
@@ -2886,7 +2886,7 @@ alert( 123456..toString(36) ); // 2n9c
 > ※ 부동소수점 덕분에 두 개의 0이 존재함(`0`, `-0`)
 
 ### Tests: isFinite and isNaN
-`isNaN(value)`는 `value`가 `NaN`이면 `ture`를 리턴함:  
+`isNaN(value)`는 `value`가 `NaN`이면 `true`를 리턴함:  
 ```javascript
 alert( isNaN(NaN) ); // true
 alert( isNaN("str") ); // true
@@ -3323,7 +3323,7 @@ alert('0' == [] ); // false, (4)
 ```
 - `(1), (2)`는 operand가 양쪽 다 객체이기 때문에 객체끼리 비교
 - `(3), (4)`는 `[]`가 내장 `toString`에 의해 `''`로 변환된 다음 알맞은 type으로 다시 변환됨  
-	`(3)`에서는 숫자로 변환되는데 `''`가 `0`으로 변환되기 때문에 `ture`  
+	`(3)`에서는 숫자로 변환되는데 `''`가 `0`으로 변환되기 때문에 `true`  
 	`(4)`에서는 `'0'`과 `''`를 비교하기 때문에 `false`
 
 > ※ `===`는 type이 다르면 바로 `false`, 같으면 `==`와 동일하게 비교!!
@@ -3709,7 +3709,7 @@ alert(soldiers[1].age); // 23
 |`arr.reduce(function(accumulator, item, index, array) { ... }, [initial])`|`arr`의 원소들을 함수에 넣으면서 `accumulator`에 결과를 저장하고 반환<br>`initial`은 `accumulator`의 초기값|
 |`arr.reduceRight(function(accumulator, item, index, array) { ... }, [initial])`|`arr.reduce`와 같은 기능이지만 원소들을 역순으로 처리함|
 |`Array.isArray(value)`|`value`가 `Array` type인지 판별|
-|`arr.some(function(item, index, array) { ... })`<br>`arr.every(function(item, index, array) { ... })`|`arr` 안에 함수를 `true`로 만드는 원소가 있는지 판별<br>모든 원소가 함수를 `ture`로 만드는지 판별|
+|`arr.some(function(item, index, array) { ... })`<br>`arr.every(function(item, index, array) { ... })`|`arr` 안에 함수를 `true`로 만드는 원소가 있는지 판별<br>모든 원소가 함수를 `true`로 만드는지 판별|
 |`arr.fill(value[, start[, end]])`|`arr`의 `[start, end)`를 `value`로 채우고 리턴<br>`arr`도 변화함|
 |`arr.copyWithin(target[, start[, end]])`|`arr`의 `[start, end)`를 `target` 번째부터 시작해서 붙여넣고 리턴<br>`arr`도 변화함|
 |`arr.flat([depth])`|`arr`의 원소들을 `depth`만큼 차원을 낮춘 결과를 리턴<br>`depth`를 `Infinity`로 설정할 수 있음|
@@ -4095,7 +4095,7 @@ set.forEach((value, valueAgain, set) => {
 |`new Map([entries])`|`entries`로 초기화된 map 리턴|
 |`map.set(key, value)`|`key`와 `value`를 저장하고 `map` 리턴|
 |`map.get(key)`|`key`에 해당하는 값(존재하지 않으면 `undefined`) 리턴|
-|`map.has(key)`|`key`가 존재하면 `ture`, 아니면 `false` 리턴|
+|`map.has(key)`|`key`가 존재하면 `true`, 아니면 `false` 리턴|
 |`map.delete(key)`|`key`, `value`가 존재하면 삭제하고 `true`, 아니면 `false` 리턴|
 |`map.clear()`|`map`을 비움|
 |`map.size`|`map`의 현재 원소 수를 리턴|
@@ -7761,7 +7761,7 @@ user.sayHi();
 	다양한 곳에서 이 property를 확인함  
 	e.g. 보통 함수와는 다르게, 무조건 `new`와 함께 호출되어야 함  
 	또한, class constructor를 출력하면 "class로 시작함":  
-	```javascript]
+	```javascript
 	class User {
 	  constructor() {}
 	}
@@ -8703,7 +8703,7 @@ alert(`Power is: ${coffeeMachine.power}W`); // Power is: 100W
 coffeeMachine.power = 25; // Error (no setter)
 ```
 
-> #### Getter/setter functins
+> #### Getter/setter functions
 > 위 예시처럼 getter/setter syntax를 사용해도 되지만,  
 > 대부분의 경우 `get.../set...`으로 함수의 이름을 선언해서 사용함:  
 > ```javascript
@@ -8866,6 +8866,35 @@ e.g. `Array`와 `Date`는 `Object`를 상속받기 때문에, 이 클래스들�
 > #### class는 object를 만들기 위한 template임
 > class를 이용해서 만든 인스턴스가 객체임
 
+### Summary
+
+|code|description|
+|:---|:---|
+|`static get [Symbol.species](){return Class;}`|메소드에서 새로운 객체를 리턴해야 할 때 `Class`의 생성자를 사용하게 함|
+
+- `Array`, `Map`과 같은 내장 클래스도 확장할 수 있음  
+	이때, 이 클래스들의 메소드 중 새로운 객체를 리턴하는 메소드들은 `Array.constructor`가 아닌 현재 클래스의 `arr.constructor`를 사용함
+
+	static getter `Symbol.species`를 수정해서 이 동작을 변경할 수도 있음:  
+	```javascript
+	class PowerArray extends Array {
+	  isEmpty() {
+		return this.length === 0;
+	  }
+
+	  static get [Symbol.species]() {
+		return Array;
+	  }
+	}
+	```
+- `PowerArray`에서 `filter`와 같은 메소드를 호출하면 `Array.constructor`가 반환됨  
+	`Map`, `Set`도 `Symbol.species`를 선언할 수 있음
+
+- 내장 클래스는 확장하면 static method가 상속되지 않음!  
+	∵ prototype끼리는 상속받지만, 클래스끼리는 `[[Prototype]]`으로 연결되지 않음
+	
+	`__proto__`로 상속할 때와 `extends`를 이용할 때의 차이점임
+
 ## Class checking: "instanceof"
 `instanceof` operator를 사용해서 object가 특정 class에 속하는지 알 수 있음  
 상속받고 있는지도 확인해줌
@@ -8953,3 +8982,576 @@ alert( rabbit instanceof Rabbit ); // false
 ```
 
 ### Bonus: Object.prototype.toString for the type
+plain object는 `toString`으로 인해 `[object Object]`로 변환됨:  
+```javascript
+let obj = {};
+
+alert(obj); // [object Object]
+alert(obj.toString()); // the same
+```
+- `toString`은 이 기능 이외에도 `typeof`를 확장한 것이나 `instanceof`의 대체재로 사용될 수 있음  
+	specification에 따르면, 내장 `toString`은 객체에서 빌려서 다른 context에서 실행될 수 있음  
+	결과 값은 아래와 같이 계산됨:
+	- context가 `Number`일 경우 `[object Number]` 리턴
+	- context가 `Boolean`일 경우 `[object Boolean]` 리턴
+	- context가 `null`일 경우 `[object Null]` 리턴
+	- context가 `undefined`일 경우 `[object Undefined]` 리턴
+	- context가 `Array`일 경우 `[object Array]` 리턴
+	- 기타 customize 가능
+	
+	```javascript
+	let s = Object.prototype.toString;
+
+	let arr = [];
+	alert( s.call(arr) ); // [object Array]
+	alert( s.call(123) ); // [object Number]
+	alert( s.call(null) ); // [object Null]
+	alert( s.call(alert) ); // [object Function]
+	```
+	- `call`을 사용해서 `this=arr`인 context에서 `objectToString` 실행함  
+		내부적으로, `toString`은 `this`를 조사하고 알맞은 결과를 리턴함
+
+#### Symbol.toStringTag
+`toString`은 `Symbol.toStringTag`를 통해서 변경할 수 있음:  
+```javascript
+let user = {
+  [Symbol.toStringTag]: "User"
+};
+
+alert( {}.toString.call(user) ); // [object User]
+
+alert( window[Symbol.toStringTag]); // Window
+alert( XMLHttpRequest.prototype[Symbol.toStringTag] ); // XMLHttpRequest
+
+alert( {}.toString.call(window) ); // [object Window]
+alert( {}.toString.call(new XMLHttpRequest()) ); // [object XMLHttpRequest]
+```
+- 대부분의 객체들은 이 property를 가짐
+- 변환된 결과는 `[object ...]`에 `Symbol.toStringTag`의 값이 들어간 것임
+- 따라서 `[Symbol.toStringTag]` property를 선언한 뒤, `{}.toString.call`을 `instanceof` 대신 사용해서 typeof와 같은 역할을 하게 만들 수 있음
+
+### Summary
+
+|code|description|
+|:---|:---|
+|`objA instanceof Class`|`objA`가 `Class`의 인스턴스인지 판별|
+|`static [Symbol.hasInstance](obj){...}`|`obj`가 조건을 충족시키면 현재 클래스의 인스턴스로 인정해, `instanceof obj`가 `true`를 리턴하도록 만듦|
+|`objB.isPrototypeOf(objA)`|`objB`가 `objA`의 prototpye chain에 존재하는지 판별<br>`objA instanceof Class`는 `Class.prototype.isPrototypeOf(objA)`와 같음|
+|`[Symbol.toStringTag]`|`toString`의 결과값 `[object Object]`에서 `Object` 대신 들어갈 문자열을 저장하는 property|
+
+- `obj instanceof Class` operator의 동작 과정
+	1. `Symbol.hasInstance`가 존재하면 그것을 따름
+	2. `obj`의 prototype chain에 `Class.prototype`이 존재하는지 확인
+- `instanceof`는 상속 구조를 조사할 때 유용함
+- prototype을 지우면 `instanceof`를 사용했을 때 예상하지 못한 결과가 발생할 수 있음!  
+	∵ `instanceof`가 prototype chain을 이용해서 결과를 계산하기 때문
+- `[Symbol.hasInstance](obj)`는 static method임
+- `[Symbol.toStringTag]`는 property임
+
+### Tasks
+```javascript
+function A() {}
+function B() {}
+
+A.prototype = B.prototype = {};
+
+let a = new A();
+
+alert( a instanceof B ); // true
+```
+- `A.prototype`, `B.prototype` 모두 `{}`를 레퍼런스로 가지기 때문에, `a.__proto__ === B.prototype`이라 `a instanceof B`가 `true`가 됨!
+
+## Mixins
+JS에서 상속받을 수 있는 객체의 개수는 하나임  
+`[[Prototype]]`으로 상속받기 때문
+
+클래스도 하나의 클래스만 확장할 수 있음
+
+이런 특징은 두 개의 클래스를 상속받아야 하는 상황에서 걸림돌이 됨  
+이때 mixin을 사용하면 됨
+
+mixin은 다른 클래스가 mixin을 상속받지 않아도 mixin의 메소드를 사용 가능하게 해주는 클래스임  
+즉, mixin은 method를 제공하지만, 그 메소드는 mixin에서 바로 사용되지 않고 다른 클래스들에서 사용됨
+
+### A mixin example
+JS에서 mixin을 만드는 가장 간단한 방법은 method를 가진 object를 만들고 다른 클래스의 prototype과 합치는 것임:  
+```javascript
+// mixin
+let sayHiMixin = {
+  sayHi() {
+    alert(`Hello ${this.name}`);
+  },
+  sayBye() {
+    alert(`Bye ${this.name}`);
+  }
+};
+
+// usage:
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+}
+
+Object.assign(User.prototype, sayHiMixin);
+new User("Dude").sayHi(); // Hello Dude!
+```
+- 상속 관계가 아닌, 메소드를 복사하는 것뿐이기 때문에 다른 클래스를 상속받을 수 있음:  
+	```javascript
+	class User extends Person {
+	  // ...
+	}
+
+	Object.assign(User.prototype, sayHiMixin);
+	```
+
+mixin도 다른 mixin을 상속받을 수 있음:  
+```javascript
+let sayMixin = {
+  say(phrase) {
+    alert(phrase);
+  }
+};
+
+let sayHiMixin = {
+  __proto__: sayMixin, // (or we could use Object.setPrototypeOf to set the prototype here)
+
+  sayHi() {
+    // call parent method
+    super.say(`Hello ${this.name}`); // (*)
+  },
+  sayBye() {
+    super.say(`Bye ${this.name}`); // (*)
+  }
+};
+
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+}
+
+// copy the methods
+Object.assign(User.prototype, sayHiMixin);
+
+// now User can say hi
+new User("Dude").sayHi(); // Hello Dude!
+```
+- parent method를 호출할 때는 `super.say()`와 같이 `super`를 사용해야 함!!  
+	외부에서 `sayHiMixin.say()`로 호출하면 부모까지 메소드를 찾아가지만, 클래스 안에서 호출하면 현재 context에서만 찾는 듯
+- `super.say()`는 `sayMixin`의 prototype인 `sayMixin`에서 메소드를 찾음
+- diagram:  
+	|![js-mixin](https://github.com/siriyaoff/MDN-note/blob/master/images/js-mixin.PNG?raw=true)|
+	|:---:|
+	|javascript.info 참고|
+	
+	- `sayHi`, `sayBye`는 `sayHiMixin`에서 생성되었기 때문에 `User.prototype`으로 복사되었다 하더라도 `[[HomeObject]]`에는 `sayHiMixin`이 들어있기 때문에 `super.say()`가 제대로 동작함  
+	∵ `super`는 `[[HomeObject]].[[Prototype]]`을 찾음
+
+### EventMixin
+이벤트와 관련된 함수를 제공하는 mixin을 만들어보자:
+- `.trigger(name, [...data])` : `name` event를 발생시킴  
+	`name`의 모든 listener가 호출됨
+- `.on(name, handler)` : handler를 `name` 이벤트의 listener로 추가함  
+	`name` 이벤트가 일어났을 때 `.trigger`에서 생성된 `handler`를 인자로 받아서 호출됨
+- `.off(name, handler)` : `handler` listener를 삭제함
+
+```javascript
+let eventMixin = {
+  /**
+   * Subscribe to event, usage:
+   *  menu.on('select', function(item) { ... }
+  */
+  on(eventName, handler) {
+    if (!this._eventHandlers) this._eventHandlers = {};
+    if (!this._eventHandlers[eventName]) {
+      this._eventHandlers[eventName] = [];
+    }
+    this._eventHandlers[eventName].push(handler);
+  },
+
+  /**
+   * Cancel the subscription, usage:
+   *  menu.off('select', handler)
+   */
+  off(eventName, handler) {
+    let handlers = this._eventHandlers?.[eventName];
+    if (!handlers) return;
+    for (let i = 0; i < handlers.length; i++) {
+      if (handlers[i] === handler) {
+        handlers.splice(i--, 1);
+      }
+    }
+  },
+
+  /**
+   * Generate an event with the given name and data
+   *  this.trigger('select', data1, data2);
+   */
+  trigger(eventName, ...args) {
+    if (!this._eventHandlers?.[eventName]) {
+      return; // no handlers for that event name
+    }
+
+    // call the handlers
+    this._eventHandlers[eventName].forEach(handler => handler.apply(this, args));
+  }
+};
+```
+- `.on(eventName, handler)` : `handler`를 `this._eventHandlers[eventName]`에 추가함
+- `.off(eventName, handler)` : `handler`를 `this._eventHandlers[eventName]`에서 삭제함
+- `.trigger(eventName, ...args)` : `this._eventHandlers[eventName]`에 있는 모든 handler들을 호출함
+
+#### Usage
+```javascript
+class Menu {
+  choose(value) {
+    this.trigger("select", value);
+  }
+}
+Object.assign(Menu.prototype, eventMixin);
+
+let menu = new Menu();
+
+menu.on("select", value => alert(`Value selected: ${value}`));
+
+// triggers the event => the handler above runs and shows:
+// Value selected: 123
+menu.choose("123");
+```
+- event handler라고 따로 JS에서 지원하는 기능이 있는게 아니고 그냥 method 이름인듯  
+	단지 mixin으로 `trigger`, `on`, `off` method를 추가해줘서 event 별로 listener를 추가해서 실행시키는 것임  
+	inheritance chain을 건드리지 않고 event handling을 할 수 있게 해주기 때문에 mixin을 사용하는 듯
+
+### Summary
+- *Mixin*
+	- OOP에서 사용되는 용어임
+	- 다른 클래스들을 위한 메소드를 포함한 클래스임
+- 다중 상속을 허용하는 언어도 존재하지만, JS는 허용하지 않기 때문에 mixin으로 한 객체의 prototype에 메소드를 추가해야 함
+- event-handling이 mixin을 사용하는 대표적인 예시임
+	- `.trigger(name, ...args)`, `.on(name, handler)`, `.off(name, handler)` 메소드를 제공함
+- 기존에 존재하는 메소드와 이름이 같을 수도 있기 때문에 mixin에 사용되는 메소드들의 이름 규약을 정하는게 좋음
+
+
+# Error handling
+## Error handling, "try...catch"
+`try...catch`를 사용하면 에러가 발생했을 때 스크립트가 멈추는 대신 다른 행동을 하도록 제어할 수 있음
+
+### The "try...catch" syntax
+`try...catch`는 두 block으로 이루어짐: `try`, `catch`:  
+```javascript
+try {
+  // code...
+} catch (err) {
+  // error handling
+}
+```
+- 아래와 같이 동작함:
+	1. `try {...}`가 실행됨
+	2. 에러가 발생하지 않으면 `catch (err)`는 무시됨
+	3. 에러가 발생하면 `try`의 실행이 중단되고 제어 흐름이 `catch (err)`로 바뀜  
+		`err`은 발생한 에러에 대한 정보를 담고 있는 에러 객체임
+	
+	|![js-try-catch1](https://github.com/siriyaoff/MDN-note/blob/master/images/js-try-catch1.PNG?raw=true)|
+	|:---:|
+	|javascript.info 참고|
+	
+즉, `try {...}`에서 에러가 발생해도 스크립트가 멈추지 않고 `catch`에서 그것을 해결할 수 있는 기회가 주어지는 것임
+
+#### Example
+errorless example:  
+```javascript
+try {
+  alert('Start of try runs');  // (1) <--
+  // ...no errors here
+  alert('End of try runs');   // (2) <--
+} catch (err) {
+  alert('Catch is ignored, because there are no errors'); // (3)
+}
+```
+- `(1)`, `(2)`만 출력됨
+
+example with error:  
+```javascript
+try {
+  alert('Start of try runs');  // (1) <--
+  lalala; // error, variable is not defined!
+  alert('End of try (never reached)');  // (2)
+} catch (err) {
+  alert(`Error has occurred!`); // (3) <--
+}
+```
+- `(1)`, `(3)`만 출력됨
+
+> #### `try...catch`는 runtime error에 대해서만 작동함!
+> `try...catch`가 작동하기 위해서는 스크립트가 실행 가능해야 함  
+> 즉, 문법적으로 올바른 스크립트여야 함
+> 
+> JS 엔진은 먼저 코드를 읽은 다음 그것을 실행시킴  
+> 읽는 단계에서 일어나는 에러는 "parse-time" error라고 불리며, 코드 내부에서 해결할 수 없음
+>
+> 따라서 `try...catch`는 올바르게 쓰여진 코드에서 발생하는 runtime error(또는 exception)에 대해서만 작동함
+
+> #### `try...catch`는 동기적으로 작동함
+> `setTimeout`과 같은 scheduled code에서 일어나는 exception은 `try...catch`에서 잡을 수 없음:  
+> ```javascript
+> try {
+>   setTimeout(function() {
+>     noSuchVariable; // script will die here
+>   }, 1000);
+> } catch (err) {
+>   alert( "won't work" );
+> }
+> ```
+> - 에러가 포함된 함수가 `try...catch`를 마친 다음 실행되기 때문
+>
+> scheduled function 내부의 exception을 잡기 위해선 `try...catch`를 함수 내부에 넣어야 함:  
+> ```javascript
+> setTimeout(function() {
+>   try {
+>     noSuchVariable; // try...catch handles the error!
+>   } catch {
+>     alert( "error is caught here!" );
+>   }
+> }, 1000);
+> ```
+
+### Error object
+에러가 발생하면, JS는 에러에 관한 정보를 담은 객체를 생성함  
+그 객체가 `catch`에 인자로 전달됨  
+모든 내장 에러들에 대해, 에러 객체들은 두 개의 주요 property가 있음:
+- `name` : 에러 이름  
+	e.g. `"ReferenceError"` for an undefined variable
+- `message` : 에러에 관한 텍스트 정보  
+- `stack` : 현재 call stack  
+	비표준이지만, 대부분의 환경에서 지원됨
+
+#### Example
+```javascript
+try {
+  lalala; // error, variable is not defined!
+} catch (err) {
+  alert(err.name); // ReferenceError
+  alert(err.message); // lalala is not defined
+  alert(err.stack); // ReferenceError: lalala is not defined at (...call stack)
+
+  // Can also show an error as a whole
+  // The error is converted to string as "name: message"
+  alert(err); // ReferenceError: lalala is not defined
+}
+```
+- `alert(err)`을 하면 `name`, `message`까지만 나옴
+
+### Optional "catch" binding
+에러에 관한 정보가 필요하지 않으면 `catch (err)`에서 에러 객체 `err`을 생략할 수 있음:  
+```javascript
+try {
+  // ...
+} catch { // <-- without (err)
+  // ...
+}
+```
+- 비교적 최근에 추가된 기능이기 때문에 polyfill이 필요할 수도 있음
+
+### Using "try...catch"
+`try...catch`의 실사용 예시를 알아보자.  
+JS는 `JSON.parse(str)`으로 JSON-encoded value를 읽을 수 있게 해줌:  
+```javascript
+let json = '{"name":"John", "age": 30}'; // data from the server
+let user = JSON.parse(json); // convert the text representation to JS object
+
+alert( user.name ); // John
+alert( user.age );  // 30
+```
+
+만약 `json`이 망가졌다면, `JSON.parse`는 에러를 발생시키고 스크립트가 죽음  
+이렇게 데이터가 잘못되면 방문자들은 알 수 없음  
+=> 에러 메시지 없이 스크립트가 멈춤
+
+`try...catch`로 에러를 처리할 수 있음:  
+```javascript
+let json = "{ bad json }";
+
+try {
+
+  let user = JSON.parse(json); // <-- when an error occurs...
+  alert( user.name ); // doesn't work
+
+} catch (err) {
+  // ...the execution jumps here
+  alert( "Our apologies, the data has errors, we'll try to request it one more time." );
+  alert( err.name );
+  alert( err.message );
+}
+```
+- 이 예시에서는 `catch`에서 메시지를 띄우는 것만 했지만, 다양한 다른 행동들도 가능함
+
+### Throwing our own errors
+만약 `json`이 문법상 올바르지만, 있어야 하는 `name` property가 없다면 어떻게 할 수 있을까?:  
+```javascript
+let json = '{ "age": 30 }'; // incomplete data
+
+try {
+  let user = JSON.parse(json); // <-- no errors
+  alert( user.name ); // no name!
+
+} catch (err) {
+  alert( "doesn't execute" );
+}
+```
+- `throw` operator를 사용해서 해결할 수 있음
+
+#### "Throw" operator
+`throw` operator는 에러를 발생시킴:  
+```javascript
+throw <error object>
+```
+
+primitive나 임의의 객체 등 모든 것들을 에러 객체로 사용 가능함  
+하지만 보통은 `name`과 `message` property가 있는 객체를 사용하는게 좋음  
+∵ 내장된 에러 객체와의 호환성을 위해
+
+JS는 `Error`, `SyntaxError`, `ReferenceError`, `TypeError` 등의 표준 에러들에 대한 내장 생성자를 가지고 있음  
+이런 생성자들을 사용해서 에러 객체를 생성해도 됨:  
+```javascript
+let error = new Error(message);
+let error = new SyntaxError(message);
+let error = new ReferenceError(message);
+// ...
+```
+
+내장 에러들은 `name`가 정확히 생성자의 이름이고 `message`는 생성자의 argument임:  
+```javascript
+let error = new Error("Things happen o_O");
+
+alert(error.name); // Error
+alert(error.message); // Things happen o_O
+```
+
+`JSON.parse`는 아래와 같이 `SyntaxError`를 생성함:  
+```javascript
+try {
+  JSON.parse("{ bad json o_O }");
+  
+} catch (err) {
+  alert(err.name); // SyntaxError
+  alert(err.message); // Unexpected token b in JSON at position 2
+}
+```
+
+따라서 아래와 같이 `name` property가 없을 때 우리가 에러를 발생시킬 수 있음:  
+```javascript
+let json = '{ "age": 30 }'; // incomplete data
+
+try {
+  let user = JSON.parse(json); // <-- no errors
+  if (!user.name) {
+    throw new SyntaxError("Incomplete data: no name"); // (*)
+  }
+  alert( user.name );
+  
+} catch (err) {
+  alert( "JSON Error: " + err.message ); // JSON Error: Incomplete data: no name
+}
+```
+- `user.name`이 존재하지 않기 때문에 `undefined`를 반환하고 `(*)`가 실행됨
+- 위 예시에서는 `catch`가 `JSON.parse`와 `(*)`의 경우 모두에 대한 error handling을 담당함
+
+### Rethrowing
+아래와 같이 선언되지 않은 변수를 사용하는 등 다른 에러도 발생 가능함:  
+```javascript
+let json = '{ "age": 30 }'; // incomplete data
+
+try {
+  user = JSON.parse(json); // <-- forgot to put "let" before user
+  // ...
+  
+} catch (err) {
+  alert("JSON Error: " + err); // JSON Error: ReferenceError: user is not defined
+  // (no JSON Error actually)
+}
+```
+- 이때까지는 `try...catch`를 incorrect data로 인한 에러를 잡을 때만 사용했지만, 실제로 `catch`는 `try` block에서 발생하는 *모든* 에러를 잡음  
+	=> incorrect data가 아닌 다른 에러가 발생했을 경우에는 제대로 해결할 수 없음
+
+이런 문제를 해결하기 위해서 "rethrowing" technique를 이용함  
+Rethrowing : `catch`는 그것이 목표로 하는 에러만 처리하고 나머지는 "rethrow"해야 함
+
+보통 에러 종류를 확인하기 위해 `instanceof`를 사용함:  
+```javascript
+try {
+  user = { /*...*/ };
+
+} catch (err) {
+  if (err instanceof ReferenceError) {
+    alert('ReferenceError'); // "ReferenceError" for accessing an undefined variable
+  }
+}
+```
+- 또는 `err.name`이나 `err.constructor.name`으로 에러 이름을 확인할 수도 있음
+
+아래 예시는 `catch`가 `SyntaxError`만 해결하고 나머지는 rethrow하도록 구현함:  
+```javascript
+let json = '{ "age": 30 }'; // incomplete data
+try {
+  let user = JSON.parse(json);
+  if (!user.name) {
+    throw new SyntaxError("Incomplete data: no name");
+  }
+  blabla(); // unexpected error
+  alert( user.name );
+
+} catch (err) {
+  if (err instanceof SyntaxError) {
+    alert( "JSON Error: " + err.message );
+  } else {
+    throw err; // rethrow (*)
+  }
+}
+```
+- `(*)`에서의 error throwing은 `try...catch`에서 떨어져 나옴  
+	외부에 `try...catch`가 있다면 그것에 의해 잡히거나 스크립트를 중단함
+
+아래 코드는 `try...catch`를 중첩해서 사용하여 rethrow한 에러를 해결하는 예시임:  
+```javascript
+function readData() {
+  let json = '{ "age": 30 }';
+
+  try {
+    // ...
+    blabla(); // error!
+  } catch (err) {
+    // ...
+    if (!(err instanceof SyntaxError)) {
+      throw err; // rethrow (don't know how to deal with it)
+    }
+  }
+}
+
+try {
+  readData();
+} catch (err) {
+  alert( "External catch got: " + err ); // caught it!
+}
+```
+- `readData`는 `SyntaxError`만 해결하고, outer `try...catch`에서 다른 에러들을 처리함
+
+### try...catch...finally
+`try...catch` 뒤에 `finally`도 붙일 수 있음  
+`finally`는 아래와 같이 동작함:
+- 에러가 발생하지 않으면 `try` 다음 실행됨
+- 에러가 발생하면 `catch` 다음 실행됨
+
+#### Example
+```javascript
+try {
+  alert( 'try' );
+  if (confirm('Make an error?')) BAD_CODE();
+} catch (err) {
+  alert( 'catch' );
+} finally {
+  alert( 'finally' );
+}
+```
+
+`finally` 절은 에러의 발생 유무에 상관없이 실행될 내용이 있을 때 자주 사용됨

@@ -29,12 +29,15 @@ CSS layout : 2911 - 5579
 4969-6709	advanced working with functions
 6712-7049	object properties configuration
 7052-7682	prototypes, inheritance
-7685-
+7685-9233	classes
+9236-
 
 ※ tags에는 md 적용안됨!!
 
 Part > topic(#) > article(##)
 주석 안과 example의 헤더는 ####로 고정
+
+오타가 잦은 단어 : proeprty, ture, 
 
 ## tasks
 array-methods 한글 번역본  
@@ -43,15 +46,7 @@ summary 위에 thisArg 마지막 문단 후자가 더 많이 쓰이는데 오역
 call-apply-decorators 한글 번역본
 메서드 빌리기 바로 위 문장 오역(구분할 수 없음)
 
-806 ture
-1049 ture
-2889 ture
-3326 ture
-3712 ture
-4098 ture
-
 ## 블로그 업로드하고 체크
-8126 주석안에 list 인덴팅
 
 // #### Ex	=> ?? Ex
 // ####		=> ##?
@@ -60,8 +55,7 @@ call-apply-decorators 한글 번역본
 // ?? Ex	=> #### Ex
 // > ###	=> > ####
 
-Classes
-3
+Error handling
 2
 8
 2
@@ -83,6 +77,6 @@ Classes
 7
 17
 
-25(+32+49)
-18
-1.4(+3.1)개씩
+20(+32+49)
+6
+3.3개씩
