@@ -30,7 +30,7 @@ CSS layout : 2911 - 5579
 6712-7049	object properties configuration
 7052-7682	prototypes, inheritance
 7685-9233	classes
-9236-
+9236-9929	Error handling
 
 ※ tags에는 md 적용안됨!!
 
@@ -55,8 +55,7 @@ call-apply-decorators 한글 번역본
 // ?? Ex	=> #### Ex
 // > ###	=> > ####
 
-Error handling
-2
+Promises, async/await
 8
 2
 3
@@ -77,6 +76,6 @@ Error handling
 7
 17
 
-20(+32+49)
-6
-3.3개씩
+18(+32+49)
+5
+3.6개씩
