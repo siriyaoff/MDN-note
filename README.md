@@ -31,7 +31,9 @@ CSS layout : 2911 - 5579
 7052-7682	prototypes, inheritance  
 7685-9233	classes  
 9236-9929	Error handling  
-9932-		Promises, async/await  
+9932-11517	Promises, async/await  
+11520-		Generators, advanced iteration  
+
 
 ※ tags에는 md 적용안됨!!
 
@@ -57,8 +59,7 @@ call-apply-decorators 한글 번역본
 // > ###	=> > ####  
 
 ```
-Promises, async/await
-4
+Generators, advanced iteration
 2
 3
 5
@@ -78,7 +79,7 @@ Promises, async/await
 7
 17
 
-14(+32+49)
-4
-3.5개씩
+10(+32+49)
+3
+3.3개씩
 ```
