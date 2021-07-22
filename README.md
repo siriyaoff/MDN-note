@@ -60,7 +60,7 @@ call-apply-decorators 한글 번역본
 
 ```
 Generators, advanced iteration
-2
+1
 3
 5
 ---Browser: Document, Events, Interfaces---
@@ -79,7 +79,7 @@ Generators, advanced iteration
 7
 17
 
-10(+32+49)
-3
-3.3개씩
+9(+32+49)
+2
+4.5개씩
 ```
