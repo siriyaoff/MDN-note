@@ -32,7 +32,10 @@ CSS layout : 2911 - 5579
 7685-9233	classes  
 9236-9929	Error handling  
 9932-11517	Promises, async/await  
-11520-		Generators, advanced iteration  
+11520-12133	Generators, advanced iteration  
+12136-12742	Modules  
+12745-		Miscellaneous  
+
 
 
 ※ tags에는 md 적용안됨!!
@@ -49,6 +52,8 @@ summary 위에 thisArg 마지막 문단 후자가 더 많이 쓰이는데 오역
 call-apply-decorators 한글 번역본  
 메서드 빌리기 바로 위 문장 오역(구분할 수 없음)
 
+Modules/Modules, introduction에 browser-specific features 공부한 다음 채우기
+
 ## 블로그 업로드하고 체크
 
 // #### Ex	=> ?? Ex  
@@ -59,9 +64,7 @@ call-apply-decorators 한글 번역본
 // > ###	=> > ####  
 
 ```
-Generators, advanced iteration
-1
-3
+Miscellaneous
 5
 ---Browser: Document, Events, Interfaces---
 11
@@ -79,7 +82,7 @@ Generators, advanced iteration
 7
 17
 
-9(+32+49)
-2
-4.5개씩
+5(+32+49)
+1
+5개씩
 ```
